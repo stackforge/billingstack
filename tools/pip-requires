@@ -3,5 +3,5 @@ eventlet
 pecan
 stevedore
 argparse
-wsmw>=0.5b1
+wsme>=0.5b1
 anyjson>=0.2.4
