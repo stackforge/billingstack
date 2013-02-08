@@ -1,2 +1,3 @@
 # Optional Stuff that is used by default
+alembic
 SQLAlchemy>=0.7.8,<=0.7.9
