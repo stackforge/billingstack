@@ -27,5 +27,14 @@ from sqlalchemy.ext.declarative import declarative_base
 LOG = logging.getLogger(__name__)
 
 
+class ModelBase(ModelBase):
+    id = Column(UUID, default=generate_uuid, primary_key=True)
+    created_at = Column(DateTime, default=timeutils.utcnow)
+    updated_at = Column(DateTime, onupdate=timeutils.utcnow)
+
+
+ModelBase = declarative_base(cls=ModelBase)
+
+
 class Test(ModelBase):
     __tablename__ = 'test'
