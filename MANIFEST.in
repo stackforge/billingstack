@@ -1,0 +1,11 @@
+include AUTHORS
+include ChangeLog
+include billingstack/versioninfo
+include *.txt *.ini *.cfg *.rst *.md
+include etc/billingstack/*.sample
+include etc/billingstack/policy.json
+
+exclude .gitignore
+exclude .gitreview
+exclude *.sublime-project
+global-exclude *.pyc
