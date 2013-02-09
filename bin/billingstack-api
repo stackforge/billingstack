@@ -22,10 +22,10 @@ import os
 import sys
 from wsgiref import simple_server
 
-from ceilometer.api import app
-from ceilometer import service
-from ceilometer.openstack.common import cfg
-from ceilometer.openstack.common import log as logging
+from billingstack.api import app
+from billingstack import service
+from billingstack.openstack.common import cfg
+from billingstack.openstack.common import log as logging
 
 
 if __name__ == '__main__':
@@ -37,16 +37,12 @@ if __name__ == '__main__':
     root = app.setup_app()
 
     # Create the WSGI server and start it
-    host, port = '0.0.0.0', int(cfg.CONF.metering_api_port)
+    host, port = cfg.CONF['service:api'].api_listen, int(cfg.CONF['service:api'].api_port)
     srv = simple_server.make_server(host, port, root)
 
     print 'Starting server in PID %s' % os.getpid()
 
-    if host == '0.0.0.0':
-        print 'serving on 0.0.0.0:%s, view at http://127.0.0.1:%s' % \
-            (port, port)
-    else:
-        print "serving on http://%s:%s" % (host, port)
+    print "serving on http://%s:%s" % (host, port)
 
     try:
         srv.serve_forever()

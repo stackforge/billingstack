@@ -16,13 +16,33 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from pecan import configuration
 from pecan import make_app
 
 from billingstack.api import config as api_config
+from billingstack.api import hooks
 
-def setup_app(pecan_config=None):
 
-    return make_app(
+def get_pecan_config():
+    # Set up the pecan configuration
+    filename = api_config.__file__.replace('.pyc', '.py')
+    return configuration.conf_from_file(filename)
+
+
+def setup_app(pecan_config=None, extra_hooks=None):
+
+    app_hooks = [hooks.ConfigHook(),
+                 hooks.DBHook()]
+
+    if extra_hooks:
+        app_hooks.extend(extra_hooks)
+
+    if not pecan_config:
+        pecan_config = get_pecan_config()
+
+    configuration.set_config(dict(pecan_config), overwrite=True)
+
+    app = make_app(
         pecan_config.app.root,
         static_root=pecan_config.app.static_root,
         template_path=pecan_config.app.template_path,
@@ -34,3 +54,5 @@ def setup_app(pecan_config=None):
             'guess_content_type_from_ext',
             True),
     )
+
+    return app
