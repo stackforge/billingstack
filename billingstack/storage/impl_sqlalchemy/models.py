@@ -67,14 +67,20 @@ class ContactInfo(ModelBase):
     user_id = Column(UUID, ForeignKey('user.id'), nullable=False)
 
 
-user_customer_table = Table('user_customer', ModelBase.metadata,
+user_customer = Table('user_customer', ModelBase.metadata,
     Column('user_id', UUID, ForeignKey('user.id')),
     Column('customer_id', UUID, ForeignKey('customer.id')))
 
 
-user_customer_roles = Table('user_customer_roles', ModelBase.metadata,
+user_customer_role = Table('user_customer_roles', ModelBase.metadata,
     Column('user_id', UUID, ForeignKey('user.id', ondelete='CASCADE')),
     Column('customer_id', UUID, ForeignKey('customer.id', ondelete='CASCADE')),
+    Column('role', Unicode(40)))
+
+
+user_merchant_role = Table('user_merchant_roles', ModelBase.metadata,
+    Column('user_id', UUID, ForeignKey('user.id', ondelete='CASCADE')),
+    Column('merchant_id', UUID, ForeignKey('merchant.id', ondelete='CASCADE')),
     Column('role', Unicode(40)))
 
 
@@ -85,7 +91,7 @@ class User(ModelBase):
     api_key = Column(Unicode(255))
     api_secret = Column(Unicode(255))
 
-    customers = relationship('Customer', backref='users', secondary=user_customer_table)
+    customers = relationship('Customer', backref='users', secondary=user_customer)
 
     merchant = relationship('Merchant', backref='users')
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'))
