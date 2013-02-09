@@ -197,7 +197,7 @@ class InvoiceLine(ModelBase):
     quantity = Column(Float)
     sub_total = Column(Float)
 
-    invoice_id = Column(UUID, ForeignKey('currency.id', ondelete='CASCADE'))
+    invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE'))
 
 
 class Plan(ModelBase):
