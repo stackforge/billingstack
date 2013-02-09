@@ -19,9 +19,9 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common import timeutils
-from billingstack.openstack.common.db.sqlalchemy.models import ModelBase
 from billingstack.openstack.common.uuidutils import generate_uuid
 from billingstack.storage.impl_sqlalchemy.types import UUID
+from billingstack.storage.impl_sqlalchemy.model_base import ModelBase
 from sqlalchemy.ext.declarative import declarative_base
 
 LOG = logging.getLogger(__name__)
