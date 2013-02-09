@@ -74,6 +74,8 @@ def run_migrations_online():
         target_metadata=target_metadata
     )
 
+    print target_metadata
+
     try:
         with context.begin_transaction():
             context.run_migrations(options=build_options())
