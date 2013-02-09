@@ -13,8 +13,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from sqlalchemy import (Column, DateTime, String, Text, Integer, ForeignKey,
-                        Enum, Boolean, Unicode)
+import re
+
+from sqlalchemy import Column, Table, ForeignKey
+from sqlalchemy import Integer, Float, Enum, Boolean
+from sqlalchemy import DateTime, Unicode, UnicodeText
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from billingstack.openstack.common import log as logging
@@ -22,12 +25,19 @@ from billingstack.openstack.common import timeutils
 from billingstack.openstack.common.uuidutils import generate_uuid
 from billingstack.storage.impl_sqlalchemy.types import UUID
 from billingstack.storage.impl_sqlalchemy.model_base import ModelBase
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 LOG = logging.getLogger(__name__)
 
 
 class ModelBase(ModelBase):
+    @declared_attr
+    def __tablename__(cls):
+        table_name = "_".join(l.lower() for l in re.findall('[A-Z][^A-Z]*',
+                                                            cls.__name__))
+        print "TABLENAME", table_name
+        return table_name
+
     id = Column(UUID, default=generate_uuid, primary_key=True)
     created_at = Column(DateTime, default=timeutils.utcnow)
     updated_at = Column(DateTime, onupdate=timeutils.utcnow)
@@ -47,8 +57,6 @@ class Language(ModelBase):
 
 
 class ContactInfo(ModelBase):
-    __tablename__ = 'contact_info'
-
     address1 = Column(Unicode(60))
     address2 = Column(Unicode(60))
     city = Column(Unicode(60))
@@ -58,12 +66,21 @@ class ContactInfo(ModelBase):
     zip = Column(Unicode(20))
 
     user = relationship('User', backref='contact_info', uselist=False)
-    user_id = Column(UUID, nullable=False, ForeignKey('user.id'))
+    user_id = Column(UUID, ForeignKey('user.id'), nullable=False)
+
+
+user_customer_table = Table('user_customer', ModelBase.metadata,
+    Column('user_id', UUID, ForeignKey('user.id')),
+    Column('customer_id', UUID, ForeignKey('customer.id')))
+
+
+user_customer_roles = Table('user_customer_roles', ModelBase.metadata,
+    Column('user_id', UUID, ForeignKey('user.id', ondelete='CASCADE')),
+    Column('customer_id', UUID, ForeignKey('customer.id', ondelete='CASCADE')),
+    Column('role', Unicode(40)))
 
 
 class User(ModelBase):
-    __tablename__ = 'user'
-
     username = Column(Unicode(20), nullable=False)
     password = Column(Unicode(255), nullable=False)
     # NOTE: Should be uuid?
@@ -73,22 +90,15 @@ class User(ModelBase):
     customers = relationship('Customer', backref='users', secondary=user_customer_table)
 
     merchant = relationship('Merchant', backref='users')
-    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
-
-
-user_customer_table = Table('user_customer', ModelBase.metadata,
-    Column('user_id', UUID, ForeignKey('user.id')),
-    Column('customer_id', UUID, ForeignKey('account.id')))
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'))
 
 
 class Account(ModelBase):
     """
     An Account is kind of like a Group, it holds the base info for all accounts
     """
-    __tablename__ = "account"
-
     _account_type = Column("account_type", Unicode(20), nullable=False)
-    name = Column(Unicode(60, nullable=False))
+    name = Column(Unicode(60), nullable=False)
 
     currency = relationship('Currency', uselist=False, backref='accounts')
     currency_id = Column(UUID, ForeignKey('currency.id'))
@@ -103,17 +113,15 @@ class Account(ModelBase):
         return {"polymorphic_on": "_account_type", "polymorphic_identity": name}
 
     @hybrid_property
-     def account_type(self):
-         return self._account_type
+    def account_type(self):
+        return self._account_type
 
 
 class Merchant(Account):
     """
     A Merchant is like a Account in Recurly
     """
-    __tablename__ = 'account_merchant'
-
-    id = Column(Integer, ForeignKey("groups.id",
+    id = Column(UUID, ForeignKey("account.id",
                 onupdate='CASCADE', ondelete='CASCADE'),
                 primary_key=True)
 
@@ -127,42 +135,35 @@ class Customer(Account):
     """
     A Customer is linked to a Merchant and can have Users related to it
     """
-    __tablename__ = 'account_customer'
-
-    id = Column(Integer, ForeignKey("groups.id",
+    id = Column(UUID, ForeignKey("account.id",
                 onupdate='CASCADE', ondelete='CASCADE'),
                 primary_key=True)
 
-    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id',
+                         ondelete='CASCADE'))
 
     invoices = relationship('Invoice', backref='customer')
-
 
 
 class PaymentGateway(ModelBase):
     """
     A Payment Gateway
     """
-    __tablename__ = 'payment_gateway'
-
     name = Column(Unicode(60))
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
     is_default = Column(Boolean)
 
-    merchant_id = Column(UUID, ForeignKey('account.id'), ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id',
+                         ondelete='CASCADE'))
 
 
 class InvoiceState(ModelBase):
-    __tablename__ = 'invoice_state'
-
     name = Column(Unicode(40))
 
 
 class Invoice(ModelBase):
-    __tablename__ = 'invoice'
-
     identifier = Column(Unicode(255), nullable=False)
     due = Column(DateTime)
 
@@ -171,7 +172,7 @@ class Invoice(ModelBase):
     tax_total = Column(Float)
     total = Column(Float)
 
-    customer_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'))
 
     line_items = relationship('Invoice', backref='invoice_lines')
 
@@ -182,13 +183,11 @@ class Invoice(ModelBase):
     currency_id = Column(UUID, ForeignKey('currency.id'))
 
     merchant = relationship('Merchant', backref='invoices')
-    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
-
+    merchant_id = Column(UUID, ForeignKey('merchant.id',
+                         ondelete='CASCADE'))
 
 
 class InvoiceLine(ModelBase):
-    __tablename__ = 'invoice_line'
-
     description = Column(Unicode(255))
     price = Column(Float)
     quantity = Column(Float)
@@ -198,8 +197,6 @@ class InvoiceLine(ModelBase):
 
 
 class Plan(ModelBase):
-    __tablename__ = 'plan'
-
     name = Column(Unicode(60))
     title = Column(Unicode(100))
     description = Column(Unicode(255))
@@ -207,12 +204,11 @@ class Plan(ModelBase):
 
     plan_items = relationship('PlanItem', backref='plan')
 
-    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id',
+                         ondelete='CASCADE'))
 
 
 class PlanItem(ModelBase):
-    __tablename__ = 'plan_item'
-
     name = Column(Unicode(60))
     title = Column(Unicode(100))
     description = Column(Unicode(255))
@@ -224,15 +220,14 @@ class PlanItem(ModelBase):
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'))
 
     merchant = relationship('Merchant', backref='plan_items')
-    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id',
+                         ondelete='CASCADE'))
 
     product = relationship('Product', backref='plan_items')
     product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'))
 
 
 class Product(ModelBase):
-    __tablename__ = 'product'
-
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
@@ -242,12 +237,11 @@ class Product(ModelBase):
     type = Column(Unicode(255))
     price = Column(Float)
 
-    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id',
+                         ondelete='CASCADE'))
 
 
 class Subscription(ModelBase):
-    __tablename__ = 'subscription'
-
     billing_day = Column(Integer)
     payment_method = Column(Unicode(255))
     resource = Column(Unicode(255))
@@ -258,15 +252,15 @@ class Subscription(ModelBase):
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'))
 
     merchant = relationship('Merchant', backref='subscriptions')
-    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id',
+                         ondelete='CASCADE'))
 
     customer = relationship('Customer', backref='subscriptions')
-    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'))
+    customer_id = Column(UUID, ForeignKey('customer.id',
+                         ondelete='CASCADE'))
 
 
 class Usage(ModelBase):
-    __tablename__ = 'usage'
-
     measure = Column(Unicode(255))
     start_timestamp = Column(DateTime)
     end_timestamp = Column(DateTime)
@@ -278,7 +272,9 @@ class Usage(ModelBase):
     subscription_id = Column(UUID, ForeignKey('subscription.id', ondelete='CASCADE'))
 
     merchant = relationship('Merchant', backref='usages')
-    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id',
+                         ondelete='CASCADE'))
 
     customer = relationship('Customer', backref='usages')
-    customer_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    customer_id = Column(UUID, ForeignKey('customer.id',
+                         ondelete='CASCADE'))
