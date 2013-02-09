@@ -36,5 +36,238 @@ class ModelBase(ModelBase):
 ModelBase = declarative_base(cls=ModelBase)
 
 
-class Test(ModelBase):
-    __tablename__ = 'test'
+class Currency(ModelBase):
+    code = Column(Unicode(10))
+    name = Column(Unicode(100))
+
+
+class Language(ModelBase):
+    code = Column(Unicode(10))
+    name = Column(Unicode(100))
+
+
+class ContactInfo(ModelBase):
+    __tablename__ = 'contact_info'
+
+    address1 = Column(Unicode(60))
+    address2 = Column(Unicode(60))
+    city = Column(Unicode(60))
+    company = Column(Unicode(60))
+    country = Column(Unicode(40))
+    state = Column(Unicode(40))
+    zip = Column(Unicode(20))
+
+    user = relationship('User', backref='contact_info', uselist=False)
+    user_id = Column(UUID, nullable=False, ForeignKey('user.id'))
+
+
+class User(ModelBase):
+    __tablename__ = 'user'
+
+    username = Column(Unicode(20), nullable=False)
+    password = Column(Unicode(255), nullable=False)
+    # NOTE: Should be uuid?
+    api_key = Column(Unicode(255))
+    api_secret = Column(Unicode(255))
+
+    customer = relationship('Customer', backref='users')
+    customer_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+    merchant = relationship('Merchant', backref='users')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+
+class Account(ModelBase):
+    """
+    An Account is kind of like a Group, it holds the base info for all accounts
+    """
+    __tablename__ = "account"
+
+    _account_type = Column("account_type", Unicode(20), nullable=False)
+    name = Column(Unicode(60, nullable=False))
+
+    currency = relationship('Currency', uselist=False, backref='accounts')
+    currency_id = Column(UUID, ForeignKey('currency.id'))
+
+    language = relationship('Language', uselist=False, backref='accounts')
+    language_id = Column(UUID, ForeignKey('language.id'))
+
+    @declared_attr
+    def __mapper_args__(cls):
+        # FIXME: Make this return TestAccount > test_account based on cls name
+        name = unicode(cls.__name__)
+        return {"polymorphic_on": "_account_type", "polymorphic_identity": name}
+
+    @hybrid_property
+     def account_type(self):
+         return self._account_type
+
+
+class Merchant(Account):
+    """
+    A Merchant is like a Account in Recurly
+    """
+    __tablename__ = 'account_merchant'
+
+    id = Column(Integer, ForeignKey("groups.id",
+                onupdate='CASCADE', ondelete='CASCADE'),
+                primary_key=True)
+
+
+class Customer(Account):
+    """
+    A Customer is linked to a Merchant and can have Users related to it
+    """
+    __tablename__ = 'account_customer'
+
+    id = Column(Integer, ForeignKey("groups.id",
+                onupdate='CASCADE', ondelete='CASCADE'),
+                primary_key=True)
+
+    merchant = relationship('Merchant', backref='customers')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+
+class PaymentGateway(ModelBase):
+    """
+    A Payment Gateway
+    """
+    __tablename__ = 'payment_gateway'
+
+    name = Column(Unicode(60))
+    title = Column(Unicode(100))
+    description = Column(Unicode(255))
+
+    is_default = Column(Boolean)
+
+    merchant = relationship('Merchant', backref='payment_gateways')
+    merchant_id = Column(UUID, ForeignKey('account.id'), ondelete='CASCADE'))
+
+
+class InvoiceState(ModelBase):
+    __tablename__ = 'invoice_state'
+
+    name = Column(Unicode(40))
+
+
+class Invoice(ModelBase):
+    __tablename__ = 'invoice'
+
+    identifier = Column(Unicode(255), nullable=False)
+    due = Column(DateTime)
+
+    sub_total = Column(Float)
+    tax_percentage = Column(Float)
+    tax_total = Column(Float)
+    total = Column(Float)
+
+    state = relationship('InvoiceStates', backref='invoices')
+    state_id = Column(UUID, ForeignKey('invoice_state.id', ondelete='CASCADE'))
+
+    merchant = relationship('Merchant', backref='invoices')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+    customer = relationship('Customer', backref='invoices')
+    customer_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+    currency = relationship('Currency', backref='invoices')
+    currency_id = Column(UUID, ForeignKey('currency.id'))
+
+
+class InvoiceLine(ModelBase):
+    __tablename__ = 'invoice_line'
+
+    description = Column(Unicode(255))
+    price = Column(Float)
+    quantity = Column(Float)
+    sub_total = Column(Float)
+
+    invoice = relationship('Invoice', backref='invoice_line')
+    invoice_id = Column(UUID, ForeignKey('currency.id', ondelete='CASCADE'))
+
+
+class Plan(ModelBase):
+    __tablename__ = 'plan'
+
+    name = Column(Unicode(60))
+    title = Column(Unicode(100))
+    description = Column(Unicode(255))
+    provider = Column(Unicode(255))
+
+    merchant = relationship('Merchant', backref='plans')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+
+class PlanItem(ModelBase):
+    __tablename__ = 'plan_item'
+
+    name = Column(Unicode(60))
+    title = Column(Unicode(100))
+    description = Column(Unicode(255))
+
+    price = Column(Float)
+    value_from = Column(Float)
+    value_to = Column(Float)
+
+    merchant = relationship('Merchant', backref='plan_items')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+    plan = relationship('Plan', backref='plan_items')
+    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'))
+
+    merchant = relationship('Merchant', backref='plan_items')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+
+class Product(ModelBase):
+    __tablename__ = 'product'
+
+    name = Column(Unicode(60), nullable=False)
+    title = Column(Unicode(100))
+    description = Column(Unicode(255))
+
+    measure = Column(Unicode(255))
+    source = Column(Unicode(255))
+    type = Column(Unicode(255))
+    price = Column(Float)
+
+    merchant = relationship('Merchant', backref='products')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+
+class Subscription(ModelBase):
+    __tablename__ = 'subscription'
+
+    billing_day = Column(Integer)
+    payment_method = Column(Unicode(255))
+    resource = Column(Unicode(255))
+
+    plan = relationship('Plan', backref='subscriptions')
+    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'))
+
+    merchant = relationship('Merchant', backref='subscriptions')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+    customer = relationship('Customer', backref='subscriptions')
+    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'))
+
+
+class Usages(ModelBase):
+    __tablename__ = 'usages'
+
+    measure = Column(Unicode(255))
+    start_timestamp = Column(DateTime)
+    end_timestamp = Column(DateTime)
+
+    price = Column(Float)
+    total = Column(Float)
+    value = Column(Float)
+
+    merchant = relationship('Merchant', backref='usages')
+    merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+    customer = relationship('Customer', backref='usages')
+    customer_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+    subscription = relationship('Subscription', backref='usages')
+    subscription_id = Column(UUID, ForeignKey('subscription.id', ondelete='CASCADE'))
