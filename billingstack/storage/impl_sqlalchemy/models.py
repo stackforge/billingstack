@@ -35,9 +35,6 @@ class ModelBase(ModelBase):
     def __tablename__(cls):
         table_name = "_".join(l.lower() for l in re.findall('[A-Z][^A-Z]*',
                                                             cls.__name__))
-        print "TABLENAME", table_name
-        return table_name
-
     id = Column(UUID, default=generate_uuid, primary_key=True)
     created_at = Column(DateTime, default=timeutils.utcnow)
     updated_at = Column(DateTime, onupdate=timeutils.utcnow)
