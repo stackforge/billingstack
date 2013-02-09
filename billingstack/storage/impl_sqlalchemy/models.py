@@ -70,11 +70,15 @@ class User(ModelBase):
     api_key = Column(Unicode(255))
     api_secret = Column(Unicode(255))
 
-    customer = relationship('Customer', backref='users')
-    customer_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+    customers = relationship('Customer', backref='users', secondary=user_customer_table)
 
     merchant = relationship('Merchant', backref='users')
     merchant_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE'))
+
+
+user_customer_table = Table('user_customer', ModelBase.metadata,
+    Column('user_id', UUID, ForeignKey('user.id')),
+    Column('customer_id', UUID, ForeignKey('account.id')))
 
 
 class Account(ModelBase):
