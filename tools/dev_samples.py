@@ -20,5 +20,11 @@ cfg.CONF.import_opt('database_connection', 'billingstack.storage.impl_sqlalchemy
 if __name__ == '__main__':
     service.prepare_service(sys.argv)
     conn = get_connection()
-    import ipdb
-    ipdb.set_trace()
+
+    conn.currency_add({'letter': 'usd'})
+    conn.currency_add({'letter': 'eur'})
+    conn.currency_add({'letter': 'gbp'})
+    conn.currency_add({'letter': 'nok'})
+
+    conn.language_add({'letter': 'nor'})
+    conn.language_add({'letter': 'eng'})
