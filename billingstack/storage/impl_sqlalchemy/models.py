@@ -15,7 +15,7 @@
 # under the License.
 import re
 
-from sqlalchemy import Column, Table, ForeignKey
+from sqlalchemy import Column, Table, ForeignKey, UniqueConstraint
 from sqlalchemy import Integer, Float, Enum, Boolean
 from sqlalchemy import DateTime, Unicode, UnicodeText
 from sqlalchemy.orm import relationship, backref
@@ -45,11 +45,13 @@ ModelBase = declarative_base(cls=ModelBase)
 
 
 class Currency(ModelBase):
+    __table_args__ = (UniqueConstraint('letter', name='currency'),)
     letter = Column(Unicode(10), nullable=False)
     name = Column(Unicode(100), nullable=False)
 
 
 class Language(ModelBase):
+    __table_args__ = (UniqueConstraint('letter', name='language'),)
     letter = Column(Unicode(10), nullable=False)
     name = Column(Unicode(100), nullable=False)
 
@@ -105,10 +107,10 @@ class Account(ModelBase):
     name = Column(Unicode(60), nullable=False)
 
     currency = relationship('Currency', uselist=False, backref='accounts')
-    currency_id = Column(UUID, ForeignKey('currency.id'))
+    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
 
     language = relationship('Language', uselist=False, backref='accounts')
-    language_id = Column(UUID, ForeignKey('language.id'))
+    language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
 
     @declared_attr
     def __mapper_args__(cls):
@@ -143,8 +145,8 @@ class Customer(Account):
                 onupdate='CASCADE', ondelete='CASCADE'),
                 primary_key=True)
 
-    merchant_id = Column(UUID, ForeignKey('merchant.id',
-                         ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
+                         nullable=False)
 
     invoices = relationship('Invoice', backref='customer')
 
@@ -153,42 +155,43 @@ class PaymentGateway(ModelBase):
     """
     A Payment Gateway
     """
-    name = Column(Unicode(60))
+    name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    is_default = Column(Boolean)
+    is_default = Column(Boolean, nullable=False)
 
-    merchant_id = Column(UUID, ForeignKey('merchant.id',
-                         ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
+                         nullable=False)
 
 
 class InvoiceState(ModelBase):
-    name = Column(Unicode(40))
+    name = Column(Unicode(40), nullable=False)
 
 
 class Invoice(ModelBase):
     identifier = Column(Unicode(255), nullable=False)
-    due = Column(DateTime)
+    due = Column(DateTime, )
 
     sub_total = Column(Float)
     tax_percentage = Column(Float)
     tax_total = Column(Float)
     total = Column(Float)
 
-    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'))
+    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
+                         nullable=False)
 
     line_items = relationship('InvoiceLine', backref='invoice_lines')
 
     state = relationship('InvoiceState', backref='invoices')
-    state_id = Column(UUID, ForeignKey('invoice_state.id', ondelete='CASCADE'))
+    state_id = Column(UUID, ForeignKey('invoice_state.id'), nullable=False)
 
     currency = relationship('Currency', backref='invoices')
-    currency_id = Column(UUID, ForeignKey('currency.id'))
+    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
 
     merchant = relationship('Merchant', backref='invoices')
-    merchant_id = Column(UUID, ForeignKey('merchant.id',
-                         ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
+                         nullable=False)
 
 
 class InvoiceLine(ModelBase):
@@ -197,38 +200,40 @@ class InvoiceLine(ModelBase):
     quantity = Column(Float)
     sub_total = Column(Float)
 
-    invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE'))
+    invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE'), nullable=False)
 
 
 class Plan(ModelBase):
-    name = Column(Unicode(60))
+    name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
-    provider = Column(Unicode(255))
+    provider = Column(Unicode(255), nullable=False)
 
     plan_items = relationship('PlanItem', backref='plan')
 
     merchant_id = Column(UUID, ForeignKey('merchant.id',
-                         ondelete='CASCADE'))
+                         ondelete='CASCADE'), nullable=False)
 
 
 class PlanItem(ModelBase):
-    name = Column(Unicode(60))
+    name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    price = Column(Float)
+    price = Column(Float, nullable=False)
     value_from = Column(Float)
     value_to = Column(Float)
 
-    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'))
+    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
+                     nullable=False)
 
     merchant = relationship('Merchant', backref='plan_items')
-    merchant_id = Column(UUID, ForeignKey('merchant.id',
-                         ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
+                         nullable=False)
 
     product = relationship('Product', backref='plan_items')
-    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'))
+    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'),
+                        nullable=False)
 
 
 class Product(ModelBase):
@@ -241,8 +246,8 @@ class Product(ModelBase):
     type = Column(Unicode(255))
     price = Column(Float)
 
-    merchant_id = Column(UUID, ForeignKey('merchant.id',
-                         ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
+                         nullable=False)
 
 
 class Subscription(ModelBase):
@@ -253,15 +258,16 @@ class Subscription(ModelBase):
     usages = relationship('Usage', backref='subscription')
 
     plan = relationship('Plan', backref='subscriptions')
-    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'))
+    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
+                     nullable=False)
 
     merchant = relationship('Merchant', backref='subscriptions')
-    merchant_id = Column(UUID, ForeignKey('merchant.id',
-                         ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
+                         nullable=False)
 
     customer = relationship('Customer', backref='subscriptions')
-    customer_id = Column(UUID, ForeignKey('customer.id',
-                         ondelete='CASCADE'))
+    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
+                         nullable=False)
 
 
 class Usage(ModelBase):
@@ -273,12 +279,13 @@ class Usage(ModelBase):
     total = Column(Float)
     value = Column(Float)
 
-    subscription_id = Column(UUID, ForeignKey('subscription.id', ondelete='CASCADE'))
+    subscription_id = Column(UUID, ForeignKey('subscription.id',
+                             ondelete='CASCADE'), nullable=False)
 
     merchant = relationship('Merchant', backref='usages')
-    merchant_id = Column(UUID, ForeignKey('merchant.id',
-                         ondelete='CASCADE'))
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
+                        nullable=False)
 
     customer = relationship('Customer', backref='usages')
-    customer_id = Column(UUID, ForeignKey('customer.id',
-                         ondelete='CASCADE'))
+    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
+                         nullable=False)
