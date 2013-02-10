@@ -27,20 +27,6 @@ class Base(Base):
     id = text
 
 
-class CurrencyMixin(object):
-    """
-    Mixin for a object that should show currency_id
-    """
-    currency_id = text
-
-
-class LanaguageMixin(object):
-    """
-    Mixin for a object that should show language_id
-    """
-    language_id = text
-
-
 class Currency(Base):
     id = text
     letter = text
@@ -57,8 +43,19 @@ class User(Base):
     pass
 
 
-class Merchant(Base, LanaguageMixin):
+class Account(Base):
+    currency_id = text
+    language_id = text
+
     name = text
+
+
+class Merchant(Account):
+    pass
+
+
+class Customer(Account):
+    merchant_id = text
 
 
 class CurrenciesController(RestController):
@@ -103,9 +100,29 @@ class MerchantsController(RestController):
         return Merchant(**dict(m))
 
 
+class CustomersController(RestController):
+    """Merchants controller"""
+
+    @wsme_pecan.wsexpose([Customer], unicode)
+    def get_all(self):
+        return [Customer(**o) for o in request.storage_conn.customer_list()]
+
+    @wsme_pecan.wsexpose(Customer, unicode)
+    def get_one(self, merchant_id):
+        """Get customer details
+
+        :param customer_id: The UUID of the customer
+        """
+        m = request.storage_conn.merchant_get(customer_id)
+        return Customer(**dict(m))
+
+
 class V1Controller(object):
     """Version 1 API controller."""
 
     currencies = CurrenciesController()
     languages = LanguagesController()
+
+    users = UsersController()
     merchants = MerchantsController()
+    customers = CustomersController()
