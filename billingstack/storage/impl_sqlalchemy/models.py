@@ -20,6 +20,7 @@ from sqlalchemy import Integer, Float, Enum, Boolean
 from sqlalchemy import DateTime, Unicode, UnicodeText
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
+from billingstack import utils
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common import timeutils
 from billingstack.openstack.common.uuidutils import generate_uuid
@@ -33,9 +34,8 @@ LOG = logging.getLogger(__name__)
 class ModelBase(ModelBase):
     @declared_attr
     def __tablename__(cls):
-        table_name = "_".join(l.lower() for l in re.findall('[A-Z][^A-Z]*',
-                                                            cls.__name__))
-        return table_name
+        return utils.capital_to_underscore(cls.__name__)
+
     id = Column(UUID, default=generate_uuid, primary_key=True)
     created_at = Column(DateTime, default=timeutils.utcnow)
     updated_at = Column(DateTime, onupdate=timeutils.utcnow)
