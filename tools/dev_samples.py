@@ -24,7 +24,18 @@ if __name__ == '__main__':
     conn.currency_add({'letter': 'usd'})
     conn.currency_add({'letter': 'eur'})
     conn.currency_add({'letter': 'gbp'})
-    conn.currency_add({'letter': 'nok'})
+    currency = conn.currency_add({'letter': 'nok'})
 
-    conn.language_add({'letter': 'nor'})
+    lang = conn.language_add({'letter': 'nor'})
     conn.language_add({'letter': 'eng'})
+
+    merchant = conn.merchant_add({
+        'name': 'Merchant X',
+        'currency_id': currency['id'],
+        'language_id': lang['id']})
+
+    customer = conn.customer_add(
+        merchant['id'],
+        {'name': 'Customer X',
+        'currency_id': currency['id'],
+        'language_id': lang['id']})
