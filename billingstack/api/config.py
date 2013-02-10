@@ -9,7 +9,7 @@ app = {
     'root': 'billingstack.api.controllers.root.RootController',
     'modules': ['billingstack.api'],
     'static_root': '%(confdir)s/public',
-    'template_path': '%(confdir)s/billingstack/api/templates',
+    'template_path': '%(confdir)s/templates',
     'debug': False,
     'enable_acl': True,
 }
