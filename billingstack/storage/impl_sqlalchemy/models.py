@@ -130,7 +130,7 @@ class Merchant(Account):
                 primary_key=True)
 
     payment_gateway = relationship('PaymentGateway', backref='merchant', uselist=False)
-    customers = relationship('Customer', backref='merchant')
+    customers = relationship('Customer', backref='merchant', foreign_keys="Customer.id")
     plans = relationship('Plan', backref='merchant')
     products = relationship('Product', backref='merchant')
 
@@ -178,9 +178,9 @@ class Invoice(ModelBase):
 
     customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'))
 
-    line_items = relationship('Invoice', backref='invoice_lines')
+    line_items = relationship('InvoiceLine', backref='invoice_lines')
 
-    state = relationship('InvoiceStates', backref='invoices')
+    state = relationship('InvoiceState', backref='invoices')
     state_id = Column(UUID, ForeignKey('invoice_state.id', ondelete='CASCADE'))
 
     currency = relationship('Currency', backref='invoices')
