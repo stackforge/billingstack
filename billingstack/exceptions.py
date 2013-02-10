@@ -25,3 +25,30 @@ class NotImplemented(Base, NotImplementedError):
 
 class ConfigurationError(Base):
     pass
+
+
+class InvalidObject(Base):
+    def __init__(self, *args, **kwargs):
+        self.errors = kwargs.pop('errors', None)
+        super(InvalidObject, self).__init__(*args, **kwargs)
+
+
+class BadRequest(Base):
+    pass
+
+
+class Forbidden(Base):
+    pass
+
+
+class InvalidSortKey(Base):
+    pass
+
+
+class Duplicate(Base):
+    pass
+
+
+class NotFound(Base):
+    pass
+
