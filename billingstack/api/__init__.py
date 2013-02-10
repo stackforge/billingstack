@@ -21,7 +21,8 @@ from billingstack.openstack.common import cfg
 API_SERVICE_OPTS = [
     cfg.IntOpt('api_port', default=9091,
                help='The port for the billing API server'),
-    cfg.IntOpt('api_listen', default='0.0.0.0', help='Bind to address')
+    cfg.IntOpt('api_listen', default='0.0.0.0', help='Bind to address'),
+    cfg.StrOpt('storage_driver', default='sqlalchemy', help='Storage driver to use'),
 ]
 
 cfg.CONF.register_opts(API_SERVICE_OPTS, 'service:api')
