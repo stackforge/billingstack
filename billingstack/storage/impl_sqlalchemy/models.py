@@ -45,13 +45,13 @@ ModelBase = declarative_base(cls=ModelBase)
 
 
 class Currency(ModelBase):
-    code = Column(Unicode(10))
-    name = Column(Unicode(100))
+    code = Column(Unicode(10), nullable=False)
+    name = Column(Unicode(100), nullable=False)
 
 
 class Language(ModelBase):
-    code = Column(Unicode(10))
-    name = Column(Unicode(100))
+    code = Column(Unicode(10), nullable=False)
+    name = Column(Unicode(100), nullable=False)
 
 
 class ContactInfo(ModelBase):
