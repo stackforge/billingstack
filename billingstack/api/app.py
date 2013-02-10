@@ -49,6 +49,7 @@ def setup_app(pecan_config=None, extra_hooks=None):
         logging=getattr(pecan_config, 'logging', {}),
         debug=getattr(pecan_config.app, 'debug', False),
         force_canonical=getattr(pecan_config.app, 'force_canonical', True),
+        hooks=app_hooks,
         guess_content_type_from_ext=getattr(
             pecan_config.app,
             'guess_content_type_from_ext',
