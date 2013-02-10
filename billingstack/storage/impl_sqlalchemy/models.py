@@ -100,51 +100,35 @@ class User(ModelBase):
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'))
 
 
-class Account(ModelBase):
-    """
-    An Account is kind of like a Group, it holds the base info for all accounts
-    """
-    _account_type = Column("account_type", Unicode(20), nullable=False)
-    name = Column(Unicode(60), nullable=False)
-
-    currency = relationship('Currency', uselist=False, backref='accounts')
-    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
-
-    language = relationship('Language', uselist=False, backref='accounts')
-    language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
-
-    @declared_attr
-    def __mapper_args__(cls):
-        # FIXME: Make this return TestAccount > test_account based on cls name
-        name = unicode(cls.__name__)
-        return {"polymorphic_on": "_account_type", "polymorphic_identity": name}
-
-    @hybrid_property
-    def account_type(self):
-        return self._account_type
-
-
-class Merchant(Account):
+class Merchant(ModelBase):
     """
     A Merchant is like a Account in Recurly
     """
-    id = Column(UUID, ForeignKey("account.id",
-                onupdate='CASCADE', ondelete='CASCADE'),
-                primary_key=True)
+    name = Column(Unicode(60), nullable=False)
+
+    currency = relationship('Currency', uselist=False, backref='merchants')
+    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
+
+    language = relationship('Language', uselist=False, backref='merchants')
+    language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
 
     payment_gateway = relationship('PaymentGateway', backref='merchant', uselist=False)
-    customers = relationship('Customer', backref='merchant', foreign_keys="Customer.id")
+    customers = relationship('Customer', backref='merchant')
     plans = relationship('Plan', backref='merchant')
     products = relationship('Product', backref='merchant')
 
 
-class Customer(Account):
+class Customer(ModelBase):
     """
     A Customer is linked to a Merchant and can have Users related to it
     """
-    id = Column(UUID, ForeignKey("account.id",
-                onupdate='CASCADE', ondelete='CASCADE'),
-                primary_key=True)
+    name = Column(Unicode(60), nullable=False)
+
+    currency = relationship('Currency', uselist=False, backref='customers')
+    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
+
+    language = relationship('Language', uselist=False, backref='customers')
+    language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
