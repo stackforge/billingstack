@@ -65,8 +65,6 @@ class ContactInfo(ModelBase):
     state = Column(Unicode(40))
     zip = Column(Unicode(20))
 
-    user = relationship('User', backref='contact_info', uselist=False)
-    user_id = Column(UUID, ForeignKey('user.id'), nullable=False)
 
 
 user_customer = Table('user_customer', ModelBase.metadata,
@@ -94,6 +92,9 @@ class User(ModelBase):
     api_secret = Column(Unicode(255))
 
     customers = relationship('Customer', backref='users', secondary=user_customer)
+
+    contact_info = relationship('ContactInfo', backref='user', uselist=False)
+    contact_info_id = Column(UUID, ForeignKey('contact_info.id'), nullable=False)
 
     merchant = relationship('Merchant', backref='users')
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'))
