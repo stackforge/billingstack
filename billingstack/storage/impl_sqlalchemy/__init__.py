@@ -61,14 +61,17 @@ class Connection(base.Connection):
             raise
         return obj
 
-    def _list(self, cls, criterion=None):
+    def _list(self, cls=None, query=None, criterion=None):
         """
         A generic list method
 
         :param cls: The model to try to delete
         :param criterion: Criterion to match objects with
         """
-        query = self.session.query(cls)
+        if not cls and not query:
+            raise ValueError("Need either cls or query")
+
+        query = query or self.session.query(cls)
 
         if criterion:
             query = query.filter_by(**criterion)
@@ -117,6 +120,7 @@ class Connection(base.Connection):
         Delete an instance of a Model matching an ID
 
         :param cls: The model to try to delete
+
         :param id_: The ID to delete
         """
         obj = self._get(cls, id_)
@@ -133,25 +137,25 @@ class Connection(base.Connection):
         """
         Add a supported currency to the database
         """
-        currency = utils.get_currency(values['letter'])
-        obj = self._save(models.Currency(**currency))
-        return self._serialize(obj)
+        data = utils.get_currency(values['letter'])
+        currency = models.Currency(**data)
+        self._save(currency)
+        return self._serialize(currency)
 
     def currency_list(self):
         rows = self._list(models.Currency)
         return self._serialize(rows)
 
     def currency_get(self, currency_id):
-        obj = self._get(models.Currency, currency_id)
-        return self._serialize(obj)
+        currency = self._get(models.Currency, currency_id)
+        return self._serialize(currency)
 
     def currency_update(self, currency_id, values):
-        obj = self._update(models.Currency, currency_id, values)
-        return self._serialize(obj)
+        currency = self._update(models.Currency, currency_id, values)
+        return self._serialize(currency)
 
     def currency_delete(self, currency_id):
-        obj = self._get(models.Currency)
-        obj.delete()
+        self._delete(models.Currency, currency_id)
 
     # Language
     def language_add(self, values):
@@ -159,40 +163,74 @@ class Connection(base.Connection):
         Add a supported language to the database
         """
         data = utils.get_language(values['letter'])
-        obj = self._save(models.Language(**data))
-        return self._serialize(obj)
+        language = models.Language(**data)
+        self._save(language)
+        return self._serialize(language)
 
     def language_list(self):
         rows = self._list(models.Language)
         return self._serialize(rows)
 
     def language_get(self, id_):
-        obj = self._get(models.Currency, id_)
-        return self._serialize(obj)
+        languages = self._get(models.Currency, id_)
+        return self._serialize(languages)
 
     def language_update(self, id_, values):
-        obj = self._update(models.Language, id_, values)
-        return self._serialize(obj)
+        language = self._update(models.Language, id_, values)
+        return self._serialize(language)
 
     def language_delete(self, id_):
-        obj = self._get(models.Language)
-        obj.delete()
+        self._delete(models.Language, id_)
 
     # Merchant
     def merchant_add(self, values):
+        merchant = models.Merchant(**values)
+        self._save(merchant)
         return dict(self._save(models.Merchant(**values)))
 
     def merchant_list(self, **kw):
-        return [dict(o) for o in self._list(models.Merchant, **kw)]
+        rows = self._list(models.Merchant, **kw)
+        return self._serialize(rows)
 
     def merchant_get(self, merchant_id):
-        return dict(self._get(models.Merchant, merchant_id))
+        merchant = self._get(models.Merchant, merchant_id)
+        return self._serialize(merchant)
 
     def merchant_update(self, merchant_id, values):
-        return dict(self._update(models.Merchant, merchant_id, values))
+        merchant = self._update(models.Merchant, merchant_id, values)
+        return self._serialize(merchant)
 
     def merchant_delete(self, merchant_id):
         self._delete(models.Merchant, merchant_id)
 
-    def user_list(self, **kw):
-        return [dict(o) for o in self._list(models.User, **kw)]
+    # Customer
+    def customer_add(self, merchant_id, values):
+        merchant = self._get(models.Merchant, merchant_id)
+        customer = models.Customer(**values)
+        merchant.customers.append(customer)
+        self._save(merchant)
+        return self._serialize(customer)
+
+    def customer_list(self, merchant_id, **kw):
+        q = self.session.query(models.Customer)
+        q = q.filter_by(merchant_id=merchant_id)
+        rows = self._list(query=q, **kw)
+        return self._serialize(rows)
+
+    def customer_get(self, customer_id):
+        customer = self._get(models.Customer, customer_id)
+        return self._serialize(customer)
+
+    def customer_update(self, customer_id, values):
+        customer = self._update(models.Customer, customer_id, values)
+        return self._serialize(customer)
+
+    def customer_delete(self, customer_id):
+        return self._delete(models.Customer, customer_id)
+
+    # Users
+    def user_list(self, merchant_id, **kw):
+        q = self.session.query(models.User)
+        q = q.filter_by(merchant_id=merchant_id)
+        rows = self._list(query=q, **kw)
+        return self._serialize(rows)
