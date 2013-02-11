@@ -17,7 +17,7 @@ def get_country(country_obj, **kw):
     try:
         obj = country_obj.get(**kw)
     except KeyError:
-        raise exceptions.InvalidObject(kw)
+        raise exceptions.InvalidObject(errors=kw)
     return dict([(k, v) for k, v in obj.__dict__.items() \
                 if not k.startswith('_')])
 

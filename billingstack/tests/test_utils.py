@@ -19,4 +19,4 @@ class UtilsTests(unittest2.TestCase):
     def test_invalid_raises(self):
         with self.assertRaises(exceptions.InvalidObject) as cm:
             utils.get_language('random')
-        print cm.exception
+            self.assertEqual(cm.exception.errors, {'terminology': 'random'})
