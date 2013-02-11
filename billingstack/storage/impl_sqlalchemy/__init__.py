@@ -229,8 +229,31 @@ class Connection(base.Connection):
         return self._delete(models.Customer, customer_id)
 
     # Users
+    def user_add(self, merchant_id, values, customer_id=None):
+        merchant = self._get(models.Merchant, merchant_id)
+
+        user = models.User(values)
+        user.merchant = merchant
+
+        if customer_id:
+            customer = self._get(models.Customer, customer_id)
+            user.customer = customer
+        self._save(user)
+        return self._serialize(user)
+
     def user_list(self, merchant_id, **kw):
         q = self.session.query(models.User)
         q = q.filter_by(merchant_id=merchant_id)
         rows = self._list(query=q, **kw)
         return self._serialize(rows)
+
+    def user_get(self, user_id):
+        user = self._get(models.User, user_id)
+        return self._serialize(user)
+
+    def user_update(self, user_id, values):
+        user = self._update(models.User, user_id, values)
+        return self._serialize(user)
+
+    def user_delete(self, user_id):
+        self._delete(models.User, user_id)
