@@ -186,7 +186,7 @@ class Connection(base.Connection):
     def merchant_add(self, values):
         merchant = models.Merchant(**values)
         self._save(merchant)
-        return dict(self._save(models.Merchant(**values)))
+        return self._serialize(merchant)
 
     def merchant_list(self, **kw):
         rows = self._list(models.Merchant, **kw)
