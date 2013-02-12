@@ -16,11 +16,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import pecan
 from pecan import request
 from pecan.rest import RestController
 
 import wsmeext.pecan as wsme_pecan
 from wsme.types import Base, text
+
+
+from billingstack.openstack.common import log
+
+
+LOG = log.getLogger(__name__)
 
 
 class Base(Base):
@@ -58,63 +65,102 @@ class Customer(Account):
     merchant_id = text
 
 
-class CurrenciesController(RestController):
-    @wsme_pecan.wsexpose([Currency], unicode)
+class RestBase(RestController):
+    resource = None
+    __id__ = None
+
+    def __init__(self, parent=None, id_=None):
+        self.parent = parent
+        if self.__id__:
+            request.context[self.__id__ + '_id'] = id_
+        self.id_ = id_
+
+    @pecan.expose()
+    def _lookup(self, *url_data):
+        id_ = None
+        if len(url_data) >= 1:
+            id_ = url_data[0]
+        parts = url_data[1:] if len(url_data) > 1 else ()
+        LOG.debug("Lookup: id '%s' parts '%s'", id_, parts)
+
+        values = None, ()
+        if type(self.resource) == dict:
+            cls = self._lookup_resource(id_, parts)
+            values = cls(parent=self, id_=id_), parts
+        elif self.resource and issubclass(self.resource, RestBase):
+            values = self.resource(parent=self, id_=id_), parts
+        LOG.debug("Returning %s", values)
+        return values
+
+    def _lookup_resource(self, key, parts):
+        return self.resource.get(key)
+
+
+class CurrenciesController(RestBase):
+    """Currencies controller"""
+    @wsme_pecan.wsexpose([Currency])
     def get_all(self):
         return [Currency(**o) for o in request.storage_conn.currency_list()]
 
 
-class LanguagesController(RestController):
-    @wsme_pecan.wsexpose([Language], unicode)
+class LanguagesController(RestBase):
+    """Languages controller"""
+    @wsme_pecan.wsexpose([Language])
     def get_all(self):
         return [Language(**o) for o in request.storage_conn.language_list()]
 
 
-class UsersController(RestController):
+class UsersController(RestBase):
+    """Users controller"""
 
     @wsme_pecan.wsexpose([User], unicode)
     def get_all(self):
-        return [User(**o) for o in request.storage_conn.user_list()]
-
-    @wsme_pecan.wsexpose(User, unicode)
-    def get_one(self):
-        return User(*dict(id=1))
+        users = request.storage_conn.user_list(
+            request.context['merchant_id'])
+        return [User(**o) for o in users]
 
 
-class MerchantsController(RestController):
-    """Merchants controller"""
+class CustomerController(RestBase):
+    """Customer controller"""
+    __id__ = 'customer'
 
-    users = UsersController()
-
-    @wsme_pecan.wsexpose([Merchant], unicode)
+    @wsme_pecan.wsexpose(Customer, unicode)
     def get_all(self):
-        return [Merchant(**o) for o in request.storage_conn.merchant_list()]
+        customer = request.storage_conn.customer_get(self.id_)
+        return Customer(**dict(customer))
 
-    @wsme_pecan.wsexpose(Merchant, unicode)
-    def get_one(self, merchant_id):
-        """Get merchant details
 
-        :param merchant_id: The UUID of the merchant
-        """
-        m = request.storage_conn.merchant_get(merchant_id)
+class CustomersController(RestBase):
+    """Customers controller"""
+
+    resource = CustomerController
+
+    @wsme_pecan.wsexpose([Customer])
+    def get_all(self):
+        customers = request.storage_conn.customer_list(self.parent.id_)
+        return [Customer(**o) for o in customers]
+
+
+class MerchantController(RestBase):
+    __id__ = 'merchant'
+    resource = {
+        "customers": CustomersController,
+        "users": UsersController
+    }
+
+    @wsme_pecan.wsexpose(Merchant)
+    def get_all(self):
+        m = request.storage_conn.merchant_get(self.id_)
         return Merchant(**dict(m))
 
 
-class CustomersController(RestController):
+class MerchantsController(RestBase):
     """Merchants controller"""
+    resource = MerchantController
 
-    @wsme_pecan.wsexpose([Customer], unicode)
+    @wsme_pecan.wsexpose([Merchant])
     def get_all(self):
-        return [Customer(**o) for o in request.storage_conn.customer_list()]
-
-    @wsme_pecan.wsexpose(Customer, unicode)
-    def get_one(self, merchant_id):
-        """Get customer details
-
-        :param customer_id: The UUID of the customer
-        """
-        m = request.storage_conn.merchant_get(customer_id)
-        return Customer(**dict(m))
+        return [Merchant(**o) for o in request.storage_conn.merchant_list()]
 
 
 class V1Controller(object):
@@ -123,6 +169,5 @@ class V1Controller(object):
     currencies = CurrenciesController()
     languages = LanguagesController()
 
-    users = UsersController()
     merchants = MerchantsController()
-    customers = CustomersController()
+    users = UsersController()
