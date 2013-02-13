@@ -230,9 +230,16 @@ class Connection(base.Connection):
 
     # Users
     def user_add(self, merchant_id, values, customer_id=None):
+        """
+        Add user
+
+        :param merchant_id: Merchant ID
+        :param values: Values to create the new User from
+        :param customer_id: The Customer to link this user to
+        """
         merchant = self._get(models.Merchant, merchant_id)
 
-        user = models.User(values)
+        user = models.User(**values)
         user.merchant = merchant
 
         if customer_id:
@@ -242,18 +249,39 @@ class Connection(base.Connection):
         return self._serialize(user)
 
     def user_list(self, merchant_id, **kw):
+        """
+        List users
+
+        :param merchant_id: Merchant to list users for
+        """
         q = self.session.query(models.User)
         q = q.filter_by(merchant_id=merchant_id)
         rows = self._list(query=q, **kw)
         return self._serialize(rows)
 
     def user_get(self, user_id):
+        """
+        Get a user
+
+        :param user_id: User ID
+        """
         user = self._get(models.User, user_id)
         return self._serialize(user)
 
     def user_update(self, user_id, values):
+        """
+        Update user
+
+        :param user_id: User ID
+        :param values: Values to update
+        """
         user = self._update(models.User, user_id, values)
         return self._serialize(user)
 
     def user_delete(self, user_id):
+        """
+        Delete a user
+
+        :param user_id: User ID
+        """
         self._delete(models.User, user_id)
