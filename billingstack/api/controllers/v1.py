@@ -41,13 +41,27 @@ class Currency(Base):
 
 
 class Language(Base):
-    id = text
     letter = text
     name = text
 
 
+class ContactInfo(Base):
+    address1 = text
+    address2 = text
+    city = text
+    company = text
+    country = text
+    state = text
+    zip = text
+
+
 class User(Base):
-    pass
+    def __init__(self, **kw):
+        kw['contact_info'] = ContactInfo(**kw.get('contact_info', {}))
+        super(User, self).__init__(**kw)
+
+    username = text
+    contact_info = ContactInfo
 
 
 class Account(Base):
@@ -98,6 +112,7 @@ class RestBase(RestController):
 
 class CurrenciesController(RestBase):
     """Currencies controller"""
+
     @wsme_pecan.wsexpose([Currency])
     def get_all(self):
         return [Currency(**o) for o in request.storage_conn.currency_list()]
@@ -105,6 +120,7 @@ class CurrenciesController(RestBase):
 
 class LanguagesController(RestBase):
     """Languages controller"""
+
     @wsme_pecan.wsexpose([Language])
     def get_all(self):
         return [Language(**o) for o in request.storage_conn.language_list()]
