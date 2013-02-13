@@ -39,3 +39,26 @@ if __name__ == '__main__':
         {'name': 'Customer X',
         'currency_id': currency['id'],
         'language_id': lang['id']})
+
+    contact_info = {
+        'address1': 'Street',
+        'city': 'SomeCity',
+        'country': 'SomeCountry',
+        'company': 'RandomCompany Ltd'}
+
+    merchant_user = conn.user_add(
+        merchant['id'],
+        {'username': 'merchantx',
+        'password': 'password',
+        'api_key': 'secret_key',
+        'api_secret': 'secret'},
+        contact_info=contact_info)
+
+    customer_user = conn.user_add(
+        merchant['id'],
+        {'username': 'customerx',
+        'password': 'password',
+        'api_key': 'secret_key',
+        'api_secret': 'secret'},
+        contact_info=contact_info,
+        customer_id=customer['id'])
