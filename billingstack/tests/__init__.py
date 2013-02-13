@@ -10,6 +10,13 @@ from billingstack import storage
 from billingstack import exceptions
 
 
+cfg.CONF.import_opt('storage_driver', 'billingstack.api',
+                    group='service:api')
+cfg.CONF.import_opt('database_connection',
+                    'billingstack.storage.impl_sqlalchemy',
+                    group='storage:sqlalchemy')
+
+
 class AssertMixin(object):
     """
     Mixin to hold assert helpers.
@@ -75,6 +82,6 @@ class TestCase(unittest2.TestCase, AssertMixin):
         """
         Get a fixture from self.samples and override values if necassary
         """
-        _values = copy.copy(self.samples.get[name][fixture])
+        _values = copy.copy(self.samples[name][fixture])
         _values.update(values)
         return _values
