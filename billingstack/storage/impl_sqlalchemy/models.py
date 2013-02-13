@@ -94,7 +94,7 @@ class User(ModelBase):
 
     contact_info = relationship('ContactInfo', backref='user', uselist=False,
                                 lazy='joined')
-    contact_info_id = Column(UUID, ForeignKey('contact_info.id'), nullable=False)
+    contact_info_id = Column(UUID, ForeignKey('contact_info.id'))
 
     merchant = relationship('Merchant', backref='users')
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'))
