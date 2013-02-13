@@ -166,7 +166,7 @@ class Connection(base.Connection):
         return map(dict, rows)
 
     def language_get(self, id_):
-        row = self._get(models.Currency, id_)
+        row = self._get(models.Language, id_)
         return dict(row)
 
     def language_update(self, id_, values):
@@ -187,8 +187,8 @@ class Connection(base.Connection):
         return map(dict, rows)
 
     def merchant_get(self, merchant_id):
-        merchant = self._get(models.Merchant, merchant_id)
-        return map(merchant)
+        row = self._get(models.Merchant, merchant_id)
+        return dict(row)
 
     def merchant_update(self, merchant_id, values):
         row = self._update(models.Merchant, merchant_id, values)
