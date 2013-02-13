@@ -73,6 +73,10 @@ def get_session(config_group,
     return session
 
 
+def pragma_fks(dbapi_conn, connection_rec):
+    dbapi_conn.execute('pragma foreign_keys=ON')
+
+
 def synchronous_switch_listener(dbapi_conn, connection_rec):
     """Switch sqlite connections to non-synchronous mode"""
     dbapi_conn.execute("PRAGMA synchronous = OFF")
@@ -160,6 +164,8 @@ def get_engine(config_group):
             sqlalchemy.event.listen(_ENGINES[config_group],
                                     'connect',
                                     add_regexp_listener)
+            sqlalchemy.event.listen(_ENGINES[config_group],
+                                    'connect', pragma_fks)
 
         if (cfg.CONF[config_group].connection_trace and
                 _ENGINES[config_group].dialect.dbapi.__name__ == 'MySQLdb'):
