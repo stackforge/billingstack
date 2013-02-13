@@ -66,7 +66,6 @@ class ContactInfo(ModelBase):
     zip = Column(Unicode(20))
 
 
-
 user_customer = Table('user_customer', ModelBase.metadata,
     Column('user_id', UUID, ForeignKey('user.id')),
     Column('customer_id', UUID, ForeignKey('customer.id')))
@@ -93,7 +92,8 @@ class User(ModelBase):
 
     customers = relationship('Customer', backref='users', secondary=user_customer)
 
-    contact_info = relationship('ContactInfo', backref='user', uselist=False)
+    contact_info = relationship('ContactInfo', backref='user', uselist=False,
+                                lazy='joined')
     contact_info_id = Column(UUID, ForeignKey('contact_info.id'), nullable=False)
 
     merchant = relationship('Merchant', backref='users')
