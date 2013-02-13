@@ -229,7 +229,8 @@ class Connection(base.Connection):
         return self._delete(models.Customer, customer_id)
 
     # Users
-    def user_add(self, merchant_id, values, customer_id=None):
+    def user_add(self, merchant_id, values, customer_id=None,
+                 contact_info=None):
         """
         Add user
 
@@ -241,6 +242,9 @@ class Connection(base.Connection):
 
         user = models.User(**values)
         user.merchant = merchant
+
+        contact_info = contact_info or {}
+        user.contact_info = models.ContactInfo(**contact_info)
 
         if customer_id:
             customer = self._get(models.Customer, customer_id)
