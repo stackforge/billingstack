@@ -126,33 +126,27 @@ class Connection(base.Connection):
         obj = self._get(cls, id_)
         obj.delete(self.session)
 
-    def _serialize(self, data):
-        if isinstance(data, list):
-            return [dict(o) for o in data]
-        else:
-            return dict(data)
-
     # Currency
     def currency_add(self, values):
         """
         Add a supported currency to the database
         """
         data = utils.get_currency(values['letter'])
-        currency = models.Currency(**data)
-        self._save(currency)
-        return self._serialize(currency)
+        row = models.Currency(**data)
+        self._save(row)
+        return dict(row)
 
     def currency_list(self):
         rows = self._list(models.Currency)
-        return self._serialize(rows)
+        return map(dict, rows)
 
     def currency_get(self, currency_id):
-        currency = self._get(models.Currency, currency_id)
-        return self._serialize(currency)
+        row = self._get(models.Currency, currency_id)
+        return dict(row)
 
     def currency_update(self, currency_id, values):
-        currency = self._update(models.Currency, currency_id, values)
-        return self._serialize(currency)
+        row = self._update(models.Currency, currency_id, values)
+        return dict(row)
 
     def currency_delete(self, currency_id):
         self._delete(models.Currency, currency_id)
@@ -163,42 +157,42 @@ class Connection(base.Connection):
         Add a supported language to the database
         """
         data = utils.get_language(values['letter'])
-        language = models.Language(**data)
-        self._save(language)
-        return self._serialize(language)
+        row = models.Language(**data)
+        self._save(row)
+        return dict(row)
 
     def language_list(self):
         rows = self._list(models.Language)
-        return self._serialize(rows)
+        return map(dict, rows)
 
     def language_get(self, id_):
-        languages = self._get(models.Currency, id_)
-        return self._serialize(languages)
+        row = self._get(models.Currency, id_)
+        return dict(row)
 
     def language_update(self, id_, values):
-        language = self._update(models.Language, id_, values)
-        return self._serialize(language)
+        row = self._update(models.Language, id_, values)
+        return dict(row)
 
     def language_delete(self, id_):
         self._delete(models.Language, id_)
 
     # Merchant
     def merchant_add(self, values):
-        merchant = models.Merchant(**values)
-        self._save(merchant)
-        return self._serialize(merchant)
+        row = models.Merchant(**values)
+        self._save(row)
+        return dict(row)
 
     def merchant_list(self, **kw):
         rows = self._list(models.Merchant, **kw)
-        return self._serialize(rows)
+        return map(dict, rows)
 
     def merchant_get(self, merchant_id):
         merchant = self._get(models.Merchant, merchant_id)
-        return self._serialize(merchant)
+        return map(merchant)
 
     def merchant_update(self, merchant_id, values):
-        merchant = self._update(models.Merchant, merchant_id, values)
-        return self._serialize(merchant)
+        row = self._update(models.Merchant, merchant_id, values)
+        return dict(row)
 
     def merchant_delete(self, merchant_id):
         self._delete(models.Merchant, merchant_id)
@@ -209,26 +203,36 @@ class Connection(base.Connection):
         customer = models.Customer(**values)
         merchant.customers.append(customer)
         self._save(merchant)
-        return self._serialize(customer)
+        return dict(customer)
 
     def customer_list(self, merchant_id, **kw):
         q = self.session.query(models.Customer)
         q = q.filter_by(merchant_id=merchant_id)
         rows = self._list(query=q, **kw)
-        return self._serialize(rows)
+        return map(dict, rows)
 
     def customer_get(self, customer_id):
-        customer = self._get(models.Customer, customer_id)
-        return self._serialize(customer)
+        row = self._get(models.Customer, customer_id)
+        return map(dict, row)
 
     def customer_update(self, customer_id, values):
-        customer = self._update(models.Customer, customer_id, values)
-        return self._serialize(customer)
+        row = self._update(models.Customer, customer_id, values)
+        return dict(row)
 
     def customer_delete(self, customer_id):
         return self._delete(models.Customer, customer_id)
 
     # Users
+    def _user(self, row):
+        """
+        Serialize a SQLAlchemy row to a User dictionary
+
+        :param row: The row
+        """
+        user = dict(row)
+        user['contact_info'] = dict(row.contact_info)
+        return user
+
     def user_add(self, merchant_id, values, customer_id=None,
                  contact_info=None):
         """
@@ -250,7 +254,7 @@ class Connection(base.Connection):
             customer = self._get(models.Customer, customer_id)
             user.customer = customer
         self._save(user)
-        return self._serialize(user)
+        return self._user(user)
 
     def user_list(self, merchant_id, **kw):
         """
@@ -260,8 +264,9 @@ class Connection(base.Connection):
         """
         q = self.session.query(models.User)
         q = q.filter_by(merchant_id=merchant_id)
+
         rows = self._list(query=q, **kw)
-        return self._serialize(rows)
+        return map(self._user, rows)
 
     def user_get(self, user_id):
         """
@@ -269,8 +274,8 @@ class Connection(base.Connection):
 
         :param user_id: User ID
         """
-        user = self._get(models.User, user_id)
-        return self._serialize(user)
+        row = self._get(models.User, user_id)
+        return self._user(row)
 
     def user_update(self, user_id, values):
         """
@@ -279,8 +284,8 @@ class Connection(base.Connection):
         :param user_id: User ID
         :param values: Values to update
         """
-        user = self._update(models.User, user_id, values)
-        return self._serialize(user)
+        row = self._update(models.User, user_id, values)
+        return self._usre(row)
 
     def user_delete(self, user_id):
         """
