@@ -285,7 +285,7 @@ class Connection(base.Connection):
         :param values: Values to update
         """
         row = self._update(models.User, user_id, values)
-        return self._usre(row)
+        return self._user(row)
 
     def user_delete(self, user_id):
         """
