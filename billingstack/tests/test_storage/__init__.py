@@ -43,36 +43,6 @@ class StorageDriverTestCase(StorageTestCase):
         _, self.language = self.language_add()
         _, self.merchant = self.merchant_add()
 
-    def language_add(self, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('language', fixture, values)
-        return fixture, self.storage_conn.language_add(fixture, **kw)
-
-    def currency_add(self, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('currency', fixture, values)
-        return fixture, self.storage_conn.currency_add(fixture, **kw)
-
-    def _account_defaults(self, values):
-        # NOTE: Do defaults
-        if not 'currency_id' in values:
-            values['currency_id'] = self.currency['id']
-
-        if not 'language_id' in values:
-            values['language_id'] = self.language['id']
-
-    def merchant_add(self, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('merchant', fixture, values)
-        self._account_defaults(fixture)
-        return fixture, self.storage_conn.merchant_add(fixture, **kw)
-
-    def customer_add(self, merchant_id, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('customer', fixture, values)
-        self._account_defaults(fixture)
-        return fixture, self.storage_conn.customer_add(merchant_id, fixture, **kw)
-
-    def user_add(self, merchant_id, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('user', fixture, values)
-        return fixture, self.storage_conn.user_add(merchant_id, fixture, **kw)
-
     # Currencies
     def test_currency_addassertDuplicate(self):
         self.assertDuplicate(self.currency_add)
