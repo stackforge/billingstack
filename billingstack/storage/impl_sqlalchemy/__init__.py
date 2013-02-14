@@ -213,7 +213,7 @@ class Connection(base.Connection):
 
     def customer_get(self, customer_id):
         row = self._get(models.Customer, customer_id)
-        return map(dict, row)
+        return dict(row)
 
     def customer_update(self, customer_id, values):
         row = self._update(models.Customer, customer_id, values)
