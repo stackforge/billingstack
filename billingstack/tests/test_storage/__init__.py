@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-# Copied: billingstack
+# Copied: Moniker
 from billingstack.openstack.common import log as logging
 from billingstack.tests import TestCase
 from billingstack import exceptions
@@ -171,6 +171,27 @@ class StorageDriverTestCase(StorageTestCase):
         _, customer = self.customer_add(self.merchant['id'])
         f, data = self.user_add(self.merchant['id'], customer_id=customer['id'])
         self.assertData(f, data)
+
+    def test_user_list(self):
+        self.assertLen(0, self.storage_conn.user_list(self.merchant['id']))
+
+        self.user_add(self.merchant['id'])
+        rows = self.storage_conn.user_list(self.merchant['id'])
+        self.assertLen(1, rows)
+
+    def test_user_list_customer(self):
+        self.assertLen(0, self.storage_conn.user_list(self.merchant['id']))
+
+        # NOTE: Add 1 user for the Merchant and 1 with a Customer
+        f, merchant_user = self.user_add(self.merchant['id'])
+
+        _, customer = self.customer_add(self.merchant['id'])
+        _, customer_user = self.user_add(self.merchant['id'], customer_id=customer['id'])
+
+        rows = self.storage_conn.user_list(self.merchant['id'],
+                                           customer_id=customer['id'])
+        self.assertLen(1, rows)
+        self.assertData(customer_user, rows[0])
 
     def test_user_get(self):
         f, expected = self.user_add(self.merchant['id'])

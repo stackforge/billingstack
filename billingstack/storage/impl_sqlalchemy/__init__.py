@@ -264,7 +264,7 @@ class Connection(base.Connection):
         q = q.filter_by(merchant_id=merchant_id)
 
         if customer_id:
-            q = q.filter(models.Customer.id == customer_id)
+            q = q.join(models.User.customers).filter(models.Customer.id==customer_id)
 
         rows = self._list(query=q, **kw)
         return map(self._user, rows)
