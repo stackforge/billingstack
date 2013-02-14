@@ -20,4 +20,4 @@ from billingstack.tests.api import base
 
 
 class FunctionalTest(base.FunctionalTest):
-        PATH_PREFIX = '/v1'
+    PATH_PREFIX = '/v1'
