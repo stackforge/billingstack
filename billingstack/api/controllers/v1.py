@@ -61,6 +61,7 @@ class User(Base):
         super(User, self).__init__(**kw)
 
     username = text
+    merchant_id = text
     contact_info = ContactInfo
 
 
@@ -132,13 +133,17 @@ class UsersController(RestBase):
     @wsme_pecan.wsexpose([User], unicode)
     def get_all(self):
         users = request.storage_conn.user_list(
-            request.context['merchant_id'])
+            request.context['merchant_id'],
+            customer_id=request.context.get('customer_id'))
         return [User(**o) for o in users]
 
 
 class CustomerController(RestBase):
     """Customer controller"""
     __id__ = 'customer'
+    resource = {
+        "users": UsersController
+    }
 
     @wsme_pecan.wsexpose(Customer, unicode)
     def get_all(self):
