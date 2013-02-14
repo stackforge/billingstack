@@ -23,7 +23,12 @@ import os
 from pecan import set_config
 from pecan.testing import load_test_app
 
+from billingstack.openstack.common import log
+from billingstack.openstack.common import jsonutils as json
 from billingstack.tests import base
+
+
+LOG = log.getLogger(__name__)
 
 
 class FunctionalTest(base.TestCase):
@@ -86,26 +91,104 @@ class FunctionalTest(base.TestCase):
         super(FunctionalTest, self).tearDown()
         set_config({}, overwrite=True)
 
-    def get_json(self, path, expect_errors=False, headers=None,
-                 q=[], **params):
-        full_path = self.PATH_PREFIX + path
+    def make_path(self, path):
+        if not path.startswith('/'):
+            path = '/' + path
+        return self.PATH_PREFIX + path
+
+    def _query(self, queries):
         query_params = {'q.field': [],
                         'q.value': [],
                         'q.op': [],
                         }
-        for query in q:
+        for query in queries:
             for name in ['field', 'op', 'value']:
                 query_params['q.%s' % name].append(query.get(name, ''))
+        return query_params
+
+    def _params(self, params, queries):
         all_params = {}
         all_params.update(params)
-        if q:
-            all_params.update(query_params)
-        print 'GET: %s %r' % (full_path, all_params)
-        response = self.app.get(full_path,
+        if queries:
+            all_params.update(self._query(queries))
+        return all_params
+
+    def get(self, path, headers=None,
+            q=[], status_code=200, **params):
+        path = self.make_path(path)
+        all_params = self._params(params, q)
+
+        LOG.debug('GET: %s %r', path, all_params)
+
+        response = self.app.get(path,
                                 params=all_params,
-                                headers=headers,
-                                expect_errors=expect_errors)
-        if not expect_errors:
-            response = response.json
-        print 'GOT:', response
+                                headers=headers)
+
+        self.assertEqual(response.status_code, status_code)
+
+        LOG.debug('GOT RESPONSE: %s', response)
+
+        return response
+
+    def post(self, path, data, headers=None, content_type="application/json",
+             q=[], status_code=200):
+        path = self.make_path(path)
+
+        LOG.debug('POST: %s %s', path, data)
+
+        content = json.dumps(data)
+        response = self.app.post(
+            path,
+            content,
+            content_type=content_type,
+            headers=headers)
+
+        self.assertEqual(response.status_code, status_code)
+
+        LOG.debug('POST RESPONSE: %r' % response.data)
+
+        try:
+            response.json = json.loads(response.data)
+        except ValueError:
+            response.json = None
+        return response
+
+    def put(self, path, data, headers=None, content_type="application/json",
+            q=[], status_code=200, **params):
+        path = self.make_path(path)
+        all_params = self._params(params, q)
+
+        LOG.debug('PUT: %s %r %s', path, all_params, data)
+
+        content = json.dumps(data)
+        response = self.app.put(
+            path,
+            data=content,
+            params=all_params,
+            content_type=content_type,
+            headers=headers)
+
+        self.assertEqual(response.status_code, status_code)
+
+        LOG.debug('PUT RESPONSE: %r' % response.data)
+
+        try:
+            response.json = json.loads(response.data)
+        except ValueError:
+            response.json = None
+
+        return response
+
+    def delete(self, path, status_code=200, headers=None, q=[], **params):
+        path = self.make_path(path)
+        all_params = self._params(params, q)
+
+        LOG.debug('DELETE: %s %r', path, all_params)
+
+        response = self.app.delete(path, params=all_params)
+
+        LOG.debug('DELETE RESPONSE: %r' % response.data)
+
+        self.assertEqual(response.status_code, status_code)
+
         return response

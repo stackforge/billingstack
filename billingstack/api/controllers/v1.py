@@ -183,6 +183,11 @@ class MerchantsController(RestBase):
     def get_all(self):
         return [Merchant(**o) for o in request.storage_conn.merchant_list()]
 
+    @wsme_pecan.wsexpose(Merchant, __body__=Merchant)
+    def post(self, merchant):
+        #print body
+        return Merchant(**{})
+
 
 class V1Controller(object):
     """Version 1 API controller."""
