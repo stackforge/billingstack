@@ -186,26 +186,44 @@ class InvoiceLine(ModelBase):
     invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE'), nullable=False)
 
 
+class Pricing(ModelBase):
+    """
+    Resembles a Price information in some way
+    """
+    value_from = Column(Float)
+    value_to = Column(Float)
+    price = Column(Float, nullable=False)
+
+    plan_item_id = Column(UUID, ForeignKey('plan_item.id', ondelete='CASCADE',
+                                           onupdate='CASCADE'))
+    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE',
+                                           onupdate='CASCADE'))
+
+
 class Plan(ModelBase):
+    """
+    A Collection of Products
+    """
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
     provider = Column(Unicode(255), nullable=False)
 
-    plan_items = relationship('PlanItem', backref='plan')
+    plan_items = relationship('PlanItem', backref='plan', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id',
                          ondelete='CASCADE'), nullable=False)
 
 
 class PlanItem(ModelBase):
+    """
+    A Link between the Plan and a Product
+    """
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    price = Column(Float, nullable=False)
-    value_from = Column(Float)
-    value_to = Column(Float)
+    price = relationship('Pricing', backref='plan_item', uselist=False)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
                      nullable=False)
@@ -214,7 +232,7 @@ class PlanItem(ModelBase):
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
 
-    product = relationship('Product', backref='plan_items')
+    product = relationship('Product', backref='plan_items', uselist=False)
     product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'),
                         nullable=False)
 
@@ -227,7 +245,8 @@ class Product(ModelBase):
     measure = Column(Unicode(255))
     source = Column(Unicode(255))
     type = Column(Unicode(255))
-    price = Column(Float)
+
+    price = relationship('Pricing', backref='product')
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
