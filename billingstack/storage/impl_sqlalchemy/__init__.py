@@ -252,11 +252,11 @@ class Connection(base.Connection):
 
         if customer_id:
             customer = self._get(models.Customer, customer_id)
-            user.customer = customer
+            customer.users.append(user)
         self._save(user)
         return self._user(user)
 
-    def user_list(self, merchant_id, **kw):
+    def user_list(self, merchant_id, customer_id=None, **kw):
         """
         List users
 
@@ -264,6 +264,9 @@ class Connection(base.Connection):
         """
         q = self.session.query(models.User)
         q = q.filter_by(merchant_id=merchant_id)
+
+        if customer_id:
+            q = q.filter(models.Customer.id == customer_id)
 
         rows = self._list(query=q, **kw)
         return map(self._user, rows)
