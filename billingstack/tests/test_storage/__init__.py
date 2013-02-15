@@ -44,11 +44,11 @@ class StorageDriverTestCase(StorageTestCase):
         _, self.merchant = self.merchant_add()
 
     # Currencies
-    def test_currency_addassertDuplicate(self):
+    def test_currency_add(self):
         self.assertDuplicate(self.currency_add)
 
     # Languages
-    def test_language_addassertDuplicate(self):
+    def test_language_add(self):
         self.assertDuplicate(self.language_add)
 
     # Merchant
@@ -61,7 +61,7 @@ class StorageDriverTestCase(StorageTestCase):
         actual = self.storage_conn.merchant_get(expected['id'])
         self.assertData(expected, actual)
 
-    def test_merchant_getassertMissing(self):
+    def test_merchant_get_missing(self):
         self.assertMissing(self.storage_conn.merchant_get, UUID)
 
     def test_merchant_update(self):
@@ -69,14 +69,14 @@ class StorageDriverTestCase(StorageTestCase):
         updated = self.storage_conn.merchant_update(obj['id'], f)
         self.assertData(obj, updated)
 
-    def test_merchant_updateassertMissing(self):
+    def test_merchant_updat(self):
         self.assertMissing(self.storage_conn.merchant_update, UUID, {})
 
     def test_merchant_delete(self):
         self.storage_conn.merchant_delete(self.merchant['id'])
         self.assertMissing(self.storage_conn.merchant_get, self.merchant['id'])
 
-    def test_merchant_deleteassertMissing(self):
+    def test_merchant_delete_missing(self):
         self.assertMissing(self.storage_conn.merchant_delete, UUID)
 
     # Customer
@@ -89,7 +89,7 @@ class StorageDriverTestCase(StorageTestCase):
         actual = self.storage_conn.customer_get(expected['id'])
         self.assertData(expected, actual)
 
-    def test_customer_getassertMissing(self):
+    def test_customer_get_missing(self):
         self.assertMissing(self.storage_conn.customer_get, UUID)
 
     def test_customer_update(self):
@@ -97,7 +97,7 @@ class StorageDriverTestCase(StorageTestCase):
         updated = self.storage_conn.customer_update(obj['id'], f)
         self.assertData(obj, updated)
 
-    def test_customer_updateassertMissing(self):
+    def test_customer_update_missing(self):
         self.assertMissing(self.storage_conn.customer_update, UUID, {})
 
     def test_customer_delete(self):
@@ -105,7 +105,7 @@ class StorageDriverTestCase(StorageTestCase):
         self.storage_conn.customer_delete(obj['id'])
         self.assertMissing(self.storage_conn.customer_get, obj['id'])
 
-    def test_customer_deleteassertMissing(self):
+    def test_customer_delete_missing(self):
         self.assertMissing(self.storage_conn.customer_delete, UUID)
 
     # User
@@ -144,7 +144,7 @@ class StorageDriverTestCase(StorageTestCase):
         actual = self.storage_conn.user_get(expected['id'])
         self.assertData(expected, actual)
 
-    def test_user_getassertMissing(self):
+    def test_user_get_missing(self):
         self.assertMissing(self.storage_conn.user_get, UUID)
 
     def test_user_update(self):
@@ -152,7 +152,7 @@ class StorageDriverTestCase(StorageTestCase):
         updated = self.storage_conn.user_update(user['id'], f)
         self.assertData(user, updated)
 
-    def test_user_updateassertMissing(self):
+    def test_user_update_missing(self):
         self.assertMissing(self.storage_conn.user_update, UUID, {})
 
     def test_user_delete(self):
@@ -161,5 +161,5 @@ class StorageDriverTestCase(StorageTestCase):
 
         self.assertMissing(self.storage_conn.user_get, user['id'])
 
-    def test_user_deleteassertMissing(self):
+    def test_user_delete_missing(self):
         self.assertMissing(self.storage_conn.user_delete, UUID)
