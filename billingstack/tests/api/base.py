@@ -42,7 +42,7 @@ class FunctionalTest(base.TestCase):
 
     path = ""
 
-    def url(self, *args):
+    def item_path(self, *args):
         url = self.path + '/%s'
         return url % args
 
