@@ -1,4 +1,3 @@
-iso8601
 WebOb>=1.2
 eventlet
 pecan
