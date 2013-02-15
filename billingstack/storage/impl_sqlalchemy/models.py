@@ -1,5 +1,3 @@
-# Copyright 2012 Bouvet ASA
-#
 # Author: Endre Karlson <endre.karlson@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -24,7 +22,7 @@ from billingstack import utils
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common import timeutils
 from billingstack.openstack.common.uuidutils import generate_uuid
-from billingstack.storage.impl_sqlalchemy.types import UUID
+from billingstack.storage.impl_sqlalchemy.types import JSON, UUID
 from billingstack.storage.impl_sqlalchemy.model_base import ModelBase
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
@@ -185,29 +183,57 @@ class InvoiceLine(ModelBase):
     quantity = Column(Float)
     sub_total = Column(Float)
 
-    invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE'), nullable=False)
+    invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE',
+                                         onupdate='CASCADE'), nullable=False)
+
+
+class Pricing(ModelBase):
+    """
+    Resembles a Price information in some way
+    """
+    value_from = Column(Float)
+    value_to = Column(Float)
+    price = Column(Float, nullable=False)
+
+    plan_item_id = Column(UUID, ForeignKey('plan_item.id', ondelete='CASCADE',
+                                           onupdate='CASCADE'))
+    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE',
+                                           onupdate='CASCADE'))
+
+
+class ProductMetadata(ModelBase):
+    data = Column(JSON)
+    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE',
+                                      onupdate='CASCADE'))
+    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE',
+                                         onupdate='CASCADE'))
 
 
 class Plan(ModelBase):
+    """
+    A Collection of Products
+    """
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
     provider = Column(Unicode(255), nullable=False)
 
-    plan_items = relationship('PlanItem', backref='plan')
+    plan_items = relationship('PlanItem', backref='plan', uselist=False)
+    meta = relationship('ProductMetadata', backref='plan_item', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id',
                          ondelete='CASCADE'), nullable=False)
 
 
 class PlanItem(ModelBase):
+    """
+    A Link between the Plan and a Product
+    """
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    price = Column(Float, nullable=False)
-    value_from = Column(Float)
-    value_to = Column(Float)
+    price = relationship('Pricing', backref='plan_item', uselist=False)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
                      nullable=False)
@@ -216,7 +242,7 @@ class PlanItem(ModelBase):
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
 
-    product = relationship('Product', backref='plan_items')
+    product = relationship('Product', backref='plan_items', uselist=False)
     product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'),
                         nullable=False)
 
@@ -229,7 +255,9 @@ class Product(ModelBase):
     measure = Column(Unicode(255))
     source = Column(Unicode(255))
     type = Column(Unicode(255))
-    price = Column(Float)
+
+    price = relationship('Pricing', backref='product', uselist=False)
+    meta = relationship('ProductMetadata', backref='product', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
@@ -242,8 +270,12 @@ class Subscription(ModelBase):
 
     usages = relationship('Usage', backref='subscription')
 
-    plan = relationship('Plan', backref='subscriptions')
+    plan = relationship('Plan', backref='subscriptions', uselist=False)
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
+                     nullable=False)
+
+    product = relationship('Product', backref='subscriptions', uselist=False)
+    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'),
                      nullable=False)
 
     merchant = relationship('Merchant', backref='subscriptions')

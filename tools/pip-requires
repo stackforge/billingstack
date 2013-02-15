@@ -4,6 +4,7 @@ eventlet
 pecan
 stevedore
 argparse
-wsme>=0.5b1
+-e hg+https://bitbucket.org/cdevienne/wsme/#egg=wsme
 anyjson>=0.2.4
 pycountry
+iso8601
