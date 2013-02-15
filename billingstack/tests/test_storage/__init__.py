@@ -27,6 +27,8 @@ UUID = 'caf771fc-6b05-4891-bee1-c2a48621f57b'
 
 
 class StorageDriverTestCase(TestCase):
+    __test__ = False
+
     # Currencies
     def test_currency_add(self):
         self.assertDuplicate(self.currency_add)
@@ -53,7 +55,7 @@ class StorageDriverTestCase(TestCase):
         updated = self.storage_conn.merchant_update(obj['id'], f)
         self.assertData(obj, updated)
 
-    def test_merchant_updat(self):
+    def test_merchant_update_missing(self):
         self.assertMissing(self.storage_conn.merchant_update, UUID, {})
 
     def test_merchant_delete(self):
