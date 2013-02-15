@@ -152,15 +152,13 @@ class FunctionalTest(base.TestCase):
     def put(self, path, data, headers=None, content_type="application/json",
             q=[], status_code=200, **params):
         path = self.make_path(path)
-        all_params = self._params(params, q)
 
-        LOG.debug('PUT: %s %r %s', path, all_params, data)
+        LOG.debug('PUT: %s %s', path, data)
 
         content = json.dumps(data)
         response = self.app.put(
             path,
-            data=content,
-            params=all_params,
+            content,
             content_type=content_type,
             headers=headers)
 
