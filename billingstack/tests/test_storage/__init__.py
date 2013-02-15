@@ -26,23 +26,7 @@ LOG = logging.getLogger(__name__)
 UUID = 'caf771fc-6b05-4891-bee1-c2a48621f57b'
 
 
-class StorageTestCase(TestCase):
-    __test__ = False
-
-    def get_storage_driver(self):
-        connection = storage.get_connection()
-        return connection
-
-
-class StorageDriverTestCase(StorageTestCase):
-    def setUp(self):
-        super(StorageDriverTestCase, self).setUp()
-        self.storage_conn = self.get_storage_driver()
-
-        _, self.currency = self.currency_add()
-        _, self.language = self.language_add()
-        _, self.merchant = self.merchant_add()
-
+class StorageDriverTestCase(TestCase):
     # Currencies
     def test_currency_add(self):
         self.assertDuplicate(self.currency_add)

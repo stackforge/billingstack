@@ -72,6 +72,15 @@ class TestCase(unittest2.TestCase, AssertMixin):
         self.samples = samples.get_samples()
 
         storage.setup_schema()
+        self.storage_conn = self.get_storage_driver()
+
+        _, self.currency = self.currency_add()
+        _, self.language = self.language_add()
+        _, self.merchant = self.merchant_add()
+
+    def get_storage_driver(self):
+        connection = storage.get_connection()
+        return connection
 
     def tearDown(self):
         # NOTE: Currently disabled
