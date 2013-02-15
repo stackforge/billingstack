@@ -3,7 +3,7 @@ eventlet
 pecan
 stevedore
 argparse
--e hg+htthttps://bitbucket.org/cdevienne/wsme/#egg=wsme
+-e hg+https://bitbucket.org/cdevienne/wsme/#egg=wsme
 anyjson>=0.2.4
 pycountry
 iso8601
