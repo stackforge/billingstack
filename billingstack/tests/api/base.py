@@ -40,6 +40,12 @@ class FunctionalTest(base.TestCase):
 
     PATH_PREFIX = ''
 
+    path = ""
+
+    def url(self, *args):
+        url = self.path + '/%s'
+        return url % args
+
     def setUp(self):
         super(FunctionalTest, self).setUp()
         self.app = self._make_app()
