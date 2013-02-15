@@ -259,8 +259,12 @@ class Subscription(ModelBase):
 
     usages = relationship('Usage', backref='subscription')
 
-    plan = relationship('Plan', backref='subscriptions')
+    plan = relationship('Plan', backref='subscriptions', uselist=False)
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
+                     nullable=False)
+
+    product = relationship('Product', backref='subscriptions', uselist=False)
+    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'),
                      nullable=False)
 
     merchant = relationship('Merchant', backref='subscriptions')

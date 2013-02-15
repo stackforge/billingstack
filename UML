@@ -24,9 +24,10 @@
 [PlanItem]->[Pricing]
 [Product]->[Pricing]
 [Subscription]-usages*>[Usage]
-[Subscription]-plans*>[Plan]
-[Subscription]-products*>[Product]
+[Subscription]->[Plan]
+[Subscription]->[Product]
 [Subscription]->[Merchant]
 [Subscription]->[Customer]
 [Usage]->[Merchant]
 [Usage]->[Customer]
+
