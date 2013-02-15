@@ -20,10 +20,7 @@
 """Test listing raw events.
 """
 
-import datetime
 import logging
-
-from billingstack.openstack.common import cfg
 
 from billingstack.tests.api.v1.base import FunctionalTest
 
@@ -37,29 +34,40 @@ class TestCustomer(FunctionalTest):
         fixture = self.get_fixture('customer')
         self._account_defaults(fixture)
 
-        resp = self.post(self.url % self.merchant['id'], fixture)
+        url = self.path % self.merchant['id']
+        resp = self.post(url, fixture)
 
         self.assertData(fixture, resp.json)
 
     def test_customer_list(self):
         self.customer_add(self.merchant['id'])
-        resp = self.get(self.url % self.merchant['id'])
+
+        url = self.path % self.merchant['id']
+        resp = self.get(url)
+
         self.assertLen(1, resp.json)
 
     def test_customer_get(self):
-        resp = self.get(self.url % self.merchant['id'])
-        self.assertData(resp.json, self.customer)
+        _, customer = self.customer_add(self.merchant['id'])
+
+        url = self.item_path(self.merchant['id'], customer['id'])
+        resp = self.get(url)
+
+        self.assertData(resp.json, customer)
 
     def test_customer_update(self):
-        _, customer = self.customer_add()
+        _, customer = self.customer_add(self.merchant['id'])
         customer['name'] = 'test'
 
-        rest = self.put(self.url + '/%s' % (self.merchant['id'], customer),
-                        customer)
+        url = self.item_path(self.merchant['id'], customer['id'])
+        resp = self.put(url, customer)
 
-        self.assertData(rest.json, customer)
+        self.assertData(resp.json, customer)
 
     def test_customer_delete(self):
-        _, customer = self.customer_add()
-        self.delete(self.path + '/%s' % (self.merchant['id'], customer['id']))
+        _, customer = self.customer_add(self.merchant['id'])
+
+        url = self.item_path(self.merchant['id'], customer['id'])
+        self.delete(url)
+
         self.assertLen(0, self.storage_conn.customer_list(self.merchant['id']))
