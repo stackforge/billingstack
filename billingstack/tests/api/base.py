@@ -124,9 +124,9 @@ class FunctionalTest(base.TestCase):
                                 params=all_params,
                                 headers=headers)
 
-        self.assertEqual(response.status_code, status_code)
-
         LOG.debug('GOT RESPONSE: %s', response)
+
+        self.assertEqual(response.status_code, status_code)
 
         return response
 
@@ -143,14 +143,10 @@ class FunctionalTest(base.TestCase):
             content_type=content_type,
             headers=headers)
 
+        LOG.debug('POST RESPONSE: %r' % response.body)
+
         self.assertEqual(response.status_code, status_code)
 
-        LOG.debug('POST RESPONSE: %r' % response.data)
-
-        try:
-            response.json = json.loads(response.data)
-        except ValueError:
-            response.json = None
         return response
 
     def put(self, path, data, headers=None, content_type="application/json",
@@ -170,12 +166,7 @@ class FunctionalTest(base.TestCase):
 
         self.assertEqual(response.status_code, status_code)
 
-        LOG.debug('PUT RESPONSE: %r' % response.data)
-
-        try:
-            response.json = json.loads(response.data)
-        except ValueError:
-            response.json = None
+        LOG.debug('PUT RESPONSE: %r' % response.body)
 
         return response
 
@@ -187,7 +178,7 @@ class FunctionalTest(base.TestCase):
 
         response = self.app.delete(path, params=all_params)
 
-        LOG.debug('DELETE RESPONSE: %r' % response.data)
+        LOG.debug('DELETE RESPONSE: %r' % response.body)
 
         self.assertEqual(response.status_code, status_code)
 
