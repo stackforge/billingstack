@@ -22,7 +22,7 @@ from billingstack import utils
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common import timeutils
 from billingstack.openstack.common.uuidutils import generate_uuid
-from billingstack.storage.impl_sqlalchemy.types import UUID
+from billingstack.storage.impl_sqlalchemy.types import JSON, UUID
 from billingstack.storage.impl_sqlalchemy.model_base import ModelBase
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
@@ -183,7 +183,8 @@ class InvoiceLine(ModelBase):
     quantity = Column(Float)
     sub_total = Column(Float)
 
-    invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE'), nullable=False)
+    invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE',
+                                         onupdate='CASCADE'), nullable=False)
 
 
 class Pricing(ModelBase):
@@ -200,6 +201,14 @@ class Pricing(ModelBase):
                                            onupdate='CASCADE'))
 
 
+class ProductMetadata(ModelBase):
+    data = Column(JSON)
+    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE',
+                                      onupdate='CASCADE'))
+    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE',
+                                         onupdate='CASCADE'))
+
+
 class Plan(ModelBase):
     """
     A Collection of Products
@@ -210,6 +219,7 @@ class Plan(ModelBase):
     provider = Column(Unicode(255), nullable=False)
 
     plan_items = relationship('PlanItem', backref='plan', uselist=False)
+    meta = relationship('ProductMetadata', backref='plan_item', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id',
                          ondelete='CASCADE'), nullable=False)
@@ -246,7 +256,8 @@ class Product(ModelBase):
     source = Column(Unicode(255))
     type = Column(Unicode(255))
 
-    price = relationship('Pricing', backref='product')
+    price = relationship('Pricing', backref='product', uselist=False)
+    meta = relationship('ProductMetadata', backref='product', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)

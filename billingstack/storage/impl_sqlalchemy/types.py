@@ -18,6 +18,7 @@
 from sqlalchemy.types import TypeDecorator, CHAR, VARCHAR
 from sqlalchemy.dialects.postgresql import UUID as pgUUID
 from sqlalchemy.dialects.postgresql import INET as pgINET
+import json
 import uuid
 
 
@@ -70,3 +71,27 @@ class Inet(TypeDecorator):
             return value
         else:
             return str(value)
+
+
+
+class JSON(TypeDecorator):
+    """Represents an immutable structure as a json-encoded string.
+
+    Usage::
+
+        JSONEncodedDict(255)
+
+    """
+
+    impl = VARCHAR
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            value = json.dumps(value)
+
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = json.loads(value)
+        return value
