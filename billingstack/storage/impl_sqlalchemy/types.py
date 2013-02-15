@@ -15,11 +15,13 @@
 # under the License.
 #
 # Coped: Moniker
-from sqlalchemy.types import TypeDecorator, CHAR, VARCHAR
+from sqlalchemy.types import TypeDecorator, CHAR, VARCHAR, UnicodeText
 from sqlalchemy.dialects.postgresql import UUID as pgUUID
 from sqlalchemy.dialects.postgresql import INET as pgINET
-import json
 import uuid
+
+
+from billingstack.openstack.common import jsonutils
 
 
 class UUID(TypeDecorator):
@@ -73,25 +75,13 @@ class Inet(TypeDecorator):
             return str(value)
 
 
-
+# Special Fields
 class JSON(TypeDecorator):
-    """Represents an immutable structure as a json-encoded string.
 
-    Usage::
-
-        JSONEncodedDict(255)
-
-    """
-
-    impl = VARCHAR
+    impl = UnicodeText
 
     def process_bind_param(self, value, dialect):
-        if value is not None:
-            value = json.dumps(value)
-
-        return value
+        return jsonutils.dumps(value)
 
     def process_result_value(self, value, dialect):
-        if value is not None:
-            value = json.loads(value)
-        return value
+        return jsonutils.loads(value)
