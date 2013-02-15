@@ -21,7 +21,7 @@ from pecan import request
 from pecan.rest import RestController
 
 import wsmeext.pecan as wsme_pecan
-from wsme.types import Base, text
+from wsme.types import Base, text, Unset
 
 
 from billingstack.openstack.common import log
@@ -31,6 +31,17 @@ LOG = log.getLogger(__name__)
 
 
 class Base(Base):
+    def as_dict(self):
+        data = {}
+
+        for attr in self._wsme_attributes:
+            value = attr.__get__(self, self.__class__)
+            if value is not Unset:
+                if isinstance(value, Base) and hasattr(value, "as_dict"):
+                    value = value.as_dict()
+                data[attr.name] = value
+        return data
+
     id = text
 
 
@@ -174,6 +185,15 @@ class MerchantController(RestBase):
         m = request.storage_conn.merchant_get(self.id_)
         return Merchant(**dict(m))
 
+    @wsme_pecan.wsexpose(Merchant, body=Merchant)
+    def put(self, body):
+        m = request.storage_conn.merchant_update(self.id_, body.as_dict())
+        return Merchant(**m)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.storage_conn.merchant_delete(self.id_)
+
 
 class MerchantsController(RestBase):
     """Merchants controller"""
@@ -185,8 +205,9 @@ class MerchantsController(RestBase):
 
     @wsme_pecan.wsexpose(Merchant, body=Merchant)
     def post(self, body):
-        #print body
-        return Merchant(**{})
+        merchant = request.storage_conn.merchant_add(body.as_dict())
+        return Merchant(**merchant)
+
 
 
 class V1Controller(object):

@@ -31,10 +31,30 @@ LOG = logging.getLogger(__name__)
 
 
 class TestMerchant(FunctionalTest):
-    def test_merchant_list(self):
-        resp = self.get('merchants')
-        self.assertLen(0, resp.json)
-
     def test_merchant_add(self):
         fixture = self.get_fixture('merchant')
+        self._account_defaults(fixture)
+
         resp = self.post('merchants', fixture)
+
+        self.assertData(fixture, resp.json)
+
+    def test_merchant_list(self):
+        resp = self.get('merchants')
+        self.assertLen(1, resp.json)
+
+    def test_merchant_get(self):
+        resp = self.get('merchants/' + self.merchant['id'])
+        self.assertData(resp.json, self.merchant)
+
+    def test_merchant_update(self):
+        fixture = self.merchant.copy()
+        fixture['name'] = 'test'
+
+        rest = self.put('merchants/' + self.merchant['id'], fixture)
+
+        self.assertData(rest.json, fixture)
+
+    def test_merchant_delete(self):
+        self.delete('merchants/' + self.merchant['id'])
+        self.assertLen(0, self.storage_conn.merchant_list())
