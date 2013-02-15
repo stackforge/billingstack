@@ -16,10 +16,11 @@ from sqlalchemy.orm import exc
 from billingstack.openstack.common import cfg
 from billingstack.openstack.common import log as logging
 from billingstack import exceptions
-from billingstack import utils
+from billingstack import utils as cutils
 from billingstack.storage import base
 from billingstack.storage.impl_sqlalchemy import models
 from billingstack.storage.impl_sqlalchemy.session import get_session, SQLOPTS
+from billingstack.storage.impl_sqlalchemy import utils as db_utils
 
 LOG = logging.getLogger(__name__)
 
@@ -129,7 +130,7 @@ class Connection(base.Connection):
         """
         Add a supported currency to the database
         """
-        data = utils.get_currency(values['letter'])
+        data = cutils.get_currency(values['letter'])
         row = models.Currency(**data)
         self._save(row)
         return dict(row)
@@ -154,7 +155,7 @@ class Connection(base.Connection):
         """
         Add a supported language to the database
         """
-        data = utils.get_language(values['letter'])
+        data = cutils.get_language(values['letter'])
         row = models.Language(**data)
         self._save(row)
         return dict(row)
@@ -264,7 +265,8 @@ class Connection(base.Connection):
         q = q.filter_by(merchant_id=merchant_id)
 
         if customer_id:
-            q = q.join(models.User.customers).filter(models.Customer.id==customer_id)
+            q = q.join(models.User.customers).\
+                filter(models.Customer.id == customer_id)
 
         rows = self._list(query=q, **kw)
         return map(self._user, rows)
@@ -295,3 +297,82 @@ class Connection(base.Connection):
         :param user_id: User ID
         """
         self._delete(models.User, user_id)
+
+    # Products
+    def _product(self, row):
+        product = dict(row)
+        product['metadata'] = dict(row.meta.data)
+        return product
+
+    def _extract_meta(self, values):
+        """
+        Split Metadata out from Values but leave the original values intact
+        using copy()
+
+        :param values: The values
+        """
+        values = values.copy()
+        metadata = values.pop('metadata', {})
+        return values, metadata
+
+    def product_add(self, merchant_id, values):
+        """
+        Add a new Product
+
+        :param merchant_id: The Merchant
+        :param values: Values describing the new Product
+        """
+        values, metadata = self._extract_meta(values)
+
+        merchant = self._get(models.Merchant, merchant_id)
+
+        meta = models.ProductMetadata(data=metadata)
+
+        product = models.Product(**values)
+        product.meta = meta
+        product.merchant = merchant
+
+        self._save(product)
+        return self._product(product)
+
+    def product_list(self, merchant_id, **kw):
+        """
+        List Products
+
+        :param merchant_id: The Merchant to list it for
+        """
+        q = self.session.query(models.Product)
+        q = q.filter_by(merchant_id=merchant_id)
+        rows = self._list(query=q, **kw)
+        return map(self._product, rows)
+
+    def product_get(self, product_id):
+        """
+        Get a Product
+
+        :param product_id: The Product ID
+        """
+        row = self._get(models.Product, product_id)
+        return self._product(row)
+
+    def product_update(self, product_id, values):
+        """
+        Update a Product
+
+        :param product_id: The Product ID
+        :param values: Values to update with
+        """
+        values, metadata = self._extract_meta(values)
+
+        row = self._update(models.Product, product_id, values)
+        row.meta.data = metadata
+
+        return self._product(row)
+
+    def product_delete(self, product_id):
+        """
+        Delete a Product
+
+        :param product_id: Product ID
+        """
+        self._delete(models.Product, product_id)

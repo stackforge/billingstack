@@ -127,3 +127,6 @@ class TestCase(unittest2.TestCase, AssertMixin):
         fixture = self.get_fixture('user', fixture, values)
         return fixture, self.storage_conn.user_add(merchant_id, fixture, **kw)
 
+    def product_add(self, merchant_id, fixture=0, values={}, **kw):
+        fixture = self.get_fixture('product', fixture, values)
+        return fixture, self.storage_conn.product_add(merchant_id, fixture, **kw)

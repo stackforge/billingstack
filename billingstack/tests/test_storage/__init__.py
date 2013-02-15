@@ -163,3 +163,33 @@ class StorageDriverTestCase(StorageTestCase):
 
     def test_user_delete_missing(self):
         self.assertMissing(self.storage_conn.user_delete, UUID)
+
+    # Products
+    def test_product_add(self):
+        f, data = self.product_add(self.merchant['id'])
+        self.assertData(f, data)
+
+    def test_product_get(self):
+        f, expected = self.product_add(self.merchant['id'])
+        actual = self.storage_conn.product_get(expected['id'])
+        self.assertData(expected, actual)
+
+    def test_product_get_missing(self):
+        self.assertMissing(self.storage_conn.product_get, UUID)
+
+    def test_product_update(self):
+        f, obj = self.product_add(self.merchant['id'])
+        updated = self.storage_conn.product_update(obj['id'], f)
+        self.assertData(obj, updated)
+
+    def test_product_update_missing(self):
+        self.assertMissing(self.storage_conn.product_update, UUID, {})
+
+    def test_product_delete(self):
+        f, obj = self.product_add(self.merchant['id'])
+        self.storage_conn.product_delete(obj['id'])
+        self.assertMissing(self.storage_conn.product_get, obj['id'])
+
+    def test_product_delete_missing(self):
+        self.assertMissing(self.storage_conn.product_delete, UUID)
+
