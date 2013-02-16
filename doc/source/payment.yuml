@@ -1,0 +1,2 @@
+[ep.PaymentGateway]-1>[models.PaymentGateway]
+[models.PaymentGateway]-*>[models.PaymentMethod]
