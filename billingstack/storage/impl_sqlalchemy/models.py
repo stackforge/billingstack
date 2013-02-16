@@ -193,6 +193,7 @@ class Pricing(ModelBase):
     """
     Resembles a Price information in some way
     """
+    __tablename__ = 'product_pricing'
     value_from = Column(Float)
     value_to = Column(Float)
     price = Column(Float, nullable=False)
@@ -266,6 +267,11 @@ class Product(ModelBase):
 
 
 class Subscription(ModelBase):
+    """
+    The thing that ties together stuff that is to be billed
+
+    In other words a Plan which is a collection of Products or a Product.
+    """
     billing_day = Column(Integer)
     payment_method = Column(Unicode(255))
     resource = Column(Unicode(255))
@@ -274,10 +280,6 @@ class Subscription(ModelBase):
 
     plan = relationship('Plan', backref='subscriptions', uselist=False)
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
-                     nullable=False)
-
-    product = relationship('Product', backref='subscriptions', uselist=False)
-    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'),
                      nullable=False)
 
     merchant = relationship('Merchant', backref='subscriptions')
