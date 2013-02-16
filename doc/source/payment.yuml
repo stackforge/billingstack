@@ -1,2 +1,5 @@
-[ep.PaymentGateway]-1>[models.PaymentGateway]
-[models.PaymentGateway]-*>[models.PaymentMethod]
+[plugin.PaymentGatewayProvider]1-1>[models.PaymentGatewayProvider]
+[models.PaymentGatewayProvider]1-*>[models.PaymentMethod]
+[models.PaymentGatewayConfiguration]*-1>[Models.PaymentGatewayProvider]
+[models.Merchant]1-*>[models.PaymentGatewayConfiguration]
+[models.Subscription]*-1>[models.PaymentMethod]
