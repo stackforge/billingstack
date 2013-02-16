@@ -127,6 +127,10 @@ class TestCase(unittest2.TestCase, AssertMixin):
         self._account_defaults(fixture)
         return fixture, self.storage_conn.merchant_add(fixture, **kw)
 
+    def payment_gw_add(self, merchant_id, fixture=0, values={}, **kw):
+        fixture = self.get_fixture('payment_gw', fixture, values)
+        return fixture, self.storage_conn.payment_gw_add(merchant_id, fixture, **kw)
+
     def customer_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
         self._account_defaults(fixture)

@@ -1,0 +1,14 @@
+[
+   {
+      "is_default" : true,
+      "name" : "braintree",
+      "configuration" : {
+         "environment" : "sandbox",
+         "private_key" : "ABCD",
+         "merchant_id" : "billingstack",
+         "public_key" : "ABCD"
+      },
+      "title" : "Braintree",
+      "description" : "Braintree Payments"
+   }
+]

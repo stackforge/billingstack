@@ -178,6 +178,7 @@ class Connection(base.Connection):
     # Merchant
     def merchant_add(self, values):
         row = models.Merchant(**values)
+
         self._save(row)
         return dict(row)
 
@@ -196,18 +197,51 @@ class Connection(base.Connection):
     def merchant_delete(self, merchant_id):
         self._delete(models.Merchant, merchant_id)
 
+    # Payment Gateway
+    def payment_gw_add(self, merchant_id, values):
+        merchant = self._get(models.Merchant, merchant_id)
+
+        payment_gw = models.PaymentGateway(**values)
+        payment_gw.merchant = merchant
+
+        row = self._save(payment_gw)
+        return dict(row)
+
+    def payment_gw_list(self, merchant_id, **kw):
+        q = self.session.query(models.PaymentGateway)
+        q = q.filter_by(merchant_id=merchant_id)
+
+        rows = self._list(query=q, **kw)
+
+        return map(dict, rows)
+
+    def payment_gw_get(self, payment_gw_id):
+        row = self._get(models.PaymentGateway, payment_gw_id)
+        return dict(row)
+
+    def payment_gw_update(self, payment_gw_id, values):
+        row = self._update(models.PaymentGateway, payment_gw_id, values)
+        return dict(row)
+
+    def payment_gw_delete(self, payment_gw_id):
+        self._delete(models.PaymentGateway, payment_gw_id)
+
     # Customer
     def customer_add(self, merchant_id, values):
         merchant = self._get(models.Merchant, merchant_id)
+
         customer = models.Customer(**values)
         merchant.customers.append(customer)
+
         self._save(merchant)
         return dict(customer)
 
     def customer_list(self, merchant_id, **kw):
         q = self.session.query(models.Customer)
         q = q.filter_by(merchant_id=merchant_id)
+
         rows = self._list(query=q, **kw)
+
         return map(dict, rows)
 
     def customer_get(self, customer_id):
@@ -252,6 +286,7 @@ class Connection(base.Connection):
         if customer_id:
             customer = self._get(models.Customer, customer_id)
             customer.users.append(user)
+
         self._save(user)
         return self._user(user)
 
@@ -269,6 +304,7 @@ class Connection(base.Connection):
                 filter(models.Customer.id == customer_id)
 
         rows = self._list(query=q, **kw)
+
         return map(self._user, rows)
 
     def user_get(self, user_id):
@@ -343,6 +379,7 @@ class Connection(base.Connection):
         """
         q = self.session.query(models.Product)
         q = q.filter_by(merchant_id=merchant_id)
+
         rows = self._list(query=q, **kw)
         return map(self._product, rows)
 
@@ -364,9 +401,11 @@ class Connection(base.Connection):
         """
         values, metadata = self._extract_meta(values)
 
-        row = self._update(models.Product, product_id, values)
+        row = self._get(models.Product, product_id)
+        row.update(values)
         row.meta.data = metadata
 
+        self._save(row)
         return self._product(row)
 
     def product_delete(self, product_id):
