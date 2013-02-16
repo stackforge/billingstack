@@ -104,6 +104,10 @@ class Merchant(ModelBase):
     """
     name = Column(Unicode(60), nullable=False)
 
+    customers = relationship('Customer', backref='merchant')
+    plans = relationship('Plan', backref='merchant')
+    products = relationship('Product', backref='merchant')
+
     currency = relationship('Currency', uselist=False, backref='merchants')
     currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
 
@@ -111,9 +115,7 @@ class Merchant(ModelBase):
     language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
 
     payment_gateway = relationship('PaymentGateway', backref='merchant')
-    customers = relationship('Customer', backref='merchant')
-    plans = relationship('Plan', backref='merchant')
-    products = relationship('Product', backref='merchant')
+    payment_gateway_id = Column(UUID, ForeignKey('payment_gateway.id'))
 
 
 class Customer(ModelBase):
@@ -136,22 +138,40 @@ class Customer(ModelBase):
 
 class PaymentGateway(ModelBase):
     """
-    A Payment Gateway
+    A Payment Gateway - The thing that processes a Payment Method
+
+    This is registered either by the Admin or by the PaymentGateway plugin
     """
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    is_default = Column(Boolean, nullable=False)
-
+    is_default = Column(Boolean)
     configuration = Column(JSON)
 
-    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
-                         nullable=False)
+    methods = relationship('PaymentMethod', backref='gateway')
+
+
+class PaymentMethod(ModelBase):
+    """
+    The Method that is allowed to use on a PaymentGateway
+
+    Example:
+        CredCard, Bill etc...
+    """
+    name = Column(Unicode(100), nullable=False)
+    type = Column(Unicode(100), nullable=False)
+
+    is_default = Column(Boolean)
+    configuration = Column(JSON)
+
+    payment_gateway_id = Column(UUID, ForeignKey('payment_gateway.id',
+                                                ondelete='CASCADE',
+                                                onupdate='CASCADE'))
 
 
 class InvoiceState(ModelBase):
-    name = Column(Unicode(40), nullable=False)
+    name = Column(Unicode(60), nullable=False)
 
 
 class Invoice(ModelBase):
@@ -221,7 +241,7 @@ class Plan(ModelBase):
     description = Column(Unicode(255))
     provider = Column(Unicode(255), nullable=False)
 
-    plan_items = relationship('PlanItem', backref='plan', uselist=False)
+    plan_items = relationship('PlanItem', backref='plan')
     meta = relationship('ProductMetadata', backref='plan_item', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id',
@@ -282,10 +302,6 @@ class Subscription(ModelBase):
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
                      nullable=False)
 
-    merchant = relationship('Merchant', backref='subscriptions')
-    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
-                         nullable=False)
-
     customer = relationship('Customer', backref='subscriptions')
     customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
                          nullable=False)
@@ -302,11 +318,3 @@ class Usage(ModelBase):
 
     subscription_id = Column(UUID, ForeignKey('subscription.id',
                              ondelete='CASCADE'), nullable=False)
-
-    merchant = relationship('Merchant', backref='usages')
-    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
-                        nullable=False)
-
-    customer = relationship('Customer', backref='usages')
-    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
-                         nullable=False)
