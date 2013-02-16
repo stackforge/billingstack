@@ -42,10 +42,6 @@ if __name__ == '__main__':
     for l in samples['language']:
         languages[l['letter']] = conn.language_add(l)
 
-    merchant = samples['merchant'][0].copy()
-    merchant['currency_id'] = currencies['nok']['id']
-    merchant['language_id'] = languages['nor']['id']
-
     country_data = {
         "currency_id": currencies['nok']['id'],
         "language_id": languages['nor']['id']}
@@ -57,6 +53,7 @@ if __name__ == '__main__':
         merchant['id'], get_fixture('customer', values=country_data))
 
     contact_info = get_fixture('contact_info')
+
     merchant_user = get_fixture('user')
     merchant_user['username'] = 'demo_merchant'
 
