@@ -110,7 +110,7 @@ class Merchant(ModelBase):
     language = relationship('Language', uselist=False, backref='merchants')
     language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
 
-    payment_gateway = relationship('PaymentGateway', backref='merchant', uselist=False)
+    payment_gateway = relationship('PaymentGateway', backref='merchant')
     customers = relationship('Customer', backref='merchant')
     plans = relationship('Plan', backref='merchant')
     products = relationship('Product', backref='merchant')
@@ -143,6 +143,8 @@ class PaymentGateway(ModelBase):
     description = Column(Unicode(255))
 
     is_default = Column(Boolean, nullable=False)
+
+    configuration = Column(JSON)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
