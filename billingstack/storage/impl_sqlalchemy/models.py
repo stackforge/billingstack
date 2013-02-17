@@ -340,5 +340,10 @@ class Usage(BASE):
     total = Column(Float)
     value = Column(Float)
 
+    product = relationship('Product', backref='usages')
+    prodoct_id = Column(UUID, ForeignKey('product.id', onupdate='CASCADE'),
+                        nullable=False)
+
     subscription_id = Column(UUID, ForeignKey('subscription.id',
-                             ondelete='CASCADE'), nullable=False)
+                                              onupdate='CASCADE'),
+                             nullable=False)
