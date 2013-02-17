@@ -191,7 +191,9 @@ class Connection(base.Connection):
         try:
             provider = query.one()
         except exc.NoResultFound:
-            provider = models.PaymentGatewayProvider(**values)
+            provider = models.PaymentGatewayProvider()
+
+        provider.update(values)
 
         self._set_provider_methods(provider, methods)
 
