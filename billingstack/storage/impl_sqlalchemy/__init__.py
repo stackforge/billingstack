@@ -45,11 +45,11 @@ class Connection(base.Connection):
 
     def setup_schema(self):
         """ Semi-Private Method to create the database schema """
-        models.ModelBase.metadata.create_all(self.session.bind)
+        models.BASE.metadata.create_all(self.session.bind)
 
     def teardown_schema(self):
         """ Semi-Private Method to reset the database schema """
-        models.ModelBase.metadata.drop_all(self.session.bind)
+        models.BASE.metadata.drop_all(self.session.bind)
 
     def _save(self, obj):
         try:

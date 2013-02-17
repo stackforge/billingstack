@@ -29,7 +29,7 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 LOG = logging.getLogger(__name__)
 
 
-class ModelBase(ModelBase):
+class BaseModel(ModelBase):
     @declared_attr
     def __tablename__(cls):
         return utils.capital_to_underscore(cls.__name__)
@@ -39,22 +39,57 @@ class ModelBase(ModelBase):
     updated_at = Column(DateTime, onupdate=timeutils.utcnow)
 
 
-ModelBase = declarative_base(cls=ModelBase)
+BASE = declarative_base(cls=BaseModel)
 
 
-class Currency(ModelBase):
+class Currency(BASE):
     __table_args__ = (UniqueConstraint('letter', name='currency'),)
     letter = Column(Unicode(10), nullable=False)
     name = Column(Unicode(100), nullable=False)
 
 
-class Language(ModelBase):
+class Language(BASE):
     __table_args__ = (UniqueConstraint('letter', name='language'),)
     letter = Column(Unicode(10), nullable=False)
     name = Column(Unicode(100), nullable=False)
 
 
-class ContactInfo(ModelBase):
+class PaymentGatewayProvider(BASE):
+    """
+    A Payment Gateway - The thing that processes a Payment Method
+
+    This is registered either by the Admin or by the PaymentGateway plugin
+    """
+    name = Column(Unicode(60), nullable=False)
+    title = Column(Unicode(100))
+    description = Column(Unicode(255))
+
+    is_default = Column(Boolean)
+    data = Column(JSON)
+
+    methods = relationship('PaymentMethod', backref='provider')
+
+
+class PaymentMethod(BASE):
+    """
+    The Method that is allowed to use on a PaymentGateway
+
+    Example:
+        CredCard, Bill etc...
+    """
+    name = Column(Unicode(100), nullable=False)
+    title = Column(Unicode(100))
+    description = Column(Unicode(255))
+
+    is_default = Column(Boolean)
+    data = Column(JSON)
+
+    provider_id = Column(UUID, ForeignKey('payment_gateway_provider.id',
+                                                ondelete='CASCADE',
+                                                onupdate='CASCADE'))
+
+
+class ContactInfo(BASE):
     address1 = Column(Unicode(60))
     address2 = Column(Unicode(60))
     city = Column(Unicode(60))
@@ -64,24 +99,24 @@ class ContactInfo(ModelBase):
     zip = Column(Unicode(20))
 
 
-user_customer = Table('user_customer', ModelBase.metadata,
+user_customer = Table('user_customer', BASE.metadata,
     Column('user_id', UUID, ForeignKey('user.id')),
     Column('customer_id', UUID, ForeignKey('customer.id')))
 
 
-user_customer_role = Table('user_customer_roles', ModelBase.metadata,
+user_customer_role = Table('user_customer_roles', BASE.metadata,
     Column('user_id', UUID, ForeignKey('user.id', ondelete='CASCADE')),
     Column('customer_id', UUID, ForeignKey('customer.id', ondelete='CASCADE')),
     Column('role', Unicode(40)))
 
 
-user_merchant_role = Table('user_merchant_roles', ModelBase.metadata,
+user_merchant_role = Table('user_merchant_roles', BASE.metadata,
     Column('user_id', UUID, ForeignKey('user.id', ondelete='CASCADE')),
     Column('merchant_id', UUID, ForeignKey('merchant.id', ondelete='CASCADE')),
     Column('role', Unicode(40)))
 
 
-class User(ModelBase):
+class User(BASE):
     username = Column(Unicode(20), nullable=False)
     password = Column(Unicode(255), nullable=False)
     # NOTE: Should be uuid?
@@ -98,13 +133,15 @@ class User(ModelBase):
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'))
 
 
-class Merchant(ModelBase):
+class Merchant(BASE):
     """
     A Merchant is like a Account in Recurly
     """
     name = Column(Unicode(60), nullable=False)
 
     customers = relationship('Customer', backref='merchant')
+    payment_gateways = relationship('PaymentGatewayConfig', backref='merchant')
+
     plans = relationship('Plan', backref='merchant')
     products = relationship('Product', backref='merchant')
 
@@ -114,11 +151,22 @@ class Merchant(ModelBase):
     language = relationship('Language', uselist=False, backref='merchants')
     language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
 
-    payment_gateway = relationship('PaymentGateway', backref='merchant')
-    payment_gateway_id = Column(UUID, ForeignKey('payment_gateway.id'))
+
+class PaymentGatewayConfig(BASE):
+    merchant_id = Column(UUID, ForeignKey('merchant.id'))
+
+    is_default = Column(Boolean)
+    data = Column(JSON)
+
+    provider = relationship('PaymentGatewayProvider',
+                            backref='configurations')
+    provider_id = Column(UUID, ForeignKey('payment_gateway_provider.id',
+                                          ondelete='CASCADE',
+                                          onupdate='CASCADE'),
+                         nullable=False)
 
 
-class Customer(ModelBase):
+class Customer(BASE):
     """
     A Customer is linked to a Merchant and can have Users related to it
     """
@@ -136,45 +184,14 @@ class Customer(ModelBase):
     invoices = relationship('Invoice', backref='customer')
 
 
-class PaymentGateway(ModelBase):
-    """
-    A Payment Gateway - The thing that processes a Payment Method
-
-    This is registered either by the Admin or by the PaymentGateway plugin
-    """
-    name = Column(Unicode(60), nullable=False)
-    title = Column(Unicode(100))
-    description = Column(Unicode(255))
-
-    is_default = Column(Boolean)
-    configuration = Column(JSON)
-
-    methods = relationship('PaymentMethod', backref='gateway')
+#class CustomerPaymentMethod(BaseTable):
 
 
-class PaymentMethod(ModelBase):
-    """
-    The Method that is allowed to use on a PaymentGateway
-
-    Example:
-        CredCard, Bill etc...
-    """
-    name = Column(Unicode(100), nullable=False)
-    type = Column(Unicode(100), nullable=False)
-
-    is_default = Column(Boolean)
-    configuration = Column(JSON)
-
-    payment_gateway_id = Column(UUID, ForeignKey('payment_gateway.id',
-                                                ondelete='CASCADE',
-                                                onupdate='CASCADE'))
-
-
-class InvoiceState(ModelBase):
+class InvoiceState(BASE):
     name = Column(Unicode(60), nullable=False)
 
 
-class Invoice(ModelBase):
+class Invoice(BASE):
     identifier = Column(Unicode(255), nullable=False)
     due = Column(DateTime, )
 
@@ -199,7 +216,7 @@ class Invoice(ModelBase):
                          nullable=False)
 
 
-class InvoiceLine(ModelBase):
+class InvoiceLine(BASE):
     description = Column(Unicode(255))
     price = Column(Float)
     quantity = Column(Float)
@@ -209,7 +226,7 @@ class InvoiceLine(ModelBase):
                                          onupdate='CASCADE'), nullable=False)
 
 
-class Pricing(ModelBase):
+class Pricing(BASE):
     """
     Resembles a Price information in some way
     """
@@ -224,7 +241,7 @@ class Pricing(ModelBase):
                                            onupdate='CASCADE'))
 
 
-class ProductMetadata(ModelBase):
+class ProductMetadata(BASE):
     data = Column(JSON)
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE',
                                       onupdate='CASCADE'))
@@ -232,7 +249,7 @@ class ProductMetadata(ModelBase):
                                          onupdate='CASCADE'))
 
 
-class Plan(ModelBase):
+class Plan(BASE):
     """
     A Collection of Products
     """
@@ -248,7 +265,7 @@ class Plan(ModelBase):
                          ondelete='CASCADE'), nullable=False)
 
 
-class PlanItem(ModelBase):
+class PlanItem(BASE):
     """
     A Link between the Plan and a Product
     """
@@ -270,7 +287,7 @@ class PlanItem(ModelBase):
                         nullable=False)
 
 
-class Product(ModelBase):
+class Product(BASE):
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
@@ -286,7 +303,7 @@ class Product(ModelBase):
                          nullable=False)
 
 
-class Subscription(ModelBase):
+class Subscription(BASE):
     """
     The thing that ties together stuff that is to be billed
 
@@ -306,8 +323,13 @@ class Subscription(ModelBase):
     customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
                          nullable=False)
 
+    payment_method = Column(UUID, ForeignKey('payment_method.id',
+                                             ondelete='CASCADE',
+                                             onupdate='CASCADE'),
+                           nullable=False)
 
-class Usage(ModelBase):
+
+class Usage(BASE):
     measure = Column(Unicode(255))
     start_timestamp = Column(DateTime)
     end_timestamp = Column(DateTime)
