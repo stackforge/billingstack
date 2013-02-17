@@ -31,3 +31,4 @@
 [Subscription]1-1>[Customer]
 [Subscription]1-1>[PaymentMethod]
 [Usage]*-1>[Subscription]
+[Usage]1-1>[Product]
