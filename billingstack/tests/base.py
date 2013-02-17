@@ -114,6 +114,15 @@ class TestCase(unittest2.TestCase, AssertMixin):
         fixture = self.get_fixture('currency', fixture, values)
         return fixture, self.storage_conn.currency_add(fixture, **kw)
 
+    def pg_provider_register(self, fixture=0, values={}, methods=[], **kw):
+        methods = [self.get_fixture('payment_method')] or methods
+        fixture = self.get_fixture('pg_provider', fixture, values)
+
+        data = self.storage_conn.pg_provider_register(fixture, methods=methods, **kw)
+
+        fixture['methods'] = methods
+        return fixture, data
+
     def _account_defaults(self, values):
         # NOTE: Do defaults
         if not 'currency_id' in values:
@@ -126,10 +135,6 @@ class TestCase(unittest2.TestCase, AssertMixin):
         fixture = self.get_fixture('merchant', fixture, values)
         self._account_defaults(fixture)
         return fixture, self.storage_conn.merchant_add(fixture, **kw)
-
-    def payment_gw_add(self, merchant_id, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('payment_gw', fixture, values)
-        return fixture, self.storage_conn.payment_gw_add(merchant_id, fixture, **kw)
 
     def customer_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)

@@ -17,8 +17,7 @@
 # Copied: Moniker
 from billingstack.openstack.common import log as logging
 from billingstack.tests.base import TestCase
-from billingstack import exceptions
-from billingstack import storage
+
 
 LOG = logging.getLogger(__name__)
 
@@ -36,6 +35,30 @@ class StorageDriverTestCase(TestCase):
     # Languages
     def test_language_add(self):
         self.assertDuplicate(self.language_add)
+
+    # Payment Gateways
+    def test_pg_provider_register(self):
+        fixture, actual = self.pg_provider_register()
+        self.assertEqual(fixture['name'], actual['name'])
+        self.assertEqual(fixture['title'], actual['title'])
+        self.assertEqual(fixture['description'], actual['description'])
+        self.assertData(fixture['methods'][0], actual['methods'][0])
+
+    def test_pg_provider_get(self):
+        _, expected = self.pg_provider_register()
+        actual = self.storage_conn.pg_provider_get(expected['id'])
+        self.assertData(expected, actual)
+
+    def test_pg_provider_get_missing(self):
+        self.assertMissing(self.storage_conn.pg_provider_get, UUID)
+
+    def test_pg_provider_deregister(self):
+        _, data = self.pg_provider_register()
+        self.storage_conn.pg_provider_deregister(data['id'])
+        self.assertMissing(self.storage_conn.pg_provider_deregister, data['id'])
+
+    def test_pg_provider_deregister_missing(self):
+        self.assertMissing(self.storage_conn.pg_provider_deregister, UUID)
 
     # Merchant
     def test_merchant_add(self):
@@ -64,36 +87,6 @@ class StorageDriverTestCase(TestCase):
 
     def test_merchant_delete_missing(self):
         self.assertMissing(self.storage_conn.merchant_delete, UUID)
-
-    # Payment Gateways
-    def test_payment_gw_add(self):
-        fixture, actual = self.payment_gw_add(self.merchant['id'])
-        self.assertData(fixture, actual)
-
-    def test_payment_gw_get(self):
-        _, expected = self.payment_gw_add(self.merchant['id'])
-        actual = self.storage_conn.payment_gw_get(expected['id'])
-        self.assertData(expected, actual)
-
-    def test_payment_gw_get_missing(self):
-        self.assertMissing(self.storage_conn.payment_gw_get, UUID)
-
-    def test_payment_gw_update(self):
-        fixture, data = self.payment_gw_add(self.merchant['id'])
-        fixture['configuration'] = {}
-        updated = self.storage_conn.payment_gw_update(data['id'], fixture)
-        self.assertData(fixture, updated)
-
-    def test_payment_gw_update_missing(self):
-        self.assertMissing(self.storage_conn.payment_gw_update, UUID, {})
-
-    def test_payment_gw_delete(self):
-        _, data = self.payment_gw_add(self.merchant['id'])
-        self.storage_conn.payment_gw_delete(data['id'])
-        self.assertMissing(self.storage_conn.payment_gw_get, data['id'])
-
-    def test_payment_gw_delete_missing(self):
-        self.assertMissing(self.storage_conn.payment_gw_delete, UUID)
 
     # Customer
     def test_customer_add(self):

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Copyright 2012 Bouvet ASA
 #
 # Author: Endre Karlson <endre.karlson@gmail.com>
 #
@@ -49,12 +48,20 @@ setup(
     dependency_links=dependency_links,
     scripts=[
         'bin/billingstack-api',
-        'bin/billingstack-db-manage'
+        'bin/billingstack-db-manage',
+        'bin/billingstack-manage',
     ],
     cmdclass=common_setup.get_cmdclass(),
     entry_points=textwrap.dedent("""
         [billingstack.storage]
         sqlalchemy = billingstack.storage.impl_sqlalchemy:SQLAlchemyStorage
+
+        [billingstack.payment_gateway]
+        braintree = billingstack.payment_gateway.braintree:BraintreeProvider
+
+        [billingstack.manage]
+        pg-register = billingstack.manage.provider:ProvidersRegister
+        pg-list = billingstack.manage.provider:ProvidersList
         """),
     classifiers=[
         'Development Status :: 3 - Alpha',

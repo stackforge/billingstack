@@ -67,7 +67,7 @@ class PaymentGatewayProvider(BASE):
     is_default = Column(Boolean)
     data = Column(JSON)
 
-    methods = relationship('PaymentMethod', backref='provider')
+    methods = relationship('PaymentMethod', backref='provider', lazy='joined')
 
 
 class PaymentMethod(BASE):
@@ -81,12 +81,14 @@ class PaymentMethod(BASE):
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
+    type = Column(Unicode(100), nullable=False)
+
     is_default = Column(Boolean)
     data = Column(JSON)
 
     provider_id = Column(UUID, ForeignKey('payment_gateway_provider.id',
-                                                ondelete='CASCADE',
-                                                onupdate='CASCADE'))
+                                          ondelete='CASCADE',
+                                          onupdate='CASCADE'))
 
 
 class ContactInfo(BASE):

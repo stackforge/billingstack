@@ -123,6 +123,13 @@ class Connection(base.Connection):
         obj = self._get(cls, id_)
         obj.delete(self.session)
 
+    def _dict(self, row, extra=[]):
+        data = dict(row)
+        for key in extra:
+            if isinstance(row[key], list):
+                data[key] = map(dict, row[key])
+        return data
+
     # Currency
     def currency_add(self, values):
         """
@@ -173,6 +180,55 @@ class Connection(base.Connection):
     def language_delete(self, id_):
         self._delete(models.Language, id_)
 
+    # Payment Gateway Providers
+    def pg_provider_register(self, values, methods=[]):
+        """
+        Register a Provider and it's Methods
+        """
+        query = self.session.query(models.PaymentGatewayProvider)\
+            .filter_by(name=values['name'])
+
+        try:
+            provider = query.one()
+        except exc.NoResultFound:
+            provider = models.PaymentGatewayProvider(**values)
+
+        self._set_provider_methods(provider, methods)
+
+        self._save(provider)
+        return self._dict(provider, extra=['methods'])
+
+    def _set_provider_methods(self, provider_ref, methods):
+        """
+        Helper method for setting the Methods for a Provider
+        """
+        orig_methods = dict([(m['name'], m) for m in provider_ref.methods])
+
+        # Loop throug and set methods..
+        for m in methods:
+            if m['name'] in orig_methods:
+                orig_methods[m['name']].update(m)
+            else:
+                ref = models.PaymentMethod(**m)
+                provider_ref.methods.append(ref)
+
+    def pg_provider_list(self, **kw):
+        """
+        List available PG Providers
+        """
+        q = self.session.query(models.PaymentGatewayProvider)
+
+        rows = self._list(query=q, **kw)
+
+        return [self._dict(r, extra=['methods']) for r in rows]
+
+    def pg_provider_get(self, pgp_id):
+        row = self._get(models.PaymentGatewayProvider, pgp_id)
+        return self._dict(row, extra=['methods'])
+
+    def pg_provider_deregister(self, pgp_id):
+        self._delete(models.PaymentGatewayProvider, pgp_id)
+
     # Merchant
     def merchant_add(self, values):
         row = models.Merchant(**values)
@@ -194,35 +250,6 @@ class Connection(base.Connection):
 
     def merchant_delete(self, merchant_id):
         self._delete(models.Merchant, merchant_id)
-
-    # Payment Gateway
-    def payment_gw_add(self, merchant_id, values):
-        merchant = self._get(models.Merchant, merchant_id)
-
-        payment_gw = models.PaymentGateway(**values)
-        payment_gw.merchant = merchant
-
-        row = self._save(payment_gw)
-        return dict(row)
-
-    def payment_gw_list(self, merchant_id, **kw):
-        q = self.session.query(models.PaymentGateway)
-        q = q.filter_by(merchant_id=merchant_id)
-
-        rows = self._list(query=q, **kw)
-
-        return map(dict, rows)
-
-    def payment_gw_get(self, payment_gw_id):
-        row = self._get(models.PaymentGateway, payment_gw_id)
-        return dict(row)
-
-    def payment_gw_update(self, payment_gw_id, values):
-        row = self._update(models.PaymentGateway, payment_gw_id, values)
-        return dict(row)
-
-    def payment_gw_delete(self, payment_gw_id):
-        self._delete(models.PaymentGateway, payment_gw_id)
 
     # Customer
     def customer_add(self, merchant_id, values):
