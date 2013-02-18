@@ -9,7 +9,10 @@ class Provider(Plugin):
     __title__ = ''
     __description__ = ''
 
-    @classmethod
+    def __init__(self, config):
+        self.config = config
+        self.client = self.get_client()
+
     def methods(cls):
         """
         The methods supported by the Provider
@@ -32,6 +35,19 @@ class Provider(Plugin):
             description=cls.__description__,
             data=cls.data())
 
+    def get_client(self):
+        """
+        Return a Client
+        """
+        raise NotImplementedError
+
+    def get_connection(self):
+        """
+        Helper to get a storage conncection in BS
+        """
+        return get_connection()
+
+    @classmethod
     def account_create(self, values):
         """
         Create a new Account
