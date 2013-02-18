@@ -43,12 +43,18 @@ BASE = declarative_base(cls=BaseModel)
 
 
 class Currency(BASE):
+    """
+    Allowed currency
+    """
     __table_args__ = (UniqueConstraint('letter', name='currency'),)
     letter = Column(Unicode(10), nullable=False)
     name = Column(Unicode(100), nullable=False)
 
 
 class Language(BASE):
+    """
+    A Language
+    """
     __table_args__ = (UniqueConstraint('letter', name='language'),)
     letter = Column(Unicode(10), nullable=False)
     name = Column(Unicode(100), nullable=False)
@@ -70,12 +76,14 @@ class PaymentGatewayProvider(BASE):
     methods = relationship('PaymentMethod', backref='provider', lazy='joined')
 
 
-class PaymentMethod(BASE):
+class PaymentGatewayMethod(BASE):
     """
-    The Method that is allowed to use on a PaymentGateway
+    This represents a PaymentGatewayProviders capability with some information
+    like name, type etc to describe what is in other settings known as a
+    "CreditCard"
 
     Example:
-        CredCard, Bill etc...
+        A Visa card: {"type": "creditcard", "visa"}
     """
     name = Column(Unicode(100), nullable=False)
     title = Column(Unicode(100))
@@ -92,6 +100,9 @@ class PaymentMethod(BASE):
 
 
 class ContactInfo(BASE):
+    """
+    Contact Information about an entity like a User, Customer etc...
+    """
     address1 = Column(Unicode(60))
     address2 = Column(Unicode(60))
     city = Column(Unicode(60))
@@ -119,6 +130,9 @@ user_merchant_role = Table('user_merchant_roles', BASE.metadata,
 
 
 class User(BASE):
+    """
+    A User that can login.
+    """
     username = Column(Unicode(20), nullable=False)
     password = Column(Unicode(255), nullable=False)
     # NOTE: Should be uuid?
@@ -155,6 +169,9 @@ class Merchant(BASE):
 
 
 class PaymentGatewayConfig(BASE):
+    """
+    A Merchant's configuration of a PaymentGateway like api keys, url and more
+    """
     merchant_id = Column(UUID, ForeignKey('merchant.id'))
 
     is_default = Column(Boolean)
@@ -163,7 +180,6 @@ class PaymentGatewayConfig(BASE):
     provider = relationship('PaymentGatewayProvider',
                             backref='configurations')
     provider_id = Column(UUID, ForeignKey('payment_gateway_provider.id',
-                                          ondelete='CASCADE',
                                           onupdate='CASCADE'),
                          nullable=False)
 
@@ -190,10 +206,19 @@ class Customer(BASE):
 
 
 class InvoiceState(BASE):
+    """
+    A State representing the currented state a Invoice is in
+
+    Example:
+        Completed, Failed
+    """
     name = Column(Unicode(60), nullable=False)
 
 
 class Invoice(BASE):
+    """
+    An invoice
+    """
     identifier = Column(Unicode(255), nullable=False)
     due = Column(DateTime, )
 
@@ -219,6 +244,9 @@ class Invoice(BASE):
 
 
 class InvoiceLine(BASE):
+    """
+    A Line item in which makes up the Invoice
+    """
     description = Column(Unicode(255))
     price = Column(Float)
     quantity = Column(Float)
@@ -244,6 +272,9 @@ class Pricing(BASE):
 
 
 class ProductMetadata(BASE):
+    """
+    Some metadata about a product
+    """
     data = Column(JSON)
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE',
                                       onupdate='CASCADE'))
@@ -253,7 +284,7 @@ class ProductMetadata(BASE):
 
 class Plan(BASE):
     """
-    A Collection of Products
+    A Product collection like a "Virtual Web Cluster" with 10 servers
     """
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
@@ -290,6 +321,9 @@ class PlanItem(BASE):
 
 
 class Product(BASE):
+    """
+    A sellable Product, like vCPU hours, bandwidth units
+    """
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
@@ -332,6 +366,10 @@ class Subscription(BASE):
 
 
 class Usage(BASE):
+    """
+    A record of something that's used from for example a Metering system like
+    Ceilometer
+    """
     measure = Column(Unicode(255))
     start_timestamp = Column(DateTime)
     end_timestamp = Column(DateTime)
