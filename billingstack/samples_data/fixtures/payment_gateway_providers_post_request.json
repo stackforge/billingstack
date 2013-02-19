@@ -1,0 +1,9 @@
+{
+  "name" : "braintree",
+  "title" : "Braintree",
+  "description" : "Braintree Payments",
+  "metadata" : {
+    "key.1": "value.1"
+  },
+  "is_default" : true
+}
