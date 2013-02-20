@@ -12,7 +12,12 @@ def _register(ep, conn):
     provider = ep.plugin
 
     values = provider.values()
-    methods = provider.methods()
+    try:
+        methods = provider.methods()
+    except NotImplementedError:
+        msg = "PaymentGatewayProvider %s doesn't provide any methods - Skipped"
+        LOG.warn(msg, provider.get_plugin_name())
+        return
 
     conn.pg_provider_register(values, methods=methods)
     LOG.debug("Registered PGP %s with methods %s", values, methods)
