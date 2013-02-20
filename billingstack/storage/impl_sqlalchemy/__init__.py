@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from sqlalchemy import or_
 from sqlalchemy.orm import exc
 from billingstack.openstack.common import cfg
 from billingstack.openstack.common import log as logging
@@ -82,19 +83,29 @@ class Connection(base.Connection):
         else:
             return result
 
-    def _get(self, cls, id_):
+    def _get(self, cls, identifier, by_name=False):
         """
         Get an instance of a Model matching ID
 
         :param cls: The model to try to delete
-        :param id_: The ID to delete
+        :param identifier: The ID to delete
+        :param by_name: Search by name as well as ID
         """
-        query = self.session.query(cls)
-        obj = query.get(id_)
-        if not obj:
-            raise exceptions.NotFound(id_)
-        else:
-            return obj
+        filters = [cls.id == identifier]
+        if by_name:
+            filters.append(cls.name == identifier)
+
+        query = self.session.query(cls)\
+            .filter(or_(*filters))
+
+        try:
+            obj = query.one()
+        except exc.NoResultFound:
+            raise exceptions.NotFound(identifier)
+        return obj
+
+    def _get_id_or_name(self, *args, **kw):
+        return self._get(by_name=True, *args, **kw)
 
     def _update(self, cls, id_, values):
         """
@@ -128,6 +139,19 @@ class Connection(base.Connection):
         for key in extra:
             if isinstance(row[key], list):
                 data[key] = map(dict, row[key])
+        return data
+
+    def _kv_rows(self, rows, key='name'):
+        """
+        Return a Key, Value dict where the "key" will be the key and the row as value
+        """
+        data = {}
+        for row in rows:
+            if callable(key):
+                data_key = key(row)
+            else:
+                data_key = row[key]
+            data[data_key] = row
         return data
 
     # Currency
@@ -185,13 +209,13 @@ class Connection(base.Connection):
         """
         Register a Provider and it's Methods
         """
-        query = self.session.query(models.PaymentGatewayProvider)\
+        query = self.session.query(models.PGProvider)\
             .filter_by(name=values['name'])
 
         try:
             provider = query.one()
         except exc.NoResultFound:
-            provider = models.PaymentGatewayProvider()
+            provider = models.PGProvider()
 
         provider.update(values)
 
@@ -200,36 +224,83 @@ class Connection(base.Connection):
         self._save(provider)
         return self._dict(provider, extra=['methods'])
 
-    def _set_provider_methods(self, provider_ref, methods):
-        """
-        Helper method for setting the Methods for a Provider
-        """
-        orig_methods = dict([(m['name'], m) for m in provider_ref.methods])
-
-        # Loop throug and set methods..
-        for m in methods:
-            if m['name'] in orig_methods:
-                orig_methods[m['name']].update(m)
-            else:
-                ref = models.PaymentMethod(**m)
-                provider_ref.methods.append(ref)
-
     def pg_provider_list(self, **kw):
         """
         List available PG Providers
         """
-        q = self.session.query(models.PaymentGatewayProvider)
+        q = self.session.query(models.PGProvider)
 
         rows = self._list(query=q, **kw)
 
         return [self._dict(r, extra=['methods']) for r in rows]
 
     def pg_provider_get(self, pgp_id):
-        row = self._get(models.PaymentGatewayProvider, pgp_id)
+        row = self._get(models.PGProvider, pgp_id)
         return self._dict(row, extra=['methods'])
 
     def pg_provider_deregister(self, pgp_id):
-        self._delete(models.PaymentGatewayProvider, pgp_id)
+        self._delete(models.PGProvider, pgp_id)
+
+    def _set_provider_methods(self, provider, methods):
+        """
+        Helper method for setting the Methods for a Provider
+        """
+        pg_methods = provider.method_map()
+
+        rows = self.pg_method_list(criterion={"owner_id": None})
+        sys_methods = self._kv_rows(rows, key=models.PGMethod.make_key)
+
+        for m in methods:
+            if m.pop('owned', False):
+                self._set_method(provider, m, pg_methods)
+            else:
+                self._set_associated_method(provider, m, pg_methods, sys_methods)
+        self._save(provider)
+
+    def _set_method(self, provider, method, pg_methods):
+        key = models.PGMethod.make_key(method)
+
+        if key in pg_methods['associated']:
+            provider.system_methods.remove(pg_methods['associated'][key])
+
+        if key in pg_methods['owned']:
+            pg_methods['owned'][key].update(method)
+        else:
+            row = models.PGMethod(**method)
+            provider.owned.append(row)
+
+    def _set_associated_method(self, provider, method, pg_methods,
+                                   sys_methods):
+        key = models.PGMethod.make_key(method)
+
+        if key in pg_methods:
+            pg_methods[key].delete()
+
+        try:
+            sys_methods[key].providers.append(provider)
+        except KeyError:
+            msg = 'Provider %s tried to associate to non-existing method %s' \
+                % (provider.name, key)
+            LOG.error(msg)
+            raise exceptions.ConfigurationError(msg)
+
+    def pg_method_add(self, values):
+        row = models.PGMethod(**values)
+        self._save(row)
+        return dict(row)
+
+    def pg_method_list(self, **kw):
+        return self._list(models.PGMethod, **kw)
+
+    def pg_method_get(self, method_id):
+        return self._get(models.PGMethod, method_id)
+
+    def pg_method_update(self, method_id, values):
+        row = self._update(models.PGMethod, method_id, values)
+        return dict(row)
+
+    def pg_method_delete(self, method_id):
+        return self._delete(models.PGMethod, method_id)
 
     # Merchant
     def merchant_add(self, values):
@@ -252,6 +323,67 @@ class Connection(base.Connection):
 
     def merchant_delete(self, merchant_id):
         self._delete(models.Merchant, merchant_id)
+
+    # Payment Gateway Configuration
+    def pg_config_add(self, merchant_id, provider_id, values):
+        merchant = self._get_id_or_name(models.Merchant, merchant_id)
+        provider = self._get_id_or_name(models.PGProvider, provider_id)
+
+        row = models.PGAccountConfig(**values)
+        row.merchant = merchant
+        row.provider = provider
+
+        self._save(row)
+        return dict(row)
+
+    def pg_config_list(self, merchant_id, **kw):
+        q = self.session.query(models.PGAccountConfig)\
+            .filter_by(merchant_id=merchant_id)
+        rows = self._list(query=q, **kw)
+        return map(dict, rows)
+
+    def pg_config_get(self, cfg_id):
+        row = self._get(models.PGAccountConfig, cfg_id)
+        return dict(row)
+
+    def pg_config_update(self, cfg_id, values):
+        row = self._update(models.PGAccountConfig, cfg_id, values)
+        return dict(row)
+
+    def pg_config_delete(self, cfg_id):
+        self._delete(models.PGAccountConfig, cfg_id)
+
+    # PaymentMethod
+    def payment_method_add(self, customer_id, pg_method_id, values):
+        """
+        Configure a PaymentMethod like a CreditCard
+        """
+        customer = self._get_id_or_name(models.Customer, customer_id)
+        pg_method = self._get_id_or_name(models.PGMethod, pg_method_id)
+
+        row = models.PaymentMethod(**values)
+        row.customer = customer
+        row.provider_method = pg_method
+
+        self._save(row)
+        return dict(row)
+
+    def payment_method_list(self, customer_id, **kw):
+        q = self.session.query(models.PaymentMethod)\
+            .filter_by(customer_id=customer_id)
+        rows = self._list(query=q, **kw)
+        return map(dict, rows)
+
+    def payment_method_get(self, pm_id, **kw):
+        row = self._get_id_or_name(models.PaymentMethod, pm_id)
+        return dict(row)
+
+    def payment_method_update(self, pm_id, values):
+        row = self._update(models.PaymentMethod, pm_id, values)
+        return dict(row)
+
+    def payment_method_delete(self, pm_id):
+        self._delete(models.PaymentMethod, pm_id)
 
     # Customer
     def customer_add(self, merchant_id, values):
@@ -361,22 +493,9 @@ class Connection(base.Connection):
         """
         self._delete(models.User, user_id)
 
-    # Products
     def _product(self, row):
         product = dict(row)
-        product['metadata'] = dict(row.meta.data)
         return product
-
-    def _extract_meta(self, values):
-        """
-        Split Metadata out from Values but leave the original values intact
-        using copy()
-
-        :param values: The values
-        """
-        values = values.copy()
-        metadata = values.pop('metadata', {})
-        return values, metadata
 
     def product_add(self, merchant_id, values):
         """
@@ -385,14 +504,9 @@ class Connection(base.Connection):
         :param merchant_id: The Merchant
         :param values: Values describing the new Product
         """
-        values, metadata = self._extract_meta(values)
-
         merchant = self._get(models.Merchant, merchant_id)
 
-        meta = models.ProductMetadata(data=metadata)
-
         product = models.Product(**values)
-        product.meta = meta
         product.merchant = merchant
 
         self._save(product)
@@ -426,11 +540,8 @@ class Connection(base.Connection):
         :param product_id: The Product ID
         :param values: Values to update with
         """
-        values, metadata = self._extract_meta(values)
-
         row = self._get(models.Product, product_id)
         row.update(values)
-        row.meta.data = metadata
 
         self._save(row)
         return self._product(row)

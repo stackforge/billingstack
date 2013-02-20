@@ -1,7 +1,10 @@
 from billingstack.payment_gateway.base import Provider
 
 
-class BraintreeProvider(Provider):
+class DummyProvider(Provider):
+    """
+    A Stupid Provider that does nothing
+    """
     __plugin_name__ = 'dummy'
     __title__ = 'Dummy Provider'
     __description__ = 'Noop Dummy'

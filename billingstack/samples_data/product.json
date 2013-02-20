@@ -4,7 +4,7 @@
     "type": "gauge",
     "measure": "unit",
     "description": "Duration of instance",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     }
   },
@@ -12,7 +12,7 @@
     "name": "memory",
     "type": "gauge",
     "measure": "mb",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "Volume of RAM in MB"
@@ -21,7 +21,7 @@
     "name": "vcpus",
     "type": "gauge",
     "measure": "vcpu",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "Number of VCPUs"
@@ -30,7 +30,7 @@
     "name": "root_disk_size",
     "type": "gauge",
     "measure": "gb",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "Size of root disk in GB"
@@ -39,7 +39,7 @@
     "name": "ephemeral_disk_size",
     "type": "gauge",
     "measure": "gb",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "Size of ephemeral disk in GB"
@@ -48,7 +48,7 @@
     "name": "disk.read.requests",
     "type": "cumulative",
     "measure": "unit",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "Number of disk read requests"
@@ -57,7 +57,7 @@
     "name": "disk.read.bytes",
     "type": "cumulative",
     "measure": "bytes",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "Volume of disk read in bytes"
@@ -66,7 +66,7 @@
     "name": "disk.write.requests",
     "type": "cumulative",
     "measure": "unit",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "Number of disk write requests"
@@ -75,7 +75,7 @@
     "name": "disk.write.bytes",
     "type": "cumulative",
     "measure": "bytes",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "Volume of disk write in bytes"
@@ -84,7 +84,7 @@
     "name": "cpu",
     "type": "cumulative",
     "measure": "unit",
-    "metadata": {
+    "extra": {
       "resource": "seconds"
     },
     "description": "CPU time used"
@@ -93,7 +93,7 @@
     "name": "network.incoming.bytes",
     "type": "cumulative",
     "measure": "bytes",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "number of incoming bytes on the network"
@@ -102,7 +102,7 @@
     "name": "network.outgoing.bytes",
     "type": "cumulative",
     "measure": "bytes",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "number of outgoing bytes on the network"
@@ -111,7 +111,7 @@
     "name": "network.incoming.packets",
     "type": "cumulative",
     "measure": "packets",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "number of incoming packets"
@@ -120,7 +120,7 @@
     "name": "network.outgoing.packets",
     "type": "cumulative",
     "measure": "packets",
-    "metadata": {
+    "extra": {
       "resource": "instance_id"
     },
     "description": "number of outgoing packets"
@@ -129,7 +129,7 @@
     "name": "image",
     "type": "gauge",
     "measure": "unit",
-    "metadata": {
+    "extra": {
       "resource": "image_id"
     },
     "description": "Image polling -> it (still) exists"
@@ -138,7 +138,7 @@
     "name": "image_size",
     "type": "gauge",
     "measure": "bytes",
-    "metadata": {
+    "extra": {
       "resource": "image_id"
     },
     "description": "Uploaded image size"
@@ -147,7 +147,7 @@
     "name": "image_download",
     "type": "gauge",
     "measure": "bytes",
-    "metadata": {
+    "extra": {
       "resource": "image_id"
     },
     "description": "Image is downloaded"
@@ -156,7 +156,7 @@
     "name": "image_serve",
     "type": "gauge",
     "measure": "bytes",
-    "metadata": {
+    "extra": {
       "resource": "image_id"
     },
     "description": "Image is served out"
@@ -165,7 +165,7 @@
     "name": "volume",
     "type": "gauge",
     "measure": "unit",
-    "metadata": {
+    "extra": {
       "resource": "measure_id"
     },
     "description": "Duration of volume"
@@ -174,7 +174,7 @@
     "name": "volume_size",
     "type": "gauge",
     "measure": "gb",
-    "metadata": {
+    "extra": {
       "resource": "measure_id"
     },
     "description": "Size of measure"

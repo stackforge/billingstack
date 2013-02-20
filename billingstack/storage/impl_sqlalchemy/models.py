@@ -38,6 +38,14 @@ class BaseModel(ModelBase):
     created_at = Column(DateTime, default=timeutils.utcnow)
     updated_at = Column(DateTime, onupdate=timeutils.utcnow)
 
+    def attrs_map(self, attrs):
+        data = {}
+        for attr in attrs:
+            data[attr] = {}
+            for row in self[attr]:
+                key = row.key()
+                data[attr][key] = row
+        return data
 
 BASE = declarative_base(cls=BaseModel)
 
@@ -60,43 +68,64 @@ class Language(BASE):
     name = Column(Unicode(100), nullable=False)
 
 
-class PaymentGatewayProvider(BASE):
+pg_provider_methods = Table('pg_provider_methods', BASE.metadata,
+    Column('provider_id', UUID, ForeignKey('pg_provider.id')),
+    Column('method_id', UUID, ForeignKey('pg_method.id')))
+
+
+class PGProvider(BASE):
     """
     A Payment Gateway - The thing that processes a Payment Method
 
     This is registered either by the Admin or by the PaymentGateway plugin
     """
+    __tablename__ = 'pg_provider'
+
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    is_default = Column(Boolean)
-    data = Column(JSON)
+    extra = Column(JSON)
 
-    methods = relationship('PaymentMethod', backref='provider', lazy='joined')
+    owned = relationship('PGMethod', backref='provider', lazy='joined')
+    associated = relationship('PGMethod', backref='providers',
+                                       secondary=pg_provider_methods, lazy='joined')
+
+    def method_map(self):
+        return self.attrs_map(['owned', 'associated'])
+
+    @hybrid_property
+    def methods(self):
+        return self.owned + self.associated
 
 
-class PaymentGatewayMethod(BASE):
+class PGMethod(BASE):
     """
-    This represents a PaymentGatewayProviders capability with some information
+    This represents a PaymentGatewayProviders method with some information
     like name, type etc to describe what is in other settings known as a
     "CreditCard"
 
     Example:
         A Visa card: {"type": "creditcard", "visa"}
     """
+    __tablename__ = 'pg_method'
+
     name = Column(Unicode(100), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
     type = Column(Unicode(100), nullable=False)
+    extra = Column(JSON)
 
-    is_default = Column(Boolean)
-    data = Column(JSON)
+    owner_id = Column(UUID, ForeignKey('pg_provider.id', ondelete='CASCADE',
+                                       onupdate='CASCADE'))
 
-    provider_id = Column(UUID, ForeignKey('payment_gateway_provider.id',
-                                          ondelete='CASCADE',
-                                          onupdate='CASCADE'))
+    @staticmethod
+    def make_key(data):
+        return '%(type)s:%(name)s' % data
+
+    def key(self):
+        return self.make_key(self)
 
 
 class ContactInfo(BASE):
@@ -135,6 +164,7 @@ class User(BASE):
     """
     username = Column(Unicode(20), nullable=False)
     password = Column(Unicode(255), nullable=False)
+
     # NOTE: Should be uuid?
     api_key = Column(Unicode(255))
     api_secret = Column(Unicode(255))
@@ -156,7 +186,7 @@ class Merchant(BASE):
     name = Column(Unicode(60), nullable=False)
 
     customers = relationship('Customer', backref='merchant')
-    payment_gateways = relationship('PaymentGatewayConfig', backref='merchant')
+    payment_gateways = relationship('PGAccountConfig', backref='merchant')
 
     plans = relationship('Plan', backref='merchant')
     products = relationship('Product', backref='merchant')
@@ -168,18 +198,21 @@ class Merchant(BASE):
     language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
 
 
-class PaymentGatewayConfig(BASE):
+class PGAccountConfig(BASE):
     """
     A Merchant's configuration of a PaymentGateway like api keys, url and more
     """
-    merchant_id = Column(UUID, ForeignKey('merchant.id'))
+    __tablename__ = 'pg_account_config'
+    name = Column(Unicode(100), nullable=False)
+    title = Column(Unicode(100))
+    configuration = Column(JSON)
 
-    is_default = Column(Boolean)
-    data = Column(JSON)
+    # Link to the Merchant
+    merchant_id = Column(UUID, ForeignKey('merchant.id'), nullable=False)
 
-    provider = relationship('PaymentGatewayProvider',
-                            backref='configurations')
-    provider_id = Column(UUID, ForeignKey('payment_gateway_provider.id',
+    provider = relationship('PGProvider',
+                            backref='merchant_configurations')
+    provider_id = Column(UUID, ForeignKey('pg_provider.id',
                                           onupdate='CASCADE'),
                          nullable=False)
 
@@ -190,6 +223,9 @@ class Customer(BASE):
     """
     name = Column(Unicode(60), nullable=False)
 
+    invoices = relationship('Invoice', backref='customer')
+    payment_methods = relationship('PaymentMethod', backref='customer')
+
     currency = relationship('Currency', uselist=False, backref='customers')
     currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
 
@@ -199,10 +235,22 @@ class Customer(BASE):
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
 
-    invoices = relationship('Invoice', backref='customer')
 
+class PaymentMethod(BASE):
+    name = Column(Unicode(255), nullable=False)
 
-#class CustomerPaymentMethod(BaseTable):
+    identifier = Column(Unicode(255), nullable=False)
+    expires = Column(Unicode(255))
+
+    data = Column(JSON)
+
+    customer_id = Column(UUID, ForeignKey('customer.id', onupdate='CASCADE'),
+                         nullable=False)
+
+    provider_method = relationship('PGMethod',
+                                   backref='payment_methods')
+    provider_method_id = Column(UUID, ForeignKey('pg_method.id',
+                                                 onupdate='CASCADE'))
 
 
 class InvoiceState(BASE):
@@ -271,17 +319,6 @@ class Pricing(BASE):
                                            onupdate='CASCADE'))
 
 
-class ProductMetadata(BASE):
-    """
-    Some metadata about a product
-    """
-    data = Column(JSON)
-    plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE',
-                                      onupdate='CASCADE'))
-    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE',
-                                         onupdate='CASCADE'))
-
-
 class Plan(BASE):
     """
     A Product collection like a "Virtual Web Cluster" with 10 servers
@@ -291,8 +328,9 @@ class Plan(BASE):
     description = Column(Unicode(255))
     provider = Column(Unicode(255), nullable=False)
 
+    extra = Column(JSON)
+
     plan_items = relationship('PlanItem', backref='plan')
-    meta = relationship('ProductMetadata', backref='plan_item', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id',
                          ondelete='CASCADE'), nullable=False)
@@ -332,8 +370,9 @@ class Product(BASE):
     source = Column(Unicode(255))
     type = Column(Unicode(255))
 
+    extra = Column(JSON)
+
     price = relationship('Pricing', backref='product', uselist=False)
-    meta = relationship('ProductMetadata', backref='product', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
@@ -346,8 +385,9 @@ class Subscription(BASE):
     In other words a Plan which is a collection of Products or a Product.
     """
     billing_day = Column(Integer)
-    payment_method = Column(Unicode(255))
-    resource = Column(Unicode(255))
+
+    resource_id = Column(Unicode(255))
+    resource_type = Column(Unicode(255))
 
     usages = relationship('Usage', backref='subscription')
 
@@ -359,7 +399,8 @@ class Subscription(BASE):
     customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
                          nullable=False)
 
-    payment_method = Column(UUID, ForeignKey('payment_method.id',
+    payment_method = relationship('PaymentMethod', backref='subscriptions')
+    payment_method_id = Column(UUID, ForeignKey('payment_method.id',
                                              ondelete='CASCADE',
                                              onupdate='CASCADE'),
                            nullable=False)

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "visa",
+    "title": "Visa Credit Card",
+    "description": "Credit Card version of Visa",
+    "type": "creditcard"
+  },
+  {
+    "name": "mastercard",
+    "title": "MasterCard",
+    "description": "Credit Card version of MasterCard",
+    "type": "creditcard"
+  },
+  {
+    "name": "amex",
+    "title": "American Express Credit Card",
+    "description": "AMEX Card",
+    "type": "creditcard"
+  }
+]

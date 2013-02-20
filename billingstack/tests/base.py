@@ -74,6 +74,7 @@ class TestCase(unittest2.TestCase, AssertMixin):
         storage.setup_schema()
         self.storage_conn = self.get_storage_driver()
 
+        _, self.pg_method = self.pg_method_add()
         _, self.currency = self.currency_add()
         _, self.language = self.language_add()
         _, self.merchant = self.merchant_add()
@@ -115,13 +116,17 @@ class TestCase(unittest2.TestCase, AssertMixin):
         return fixture, self.storage_conn.currency_add(fixture, **kw)
 
     def pg_provider_register(self, fixture=0, values={}, methods=[], **kw):
-        methods = [self.get_fixture('payment_method')] or methods
+        methods = [self.get_fixture('pg_method')] or methods
         fixture = self.get_fixture('pg_provider', fixture, values)
 
         data = self.storage_conn.pg_provider_register(fixture, methods=methods, **kw)
 
         fixture['methods'] = methods
         return fixture, data
+
+    def pg_method_add(self, fixture=0, values={}, **kw):
+        fixture = self.get_fixture('pg_method')
+        return fixture, self.storage_conn.pg_method_add(fixture)
 
     def _account_defaults(self, values):
         # NOTE: Do defaults
@@ -136,10 +141,20 @@ class TestCase(unittest2.TestCase, AssertMixin):
         self._account_defaults(fixture)
         return fixture, self.storage_conn.merchant_add(fixture, **kw)
 
+    def pg_config_add(self, provider_id, fixture=0, values={}, **kw):
+        fixture = self.get_fixture('pg_config', fixture, values)
+        return fixture, self.storage_conn.pg_config_add(self.merchant['id'], provider_id, fixture, **kw)
+
     def customer_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
         self._account_defaults(fixture)
         return fixture, self.storage_conn.customer_add(merchant_id, fixture, **kw)
+
+    def payment_method_add(self, customer_id, provider_method_id, fixture=0, values={}, **kw):
+        fixture = self.get_fixture('payment_method', fixture, values)
+        return fixture, self.storage_conn.payment_method_add(
+            customer_id, provider_method_id, fixture, **kw)
+
 
     def user_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('user', fixture, values)
