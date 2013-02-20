@@ -1,0 +1,9 @@
+[{
+	"id": "402881a33cf3fe47013cf404d3ac0004",
+	"title": "Braintree",
+	"description": "Braintree Payments",
+	"is_default": true,
+	"metadata": {
+		"key.1": "value.1"
+	}
+}]

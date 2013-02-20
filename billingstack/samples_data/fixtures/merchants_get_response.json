@@ -1,4 +1,13 @@
-[
-	{"id":"402881a33ce9cac2013ce9cb36380004","name":"billingstack","title":"BillingStack","language":"en","currency":"usd"},
-	{"id":"402881a33ce9cac2013ce9cb36950005","name":"openstackbiller","title":"OpenStack Biller","language":"es","currency":"eur"}
-]
+[{
+	"id": "402881a33ce9cac2013ce9cb36380004",
+	"name": "billingstack",
+	"title": "BillingStack",
+	"language": "en",
+	"currency": "usd"
+}, {
+	"id": "402881a33ce9cac2013ce9cb36950005",
+	"name": "openstackbiller",
+	"title": "OpenStack Biller",
+	"language": "es",
+	"currency": "eur"
+}]
