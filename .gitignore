@@ -34,3 +34,14 @@ nosetests.xml
 .project
 .pydevproject
 .venv
+
+doc/source/api/*
+doc/build/*
+AUTHORS
+TAGS
+ChangeLog
+
+# Project specific
+etc/billingstack/*.ini
+etc/billingstack/*.conf
+billingstack/versioninfo
