@@ -270,7 +270,6 @@ class Connection(base.Connection):
         method_key = models.PGMethod.make_key(method)
         key = '%s:%s' % (provider.id, method_key)
 
-        import ipdb
         if method.pop('owned', False):
             if method_key in existing:
                 provider.methods.remove(existing[method_key])
