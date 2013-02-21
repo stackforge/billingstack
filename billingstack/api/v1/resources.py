@@ -54,17 +54,43 @@ def merchants_list():
     """Return a list of merchants.
     """
     rq = flask.request
-    merchants = rq.storage_conn.merchants_list()
+    merchants = rq.storage_conn.merchant_list()
     return flask.jsonify(meters=list(merchants))
+
+@blueprint.route('/merchants')
+def merchants_create(data):
+    """Return a list of merchants.
+    """
+    rq = flask.request
+    merchant = rq.storage_conn.merchant_add(data)
+    return flask.jsonify(merchant)
 
 
 @blueprint.route('/merchants/<merchant_id>')
-def show_merchant(merchant_id):
+def merchants_show(merchant_id):
     """Return a merchant by ID
 
     :param merchant_id: The ID of the resource.
     """
     rq = flask.request
-    merchant = rq.storage_conn.merchants_get()
+    merchant = rq.storage_conn.merchants_get(merchant_id)
     return flask.jsonify(merchant)
 
+@blueprint.route('/merchants/<merchant_id>')
+def merchants_update(merchant_id, data):
+    """Update a a merchant.
+    """
+    rq = flask.request
+    merchant = rq.storage_conn.merchant_update(merchant_id, data)
+    return flask.jsonify(merchant)
+
+
+@blueprint.route('/merchants/<merchant_id>')
+def merchants_delete(merchant_id):
+    """Deletes a merchant by ID
+
+    :param merchant_id: The ID of the merchant.
+    """
+    rq = flask.request
+    rq.storage_conn.merchant_delete(merchant_id)
+    
