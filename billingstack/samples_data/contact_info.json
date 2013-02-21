@@ -1,9 +1,13 @@
 [
   {
-    "address1": "Superstreet 10",
-    "city": "SomeCity",
-    "state": "State X",
-    "country": "SomeCountry",
-    "company": "Company X"
+    "first_name": "Mr Bill",
+    "last_name": "Biller",
+    "company": "Company X",
+    "street_address": "SomeStreet 1",
+    "extended_address": "Apartment 10",
+    "locality": "Stavanger",
+    "region": "Rogaland",
+    "postal_code": "4000",
+    "country_name": "Norway"
   }
 ]

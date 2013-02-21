@@ -90,7 +90,8 @@ class PGProvider(BASE):
     provider_methods = relationship(
         'PGMethod',
         backref='owner',
-        primaryjoin='PGProvider.id == foreign(PGMethod.owner_id)',
+        primaryjoin='PGProvider.id == PGMethod.owner_id',
+        foreign_keys='[PGMethod.owner_id]',
         post_update=True,
         lazy='joined')
 
@@ -137,13 +138,15 @@ class ContactInfo(BASE):
     """
     Contact Information about an entity like a User, Customer etc...
     """
-    address1 = Column(Unicode(60))
-    address2 = Column(Unicode(60))
-    city = Column(Unicode(60))
-    company = Column(Unicode(60))
-    country = Column(Unicode(40))
-    state = Column(Unicode(40))
-    zip = Column(Unicode(20))
+    first_name = Column(Unicode(100))
+    last_name = Column(Unicode(100))
+    company = Column(Unicode(100))
+    street_address = Column(Unicode(255))
+    extended_address = Column(Unicode(255))
+    locality = Column(Unicode(60))
+    region = Column(Unicode(60))
+    country_name = Column(Unicode(100))
+    postal_code = Column(Unicode(40))
 
 
 user_customer = Table('user_customer', BASE.metadata,
