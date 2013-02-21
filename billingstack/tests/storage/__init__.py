@@ -44,6 +44,25 @@ class StorageDriverTestCase(TestCase):
         self.assertEqual(fixture['description'], actual['description'])
         self.assertData(fixture['methods'][0], actual['methods'][0])
 
+    # Payment Gateways
+    def test_pg_provider_register_different_methods(self):
+        # Add a Global method
+        method1 = {'type': 'creditcard', 'name': 'mastercard'}
+        self.storage_conn.pg_method_add(method1)
+
+        method2 = {'type': 'creditcard', 'name': 'amex'}
+        self.storage_conn.pg_method_add(method2)
+
+        method3 = {'type': 'creditcard', 'name': 'visa', 'owned': 1}
+
+        methods = [method1, method2, method3]
+        provider = {'name': 'noop'}
+
+        provider_ref = self.storage_conn.pg_provider_register(provider, methods)
+
+        # TODO(ekarls): Make this more extensive?
+        self.assertLen(3, provider_ref['methods'])
+
     def test_pg_provider_get(self):
         _, expected = self.pg_provider_register()
         actual = self.storage_conn.pg_provider_get(expected['id'])
@@ -60,10 +79,108 @@ class StorageDriverTestCase(TestCase):
     def test_pg_provider_deregister_missing(self):
         self.assertMissing(self.storage_conn.pg_provider_deregister, UUID)
 
+    # Payment Gateway Configuration
+    def test_pg_config_add(self):
+        _, provider = self.pg_provider_register()
+        fixture, data = self.pg_config_add(provider['id'])
+        self.assertData(fixture, data)
+
+    def test_pg_config_get(self):
+        _, provider = self.pg_provider_register()
+        fixture, data = self.pg_config_add(provider['id'])
+
+    def test_pg_config_get_missing(self):
+        self.assertMissing(self.storage_conn.pg_config_get, UUID)
+
+    def test_pg_config_update(self):
+        _, provider = self.pg_provider_register()
+        fixture, data = self.pg_config_add(provider['id'])
+
+        fixture['configuration'] = {"api": 1}
+        updated = self.storage_conn.pg_config_update(data['id'], fixture)
+
+        self.assertData(fixture, updated)
+
+    def test_pg_config_update_missing(self):
+        _, provider = self.pg_provider_register()
+        fixture, data = self.pg_config_add(provider['id'])
+
+        self.assertMissing(self.storage_conn.pg_config_update, UUID, {})
+
+    def test_pg_config_delete(self):
+        _, provider = self.pg_provider_register()
+        fixture, data = self.pg_config_add(provider['id'])
+
+        self.storage_conn.pg_config_delete(data['id'])
+        self.assertMissing(self.storage_conn.pg_config_get, data['id'])
+
+    def test_pg_config_delete_missing(self):
+        self.assertMissing(self.storage_conn.pg_config_delete, UUID)
+
+    # PaymentMethod
+    def test_payment_method_add(self):
+        _, provider = self.pg_provider_register()
+        m_id = provider['methods'][0]['id']
+        _, customer = self.customer_add(self.merchant['id'])
+
+        fixture, data = self.payment_method_add(customer['id'], m_id)
+        self.assertData(fixture, data)
+
+    def test_payment_method_get(self):
+        _, provider = self.pg_provider_register()
+        m_id = provider['methods'][0]['id']
+        _, customer = self.customer_add(self.merchant['id'])
+
+        _, expected = self.payment_method_add(customer['id'], m_id)
+        actual = self.storage_conn.payment_method_get(expected['id'])
+        self.assertData(expected, actual)
+
+    # TODO(ekarlso): Make this test more extensive?
+    def test_payment_method_list(self):
+        # Setup a PGP with it's sample methods
+        _, provider = self.pg_provider_register()
+        m_id = provider['methods'][0]['id']
+
+        # Add two Customers with some methods
+        _, customer1 = self.customer_add(self.merchant['id'])
+        self.payment_method_add(customer1['id'], m_id)
+        rows = self.storage_conn.payment_method_list(customer1['id'])
+        self.assertLen(1, rows)
+
+        _, customer2 = self.customer_add(self.merchant['id'])
+        self.payment_method_add(customer2['id'], m_id)
+        self.payment_method_add(customer2['id'], m_id)
+        self.assertLen(2, self.storage_conn.payment_method_list(customer2['id']))
+
+    def test_payment_method_get_missing(self):
+        self.assertMissing(self.storage_conn.payment_method_get, UUID)
+
+    def test_payment_method_update(self):
+        _, provider = self.pg_provider_register()
+        m_id = provider['methods'][0]['id']
+        _, customer = self.customer_add(self.merchant['id'])
+
+        _, expected = self.payment_method_add(customer['id'], m_id)
+        actual = self.storage_conn.payment_method_get(expected['id'])
+        self.assertData(expected, actual)
+
+    def test_payment_method_update_missing(self):
+        self.assertMissing(self.storage_conn.payment_method_update, UUID, {})
+
+    def test_payment_method_delete(self):
+        _, provider = self.pg_provider_register()
+        fixture, data = self.pg_config_add(provider['id'])
+
+        self.storage_conn.pg_config_delete(data['id'])
+        self.assertMissing(self.storage_conn.payment_method_delete, data['id'])
+
+    def test_payment_method_delete_missing(self):
+        self.assertMissing(self.storage_conn.payment_method_delete, UUID)
+
     # Merchant
     def test_merchant_add(self):
-        f, data = self.merchant_add()
-        self.assertData(f, data)
+        fixture, data = self.merchant_add()
+        self.assertData(fixture, data)
 
     def test_merchant_get(self):
         _, expected = self.merchant_add()

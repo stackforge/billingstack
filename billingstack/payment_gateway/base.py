@@ -13,6 +13,7 @@ class Provider(Plugin):
         self.config = config
         self.client = self.get_client()
 
+    @classmethod
     def methods(cls):
         """
         The methods supported by the Provider

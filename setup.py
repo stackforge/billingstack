@@ -57,7 +57,7 @@ setup(
         sqlalchemy = billingstack.storage.impl_sqlalchemy:SQLAlchemyStorage
 
         [billingstack.payment_gateway]
-        braintree = billingstack.payment_gateway.braintree:BraintreeProvider
+        dummy = billingstack.payment_gateway.dummy:DummyProvider
 
         [billingstack.manage]
         pg-register = billingstack.manage.provider:ProvidersRegister

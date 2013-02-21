@@ -1,14 +1,8 @@
 [
   {
-    "name": "visa",
-    "title": "Visa Credit Card",
-    "description": "Credit Card version of Visa",
-    "type": "creditcard"
-  },
-  {
-    "name": "amex",
-    "title": "American Express Credit Card",
-    "description": "AMEX Card",
-    "type": "creditcard"
+    "name": "Visa",
+    "identifier": "12312312301212",
+    "expires": "01-2020",
+    "data": {"cvs2": "007"}
   }
 ]
