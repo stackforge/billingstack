@@ -8,3 +8,5 @@ anyjson>=0.2.4
 pycountry
 iso8601
 cliff
+Flask==0.9
+http://tarballs.openstack.org/oslo-config/oslo-config-2013.1b3.tar.gz#egg=oslo-config
