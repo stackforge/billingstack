@@ -38,7 +38,7 @@ def request_wants_html():
 ## APIs for working with meters.
 
 @blueprint.route('/merchants', methods=('GET'))
-def merchants_list():
+def merchant_list():
     """Return a list of merchants.
     """
     rq = flask.request
@@ -46,7 +46,7 @@ def merchants_list():
     return flask.jsonify(list(merchants))
 
 @blueprint.route('/merchants', methods=('POST'))
-def merchants_create():
+def merchant_create():
     """Return a list of merchants.
     """
     rq = flask.request
@@ -55,7 +55,7 @@ def merchants_create():
 
 
 @blueprint.route('/merchants/<merchant_id>', methods=('GET'))
-def merchants_show(merchant_id):
+def merchant_show(merchant_id):
     """Return a merchant by ID
 
     :param merchant_id: The ID of the resource.
@@ -65,7 +65,7 @@ def merchants_show(merchant_id):
     return flask.jsonify(merchant)
 
 @blueprint.route('/merchants/<merchant_id>', methods=('PUT'))
-def merchants_update(merchant_id):
+def merchant_update(merchant_id):
     """Update a a merchant.
     """
     rq = flask.request
@@ -74,7 +74,7 @@ def merchants_update(merchant_id):
 
 
 @blueprint.route('/merchants/<merchant_id>', methods=('DELETE'))
-def merchants_delete(merchant_id):
+def merchant_delete(merchant_id):
     """Deletes a merchant by ID
 
     :param merchant_id: The ID of the merchant.
