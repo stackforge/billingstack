@@ -155,7 +155,6 @@ class TestCase(unittest2.TestCase, AssertMixin):
         return fixture, self.storage_conn.payment_method_add(
             customer_id, provider_method_id, fixture, **kw)
 
-
     def user_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('user', fixture, values)
         return fixture, self.storage_conn.user_add(merchant_id, fixture, **kw)

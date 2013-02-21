@@ -21,6 +21,7 @@ from billingstack.storage import base
 from billingstack.storage.impl_sqlalchemy import models
 from billingstack.storage.impl_sqlalchemy.session import get_session, SQLOPTS
 
+
 LOG = logging.getLogger(__name__)
 
 cfg.CONF.register_group(cfg.OptGroup(
@@ -87,8 +88,8 @@ class Connection(base.Connection):
         """
         Get an instance of a Model matching ID
 
-        :param cls: The model to try to delete
-        :param identifier: The ID to delete
+        :param cls: The model to try to get
+        :param identifier: The ID to get
         :param by_name: Search by name as well as ID
         """
         filters = [cls.id == identifier]
@@ -111,8 +112,8 @@ class Connection(base.Connection):
         """
         Update an instance of a Model matching an ID with values
 
-        :param cls: The model to try to delete
-        :param id_: The ID to delete
+        :param cls: The model to try to update
+        :param id_: The ID to update
         :param values: The values to update the model instance with
         """
         obj = self._get(cls, id_)
@@ -241,48 +242,56 @@ class Connection(base.Connection):
     def pg_provider_deregister(self, pgp_id):
         self._delete(models.PGProvider, pgp_id)
 
-    def _set_provider_methods(self, provider, methods):
+    def _get_provider_methods(self, provider):
+        """
+        Used internally to form a "Map" of the Providers methods
+        """
+        methods = {}
+        for m in provider.methods:
+            m_key = m.key()
+            key = '%s:%s' % (m.owner_id, m_key) if m.owner_id else m_key
+            methods[key] = m
+        return methods
+
+    def _set_provider_methods(self, provider, config_methods):
         """
         Helper method for setting the Methods for a Provider
         """
-        pg_methods = provider.method_map()
-
         rows = self.pg_method_list(criterion={"owner_id": None})
-        sys_methods = self._kv_rows(rows, key=models.PGMethod.make_key)
+        system_methods = self._kv_rows(rows, key=models.PGMethod.make_key)
 
-        for m in methods:
-            if m.pop('owned', False):
-                self._set_method(provider, m, pg_methods)
-            else:
-                self._set_associated_method(provider, m, pg_methods, sys_methods)
+        existing = self._get_provider_methods(provider)
+
+        for method in config_methods:
+            self._set_method(provider, method, existing, system_methods)
         self._save(provider)
 
-    def _set_method(self, provider, method, pg_methods):
-        key = models.PGMethod.make_key(method)
+    def _set_method(self, provider, method, existing, all_methods):
+        method_key = models.PGMethod.make_key(method)
+        key = '%s:%s' % (provider.id, method_key)
 
-        if key in pg_methods['associated']:
-            provider.system_methods.remove(pg_methods['associated'][key])
+        import ipdb
+        if method.pop('owned', False):
+            if method_key in existing:
+                provider.methods.remove(existing[method_key])
 
-        if key in pg_methods['owned']:
-            pg_methods['owned'][key].update(method)
+            if key in existing:
+                existing[key].update(method)
+            else:
+                row = models.PGMethod(**method)
+                provider.methods.append(row)
+                provider.provider_methods.append(row)
         else:
-            row = models.PGMethod(**method)
-            provider.owned.append(row)
+            if key in existing:
+                provider.methods.remove(existing[key])
 
-    def _set_associated_method(self, provider, method, pg_methods,
-                                   sys_methods):
-        key = models.PGMethod.make_key(method)
-
-        if key in pg_methods:
-            pg_methods[key].delete()
-
-        try:
-            sys_methods[key].providers.append(provider)
-        except KeyError:
-            msg = 'Provider %s tried to associate to non-existing method %s' \
-                % (provider.name, key)
-            LOG.error(msg)
-            raise exceptions.ConfigurationError(msg)
+            try:
+                all_methods[method_key].providers.append(provider)
+            except KeyError:
+                msg = 'Provider %s tried to associate to non-existing method %s' \
+                    % (provider.name, method_key)
+                LOG.error(msg)
+                raise exceptions.ConfigurationError(msg)
 
     def pg_method_add(self, values):
         row = models.PGMethod(**values)

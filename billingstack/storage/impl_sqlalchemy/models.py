@@ -38,14 +38,6 @@ class BaseModel(ModelBase):
     created_at = Column(DateTime, default=timeutils.utcnow)
     updated_at = Column(DateTime, onupdate=timeutils.utcnow)
 
-    def attrs_map(self, attrs):
-        data = {}
-        for attr in attrs:
-            data[attr] = {}
-            for row in self[attr]:
-                key = row.key()
-                data[attr][key] = row
-        return data
 
 BASE = declarative_base(cls=BaseModel)
 
@@ -87,16 +79,23 @@ class PGProvider(BASE):
 
     extra = Column(JSON)
 
-    owned = relationship('PGMethod', backref='provider', lazy='joined')
-    associated = relationship('PGMethod', backref='providers',
-                                       secondary=pg_provider_methods, lazy='joined')
+    methods = relationship(
+        'PGMethod',
+        backref='providers',
+        secondary=pg_provider_methods,
+        primaryjoin="PGProvider.id==pg_provider_methods.c.provider_id",
+        secondaryjoin="PGMethod.id==pg_provider_methods.c.method_id",
+        lazy='joined')
+
+    provider_methods = relationship(
+        'PGMethod',
+        backref='owner',
+        primaryjoin='PGProvider.id == foreign(PGMethod.owner_id)',
+        post_update=True,
+        lazy='joined')
 
     def method_map(self):
-        return self.attrs_map(['owned', 'associated'])
-
-    @hybrid_property
-    def methods(self):
-        return self.owned + self.associated
+        return self.attrs_map(['provider_methods'])
 
 
 class PGMethod(BASE):
@@ -117,8 +116,14 @@ class PGMethod(BASE):
     type = Column(Unicode(100), nullable=False)
     extra = Column(JSON)
 
-    owner_id = Column(UUID, ForeignKey('pg_provider.id', ondelete='CASCADE',
-                                       onupdate='CASCADE'))
+    # NOTE: This is so a PGMethod can be "owned" by a Provider, meaning that
+    # other Providers should not be able to use it.
+    owner_id = Column(UUID, ForeignKey(
+        'pg_provider_methods.provider_id',
+        ondelete='CASCADE',
+        onupdate='CASCADE',
+        use_alter=True,
+        name='owner_fk'))
 
     @staticmethod
     def make_key(data):

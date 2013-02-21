@@ -16,6 +16,7 @@
 #
 # Copied: Moniker
 from billingstack.openstack.common import log as logging
+from billingstack.storage.impl_sqlalchemy import models
 from billingstack.tests.base import TestCase
 
 
@@ -58,10 +59,43 @@ class StorageDriverTestCase(TestCase):
         methods = [method1, method2, method3]
         provider = {'name': 'noop'}
 
-        provider_ref = self.storage_conn.pg_provider_register(provider, methods)
+        provider = self.storage_conn.pg_provider_register(provider, methods)
 
         # TODO(ekarls): Make this more extensive?
-        self.assertLen(3, provider_ref['methods'])
+        self.assertLen(3, provider['methods'])
+
+    def test_pg_provider_register_method_switch_methods(self):
+        provider_data = {'name': 'noop'}
+
+        system_method = {
+            'type': 'creditcard',
+            'name': 'mastercard',
+            'title': "random"}
+        self.storage_conn.pg_method_add(system_method)
+
+        provider = self.storage_conn.pg_provider_register(
+            provider_data,
+            [system_method])
+        self.assertLen(1, provider['methods'])
+        self.assertData(system_method, provider['methods'][0])
+
+        provider_method = {
+            'type': 'creditcard',
+            'name': 'mastercard',
+            'title': 'random2',
+            'owned': 1}
+
+        provider = self.storage_conn.pg_provider_register(
+            provider_data,
+            [provider_method])
+        self.assertLen(1, provider['methods'])
+        self.assertData(provider_method, provider['methods'][0])
+
+        provider = self.storage_conn.pg_provider_register(
+            provider_data,
+            [system_method])
+        self.assertLen(1, provider['methods'])
+        self.assertData(system_method, provider['methods'][0])
 
     def test_pg_provider_get(self):
         _, expected = self.pg_provider_register()
