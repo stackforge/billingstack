@@ -11,7 +11,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   architecture
    api
+   glossary
 
 
 Indices and tables
