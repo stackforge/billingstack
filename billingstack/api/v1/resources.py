@@ -15,15 +15,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import datetime
 
 import flask
 
 from billingstack.openstack.common import log
-from billingstack.openstack.common import timeutils
-
-from billingstack import storage
-
 
 LOG = log.getLogger(__name__)
 
@@ -40,33 +35,26 @@ def request_wants_html():
         flask.request.accept_mimetypes[best] > \
         flask.request.accept_mimetypes['application/json']
 
-
-def _get_metaquery(args):
-    return dict((k, v)
-                for (k, v) in args.iteritems()
-                if k.startswith('metadata.'))
-
 ## APIs for working with meters.
 
-
-@blueprint.route('/merchants')
+@blueprint.route('/merchants', methods=('GET'))
 def merchants_list():
     """Return a list of merchants.
     """
     rq = flask.request
     merchants = rq.storage_conn.merchant_list()
-    return flask.jsonify(meters=list(merchants))
+    return flask.jsonify(list(merchants))
 
-@blueprint.route('/merchants')
-def merchants_create(data):
+@blueprint.route('/merchants', methods=('POST'))
+def merchants_create():
     """Return a list of merchants.
     """
     rq = flask.request
-    merchant = rq.storage_conn.merchant_add(data)
+    merchant = rq.storage_conn.merchant_add(rq.json)
     return flask.jsonify(merchant)
 
 
-@blueprint.route('/merchants/<merchant_id>')
+@blueprint.route('/merchants/<merchant_id>', methods=('GET'))
 def merchants_show(merchant_id):
     """Return a merchant by ID
 
@@ -76,16 +64,16 @@ def merchants_show(merchant_id):
     merchant = rq.storage_conn.merchants_get(merchant_id)
     return flask.jsonify(merchant)
 
-@blueprint.route('/merchants/<merchant_id>')
-def merchants_update(merchant_id, data):
+@blueprint.route('/merchants/<merchant_id>', methods=('PUT'))
+def merchants_update(merchant_id):
     """Update a a merchant.
     """
     rq = flask.request
-    merchant = rq.storage_conn.merchant_update(merchant_id, data)
+    merchant = rq.storage_conn.merchant_update(merchant_id, rq.json)
     return flask.jsonify(merchant)
 
 
-@blueprint.route('/merchants/<merchant_id>')
+@blueprint.route('/merchants/<merchant_id>', methods=('DELETE'))
 def merchants_delete(merchant_id):
     """Deletes a merchant by ID
 
