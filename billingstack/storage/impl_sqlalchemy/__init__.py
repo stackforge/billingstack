@@ -205,6 +205,15 @@ class Connection(base.Connection):
     def language_delete(self, id_):
         self._delete(models.Language, id_)
 
+    def contact_info_get(self, info_id):
+        self._get(models.ContactInfo, info_id)
+
+    def contact_info_update(self, info_id, values):
+        return self._update(models.ContactInfo, info_id, values)
+
+    def contact_info_delete(self, info_id):
+        self._delete(models.ContactInfo, info_id)
+
     # Payment Gateway Providers
     def pg_provider_register(self, values, methods=[]):
         """
@@ -439,6 +448,7 @@ class Connection(base.Connection):
 
         self._save(customer)
         return dict(contact_info)
+
 
     # Users
     def _user(self, row):

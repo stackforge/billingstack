@@ -45,7 +45,6 @@ class StorageDriverTestCase(TestCase):
         self.assertEqual(fixture['description'], actual['description'])
         self.assertData(fixture['methods'][0], actual['methods'][0])
 
-    # Payment Gateways
     def test_pg_provider_register_different_methods(self):
         # Add a Global method
         method1 = {'type': 'creditcard', 'name': 'mastercard'}
@@ -194,9 +193,12 @@ class StorageDriverTestCase(TestCase):
         m_id = provider['methods'][0]['id']
         _, customer = self.customer_add(self.merchant['id'])
 
-        _, expected = self.payment_method_add(customer['id'], m_id)
-        actual = self.storage_conn.payment_method_get(expected['id'])
-        self.assertData(expected, actual)
+        fixture, data = self.payment_method_add(customer['id'], m_id)
+
+        fixture['identifier'] = 1
+        updated = self.storage_conn.payment_method_update(data['id'], fixture)
+
+        self.assertData(fixture, updated)
 
     def test_payment_method_update_missing(self):
         self.assertMissing(self.storage_conn.payment_method_update, UUID, {})
@@ -268,16 +270,26 @@ class StorageDriverTestCase(TestCase):
     def test_customer_delete_missing(self):
         self.assertMissing(self.storage_conn.customer_delete, UUID)
 
-    def test_customer_contact_info(self):
+    def test_customer_info_add(self):
         _, customer = self.customer_add(self.merchant['id'])
 
-        expected = self.get_fixture('contact_info')
+        fixture = self.get_fixture('contact_info')
 
-        actual = self.storage_conn.customer_info_add(customer['id'], expected)
-        self.assertData(expected, actual)
+        actual = self.storage_conn.customer_info_add(customer['id'], fixture)
+        self.assertData(fixture, actual)
 
         customer = self.storage_conn.customer_get(customer['id'])
-        self.assertData(expected, customer['default_info'])
+        self.assertData(fixture, customer['default_info'])
+
+    def test_customer_info_delete(self):
+        _, customer = self.customer_add(self.merchant['id'])
+
+        fixture = self.get_fixture('contact_info')
+
+        actual = self.storage_conn.customer_info_add(customer['id'], fixture)
+
+        self.storage_conn.contact_info_delete(actual['id'])
+        self.assertMissing(self.storage_conn.contact_info_get, actual['id'])
 
     # User
     def test_user_add(self):
