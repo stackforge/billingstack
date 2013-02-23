@@ -395,6 +395,12 @@ class Connection(base.Connection):
         self._delete(models.Merchant, merchant_id)
 
     # Customer
+    def _customer(self, row):
+        data = dict(row)
+        data['default_info'] = dict(row.default_info) if row.default_info\
+            else {}
+        return data
+
     def customer_add(self, merchant_id, values):
         merchant = self._get(models.Merchant, merchant_id)
 
@@ -402,39 +408,35 @@ class Connection(base.Connection):
         merchant.customers.append(customer)
 
         self._save(merchant)
-        return dict(customer)
+        return self._customer(customer)
 
     def customer_list(self, merchant_id, **kw):
         q = self.session.query(models.Customer)
         q = q.filter_by(merchant_id=merchant_id)
 
         rows = self._list(query=q, **kw)
-
         return map(dict, rows)
 
     def customer_get(self, customer_id):
         row = self._get(models.Customer, customer_id)
-        return dict(row)
+        return self._customer(row)
 
     def customer_update(self, customer_id, values):
         row = self._update(models.Customer, customer_id, values)
-        return dict(row)
+        return self._customer(row)
 
     def customer_delete(self, customer_id):
         return self._delete(models.Customer, customer_id)
-
-    def customer_set_default_info(self, customer_id, info_id):
-        customer = self._get(models.Customer, customer_id)
-        info = self._get(models.CustomerInfo, info_id)
-        customer.default_info = info
-        self._save(customer)
-        return dict(customer.default_info)
 
     def customer_info_add(self, customer_id, values):
         customer = self._get(models.Customer, customer_id)
 
         contact_info = models.CustomerInfo(**values)
         customer.contact_info.append(contact_info)
+
+        if not customer.default_info and len(customer.contact_info) == 1:
+            customer.default_info = contact_info
+
         self._save(customer)
         return dict(contact_info)
 
