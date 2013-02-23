@@ -292,6 +292,7 @@ class Connection(base.Connection):
                 LOG.error(msg)
                 raise exceptions.ConfigurationError(msg)
 
+    # PGMethods
     def pg_method_add(self, values):
         row = models.PGMethod(**values)
         self._save(row)
@@ -309,28 +310,6 @@ class Connection(base.Connection):
 
     def pg_method_delete(self, method_id):
         return self._delete(models.PGMethod, method_id)
-
-    # Merchant
-    def merchant_add(self, values):
-        row = models.Merchant(**values)
-
-        self._save(row)
-        return dict(row)
-
-    def merchant_list(self, **kw):
-        rows = self._list(models.Merchant, **kw)
-        return map(dict, rows)
-
-    def merchant_get(self, merchant_id):
-        row = self._get(models.Merchant, merchant_id)
-        return dict(row)
-
-    def merchant_update(self, merchant_id, values):
-        row = self._update(models.Merchant, merchant_id, values)
-        return dict(row)
-
-    def merchant_delete(self, merchant_id):
-        self._delete(models.Merchant, merchant_id)
 
     # Payment Gateway Configuration
     def pg_config_add(self, merchant_id, provider_id, values):
@@ -393,6 +372,28 @@ class Connection(base.Connection):
     def payment_method_delete(self, pm_id):
         self._delete(models.PaymentMethod, pm_id)
 
+    # Merchant
+    def merchant_add(self, values):
+        row = models.Merchant(**values)
+
+        self._save(row)
+        return dict(row)
+
+    def merchant_list(self, **kw):
+        rows = self._list(models.Merchant, **kw)
+        return map(dict, rows)
+
+    def merchant_get(self, merchant_id):
+        row = self._get(models.Merchant, merchant_id)
+        return dict(row)
+
+    def merchant_update(self, merchant_id, values):
+        row = self._update(models.Merchant, merchant_id, values)
+        return dict(row)
+
+    def merchant_delete(self, merchant_id):
+        self._delete(models.Merchant, merchant_id)
+
     # Customer
     def customer_add(self, merchant_id, values):
         merchant = self._get(models.Merchant, merchant_id)
@@ -421,6 +422,21 @@ class Connection(base.Connection):
 
     def customer_delete(self, customer_id):
         return self._delete(models.Customer, customer_id)
+
+    def customer_set_default_info(self, customer_id, info_id):
+        customer = self._get(models.Customer, customer_id)
+        info = self._get(models.CustomerInfo, info_id)
+        customer.default_info = info
+        self._save(customer)
+        return dict(customer.default_info)
+
+    def customer_info_add(self, customer_id, values):
+        customer = self._get(models.Customer, customer_id)
+
+        contact_info = models.CustomerInfo(**values)
+        customer.contact_info.append(contact_info)
+        self._save(customer)
+        return dict(contact_info)
 
     # Users
     def _user(self, row):

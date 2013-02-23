@@ -268,6 +268,24 @@ class StorageDriverTestCase(TestCase):
     def test_customer_delete_missing(self):
         self.assertMissing(self.storage_conn.customer_delete, UUID)
 
+    def test_customer_contact_info(self):
+        _, customer = self.customer_add(self.merchant['id'])
+
+        expected = self.get_fixture('contact_info')
+
+        actual = self.storage_conn.customer_info_add(customer['id'], expected)
+        self.assertData(expected, actual)
+
+    def test_customer_default_info(self):
+        _, customer = self.customer_add(self.merchant['id'])
+
+        expected = self.get_fixture('contact_info')
+
+        info = self.storage_conn.customer_info_add(customer['id'], expected)
+
+        default_info = self.storage_conn.customer_set_default_info(customer['id'], info['id'])
+        self.assertData(info, default_info)
+
     # User
     def test_user_add(self):
         fixture, data = self.user_add(self.merchant['id'])

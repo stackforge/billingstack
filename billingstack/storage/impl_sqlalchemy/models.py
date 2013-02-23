@@ -138,6 +138,14 @@ class ContactInfo(BASE):
     """
     Contact Information about an entity like a User, Customer etc...
     """
+
+    @declared_attr
+    def __mapper_args__(cls):
+        name = unicode(utils.capital_to_underscore(cls.__name__))
+        return {"polymorphic_on": "info_type", "polymorphic_identity": name}
+
+    info_type = Column(Unicode(20), nullable=False)
+
     first_name = Column(Unicode(100))
     last_name = Column(Unicode(100))
     company = Column(Unicode(100))
@@ -147,6 +155,14 @@ class ContactInfo(BASE):
     region = Column(Unicode(60))
     country_name = Column(Unicode(100))
     postal_code = Column(Unicode(40))
+
+
+class CustomerInfo(ContactInfo):
+    id = Column(UUID, ForeignKey("contact_info.id",
+                                 onupdate='CASCADE', ondelete='CASCADE'),
+                primary_key=True)
+
+    customer_id = Column(UUID, ForeignKey('customer.id'), nullable=False)
 
 
 user_customer = Table('user_customer', BASE.metadata,
@@ -233,6 +249,23 @@ class Customer(BASE):
 
     invoices = relationship('Invoice', backref='customer')
     payment_methods = relationship('PaymentMethod', backref='customer')
+
+    contact_info = relationship(
+        'CustomerInfo',
+        backref='customers',
+        primaryjoin='Customer.id == CustomerInfo.customer_id',
+        lazy='joined')
+
+    # NOTE: Used when there is no specific address chosen for a PM
+    default_info = relationship(
+        'CustomerInfo',
+        primaryjoin='Customer.default_info_id == CustomerInfo.id',
+        uselist=False,
+        post_update=True)
+    default_info_id = Column(
+        UUID,
+        ForeignKey('customer_info.id', use_alter=True,
+                   onupdate='CASCADE', name='default_info'))
 
     currency = relationship('Currency', uselist=False, backref='customers')
     currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
