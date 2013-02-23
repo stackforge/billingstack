@@ -276,6 +276,9 @@ class StorageDriverTestCase(TestCase):
         actual = self.storage_conn.customer_info_add(customer['id'], expected)
         self.assertData(expected, actual)
 
+        customer = self.storage_conn.customer_get(customer['id'])
+        self.assertData(expected, customer['default_info'])
+
     # User
     def test_user_add(self):
         fixture, data = self.user_add(self.merchant['id'])
