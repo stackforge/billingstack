@@ -228,8 +228,11 @@ class StorageDriverTestCase(TestCase):
 
     def test_merchant_update(self):
         fixture, data = self.merchant_add()
+
+        fixture['name'] = 'test'
         updated = self.storage_conn.merchant_update(data['id'], fixture)
-        self.assertData(data, updated)
+
+        self.assertData(fixture, updated)
 
     def test_merchant_update_missing(self):
         self.assertMissing(self.storage_conn.merchant_update, UUID, {})
@@ -256,7 +259,10 @@ class StorageDriverTestCase(TestCase):
 
     def test_customer_update(self):
         fixture, data = self.customer_add(self.merchant['id'])
+
+        fixture['name'] = 'test'
         updated = self.storage_conn.customer_update(data['id'], fixture)
+
         self.assertData(fixture, updated)
 
     def test_customer_update_missing(self):
@@ -332,7 +338,10 @@ class StorageDriverTestCase(TestCase):
 
     def test_user_update(self):
         fixture, data = self.user_add(self.merchant['id'])
+
+        fixture['username'] = 'test'
         updated = self.storage_conn.user_update(data['id'], fixture)
+
         self.assertData(fixture, updated)
 
     def test_user_update_missing(self):
@@ -361,7 +370,10 @@ class StorageDriverTestCase(TestCase):
 
     def test_product_update(self):
         fixture, data = self.product_add(self.merchant['id'])
+
+        fixture['name'] = 'test'
         updated = self.storage_conn.product_update(data['id'], fixture)
+
         self.assertData(fixture, updated)
 
     def test_product_update_missing(self):
