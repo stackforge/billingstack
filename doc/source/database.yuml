@@ -1,5 +1,7 @@
 [PGMethod{bg:green}]1owner-1>[PGProvider]
 [PGProvider{bg:green}]1-*>[PGMethod{bg:green}]
+[ContactInfo]^-[CustomerInfo]
+[Customer]1-*>[CustomerInfo]
 [PGConfig]*-1>[PGProvider]
 [Merchant]1-*>[User]
 [Merchant]1-*>[PGConfig]
