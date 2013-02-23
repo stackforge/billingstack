@@ -247,16 +247,18 @@ class Customer(BASE):
     """
     name = Column(Unicode(60), nullable=False)
 
+    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
+                         nullable=False)
+
     invoices = relationship('Invoice', backref='customer')
     payment_methods = relationship('PaymentMethod', backref='customer')
 
     contact_info = relationship(
         'CustomerInfo',
-        backref='customers',
+        backref='customer',
         primaryjoin='Customer.id == CustomerInfo.customer_id',
         lazy='joined')
 
-    # NOTE: Used when there is no specific address chosen for a PM
     default_info = relationship(
         'CustomerInfo',
         primaryjoin='Customer.default_info_id == CustomerInfo.id',
@@ -272,9 +274,6 @@ class Customer(BASE):
 
     language = relationship('Language', uselist=False, backref='customers')
     language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
-
-    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
-                         nullable=False)
 
 
 class PaymentMethod(BASE):
