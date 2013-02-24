@@ -259,7 +259,20 @@ class Customer(BASE):
         primaryjoin='Customer.id == CustomerInfo.customer_id',
         lazy='joined')
 
-    default_info = relationship(
+    @hybrid_property
+    def default_info(self):
+        if self._default_info:
+            return self._default_info
+        elif len(self.contact_info) == 1:
+            return self.contact_info[0]
+        else:
+            return None
+
+    @default_info.setter
+    def default_info_set(self, value):
+        self._default_info = value
+
+    _default_info = relationship(
         'CustomerInfo',
         primaryjoin='Customer.default_info_id == CustomerInfo.id',
         uselist=False,
