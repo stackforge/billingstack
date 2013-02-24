@@ -475,18 +475,6 @@ class Connection(base.Connection):
     def customer_delete(self, customer_id):
         return self._delete(models.Customer, customer_id)
 
-    def customer_info_add(self, customer_id, values):
-        customer = self._get(models.Customer, customer_id)
-
-        contact_info = models.CustomerInfo(**values)
-        customer.contact_info.append(contact_info)
-
-        if not customer.default_info and len(customer.contact_info) == 1:
-            customer.default_info = contact_info
-
-        self._save(customer)
-        return dict(contact_info)
-
     # Users
     def _user(self, row):
         """
