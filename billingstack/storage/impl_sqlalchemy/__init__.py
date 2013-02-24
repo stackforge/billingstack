@@ -113,7 +113,33 @@ class Connection(base.Connection):
         kw['by_name'] = True
         return self._get(*args, **kw)
 
-    def _get_ref(self, obj, cls=None, **kw):
+    def _update(self, cls, id_, values):
+        """
+        Update an instance of a Model matching an ID with values
+
+        :param cls: The model to try to update
+        :param id_: The ID to update
+        :param values: The values to update the model instance with
+        """
+        obj = self._get(cls, id_)
+        obj.update(values)
+        try:
+            obj.save(self.session)
+        except exceptions.Duplicate:
+            raise
+        return obj
+
+    def _delete(self, cls, id_):
+        """
+        Delete an instance of a Model matching an ID
+
+        :param cls: The model to try to delete
+        :param id_: The ID to delete
+        """
+        obj = self._get(cls, id_)
+        obj.delete(self.session)
+
+    def _get_row(self, obj, cls=None, **kw):
         """
         Used to either check that passed 'obj' is a ModelBase inheriting object
         and just return it
@@ -141,33 +167,6 @@ class Connection(base.Connection):
         cls = row.__mapper__.get_property(rel_attr).mapper.class_
         return cls(**values)
 
-    def _update(self, cls, id_, values):
-        """
-        Update an instance of a Model matching an ID with values
-
-        :param cls: The model to try to update
-        :param id_: The ID to update
-        :param values: The values to update the model instance with
-        """
-        obj = self._get(cls, id_)
-        obj.update(values)
-        try:
-            obj.save(self.session)
-        except exceptions.Duplicate:
-            raise
-        return obj
-
-    def _delete(self, cls, id_):
-        """
-        Delete an instance of a Model matching an ID
-
-        :param cls: The model to try to delete
-
-        :param id_: The ID to delete
-        """
-        obj = self._get(cls, id_)
-        obj.delete(self.session)
-
     def _dict(self, row, extra=[]):
         data = dict(row)
         for key in extra:
@@ -187,6 +186,34 @@ class Connection(base.Connection):
                 data_key = row[key]
             data[data_key] = row
         return data
+
+    def set_properties(self, obj, properties, cls=None, rel_attr='properties', purge=False):
+        """
+        Set's a dict with key values on a relation on the row
+
+        :param obj: Either a row object or a id to use in connection with cls
+        :param properties: Key and Value dict with props to set. 1 row item.
+        :param cls: The class to use if obj isn't a row to query.
+        :param rel_attr: The relation attribute name to get the class to use
+        :param purge: Purge entries that doesn't exist in existing but in DB
+        """
+        row = self._get_row(obj, cls=cls)
+
+        existing = self._kv_rows(row[rel_attr])
+
+        for key, value in properties.items():
+            values = {'name': key, 'value': value}
+
+            if key not in existing:
+                rel_row = self._make_rel_row(row, rel_attr, values)
+                row[rel_attr].append(rel_row)
+            else:
+                existing[key].update(values)
+
+        if purge:
+            for key in existing:
+                if not key in properties:
+                    row[rel_attr].remove(existing[key])
 
     # Currency
     def currency_add(self, values):
@@ -245,7 +272,7 @@ class Connection(base.Connection):
         :param entity: The object to add the contact_info to
         :param values: The values to add
         """
-        row = self._get_ref(obj, cls=cls)
+        row = self._get_row(obj, cls=cls)
 
         rel_row = self._make_rel_row(obj, rel_attr, values)
 
@@ -585,6 +612,9 @@ class Connection(base.Connection):
     # Products
     def _product(self, row):
         product = dict(row)
+
+        product['properties'] = map(dict, row.properties) if row.properties\
+            else None
         return product
 
     def product_add(self, merchant_id, values):

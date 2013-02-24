@@ -259,20 +259,7 @@ class Customer(BASE):
         primaryjoin='Customer.id == CustomerInfo.customer_id',
         lazy='joined')
 
-    @hybrid_property
-    def default_info(self):
-        if self._default_info:
-            return self._default_info
-        elif len(self.contact_info) == 1:
-            return self.contact_info[0]
-        else:
-            return None
-
-    @default_info.setter
-    def default_info_set(self, value):
-        self._default_info = value
-
-    _default_info = relationship(
+    default_info = relationship(
         'CustomerInfo',
         primaryjoin='Customer.default_info_id == CustomerInfo.id',
         uselist=False,
@@ -389,10 +376,21 @@ class Plan(BASE):
                          ondelete='CASCADE'), nullable=False)
 
 
+class PlanProperties(BASE):
+    __table_args__ = (UniqueConstraint('plan_id', 'name'), {})
+
+    plan = relationship('Plan', backref='properties', lazy='joined')
+    plan_id = Column(
+        UUID,
+        ForeignKey('plan.id',
+                   ondelete='CASCADE',
+                   onupdate='CASCADE'),
+                   nullable=False)
+    name = Column(Unicode(60), index=True, nullable=False)
+    value = Column(UnicodeText)
+
+
 class PlanItem(BASE):
-    """
-    A Link between the Plan and a Product
-    """
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
@@ -429,6 +427,23 @@ class Product(BASE):
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
+
+
+class ProductProperties(BASE):
+    """
+    A Metadata row for something like Product or PlanItem
+    """
+    __table_args__ = (UniqueConstraint('product_id', 'name'), {})
+
+    product = relationship('Product', backref='properties', lazy='joined')
+    product_id = Column(
+        UUID,
+        ForeignKey('product.id',
+                   ondelete='CASCADE',
+                   onupdate='CASCADE'),
+        nullable=False)
+    name = Column(Unicode(60), index=True, nullable=False)
+    value = Column(UnicodeText)
 
 
 class Subscription(BASE):

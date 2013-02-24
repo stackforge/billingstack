@@ -37,6 +37,18 @@ class StorageDriverTestCase(TestCase):
     def test_language_add(self):
         self.assertDuplicate(self.language_add)
 
+    def test_set_properties(self):
+        fixture, data = self.product_add(self.merchant['id'])
+
+        metadata = {"random": True}
+        self.storage_conn.set_properties(data['id'], metadata, cls=models.Product)
+
+        metadata.update({'foo': 1, 'bar': 2})
+        self.storage_conn.set_properties(data['id'], metadata, cls=models.Product)
+
+        actual = self.storage_conn.product_get(data['id'])
+        self.assertLen(3, actual['properties'])
+
     # Payment Gateways
     def test_pg_provider_register(self):
         fixture, actual = self.pg_provider_register()
@@ -377,9 +389,10 @@ class StorageDriverTestCase(TestCase):
         self.assertMissing(self.storage_conn.product_update, UUID, {})
 
     def test_product_delete(self):
-        f, data = self.product_add(self.merchant['id'])
+        fixture, data = self.product_add(self.merchant['id'])
         self.storage_conn.product_delete(data['id'])
         self.assertMissing(self.storage_conn.product_get, data['id'])
 
     def test_product_delete_missing(self):
         self.assertMissing(self.storage_conn.product_delete, UUID)
+
