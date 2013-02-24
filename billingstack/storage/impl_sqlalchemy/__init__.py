@@ -12,11 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from sqlalchemy import or_
-from sqlalchemy.orm import exc
+from sqlalchemy.orm import exc, object_mapper
 from billingstack.openstack.common import cfg
 from billingstack.openstack.common import log as logging
 from billingstack import exceptions
-from billingstack import utils as cutils
+from billingstack import utils as common_utils
+from billingstack.storage.impl_sqlalchemy import utils as db_utils
 from billingstack.storage import base
 from billingstack.storage.impl_sqlalchemy import models
 from billingstack.storage.impl_sqlalchemy.session import get_session, SQLOPTS
@@ -160,7 +161,7 @@ class Connection(base.Connection):
         """
         Add a supported currency to the database
         """
-        data = cutils.get_currency(values['letter'])
+        data = common_utils.get_currency(values['letter'])
         row = models.Currency(**data)
         self._save(row)
         return dict(row)
@@ -185,7 +186,7 @@ class Connection(base.Connection):
         """
         Add a supported language to the database
         """
-        data = cutils.get_language(values['letter'])
+        data = common_utils.get_language(values['letter'])
         row = models.Language(**data)
         self._save(row)
         return dict(row)
@@ -204,6 +205,40 @@ class Connection(base.Connection):
 
     def language_delete(self, id_):
         self._delete(models.Language, id_)
+
+    def contact_info_add(self, obj, values, cls=None,
+                         rel_attr='contact_info'):
+        """
+        :param entity: The object to add the contact_info to
+        :param values: The values to add
+        """
+        if cls and obj:
+            row = self._get(cls, obj)
+        elif isinstance(obj, models.ModelBase):
+            row = obj
+        else:
+            msg = 'Missing obj and/or obj and cls...'
+            raise exceptions.BadRequest(msg)
+
+        info_cls = obj.__mapper__.get_property(rel_attr).mapper.class_
+        info_row = info_cls(**values)
+
+        local, remote = db_utils.get_prop_names(row)
+
+        if rel_attr in remote:
+            if isinstance(row[rel_attr], list):
+                row[rel_attr].append(info_row)
+            else:
+                row[rel_attr] = info_row
+        else:
+            msg = 'Attempted to set non-relation %s' % rel_attr
+            raise exceptions.BadRequest(msg)
+
+        if cls:
+            self._save(info_row)
+            return dict(info_row)
+        else:
+            return info_row
 
     def contact_info_get(self, info_id):
         self._get(models.ContactInfo, info_id)
@@ -407,16 +442,19 @@ class Connection(base.Connection):
     def _customer(self, row):
         data = dict(row)
         data['default_info'] = dict(row.default_info) if row.default_info\
-            else {}
+            else None
         return data
 
-    def customer_add(self, merchant_id, values):
+    def customer_add(self, merchant_id, values, contact_info=None):
         merchant = self._get(models.Merchant, merchant_id)
 
         customer = models.Customer(**values)
         merchant.customers.append(customer)
 
-        self._save(merchant)
+        if contact_info:
+            self.contact_info_add(customer, contact_info)
+
+        self._save(customer)
         return self._customer(customer)
 
     def customer_list(self, merchant_id, **kw):
@@ -449,7 +487,6 @@ class Connection(base.Connection):
         self._save(customer)
         return dict(contact_info)
 
-
     # Users
     def _user(self, row):
         """
@@ -458,7 +495,8 @@ class Connection(base.Connection):
         :param row: The row
         """
         user = dict(row)
-        user['contact_info'] = dict(row.contact_info)
+        user['contact_info'] = dict(row.contact_info) if row.contact_info\
+            else None
         return user
 
     def user_add(self, merchant_id, values, customer_id=None,
@@ -475,12 +513,12 @@ class Connection(base.Connection):
         user = models.User(**values)
         user.merchant = merchant
 
-        contact_info = contact_info or {}
-        user.contact_info = models.ContactInfo(**contact_info)
-
         if customer_id:
             customer = self._get(models.Customer, customer_id)
             customer.users.append(user)
+
+        if contact_info:
+            self.contact_info_add(user, contact_info)
 
         self._save(user)
         return self._user(user)

@@ -247,7 +247,16 @@ class StorageDriverTestCase(TestCase):
     # Customer
     def test_customer_add(self):
         fixture, data = self.customer_add(self.merchant['id'])
+        assert data['default_info'] == None
         self.assertData(fixture, data)
+
+    def test_customer_add_with_contact_info(self):
+        contact_fixture = self.get_fixture('contact_info')
+        customer_fixture, data = self.customer_add(
+            self.merchant['id'],
+            contact_info=contact_fixture)
+        self.assertData(customer_fixture, data)
+        self.assertData(contact_fixture, data['default_info'])
 
     def test_customer_get(self):
         _, expected = self.customer_add(self.merchant['id'])
@@ -276,31 +285,19 @@ class StorageDriverTestCase(TestCase):
     def test_customer_delete_missing(self):
         self.assertMissing(self.storage_conn.customer_delete, UUID)
 
-    def test_customer_info_add(self):
-        _, customer = self.customer_add(self.merchant['id'])
-
-        fixture = self.get_fixture('contact_info')
-
-        actual = self.storage_conn.customer_info_add(customer['id'], fixture)
-        self.assertData(fixture, actual)
-
-        customer = self.storage_conn.customer_get(customer['id'])
-        self.assertData(fixture, customer['default_info'])
-
-    def test_customer_info_delete(self):
-        _, customer = self.customer_add(self.merchant['id'])
-
-        fixture = self.get_fixture('contact_info')
-
-        actual = self.storage_conn.customer_info_add(customer['id'], fixture)
-
-        self.storage_conn.contact_info_delete(actual['id'])
-        self.assertMissing(self.storage_conn.contact_info_get, actual['id'])
-
     # User
     def test_user_add(self):
         fixture, data = self.user_add(self.merchant['id'])
+        assert data['contact_info'] == None
         self.assertData(fixture, data)
+
+    def test_user_add_with_contact_info(self):
+        contact_fixture = self.get_fixture('contact_info')
+        user_fixture, data = self.user_add(
+            self.merchant['id'],
+            contact_info=contact_fixture)
+        self.assertData(user_fixture, data)
+        self.assertData(contact_fixture, data['contact_info'])
 
     def test_user_add_with_customer(self):
         _, customer = self.customer_add(self.merchant['id'])
