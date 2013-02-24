@@ -107,7 +107,39 @@ class Connection(base.Connection):
         return obj
 
     def _get_id_or_name(self, *args, **kw):
-        return self._get(by_name=True, *args, **kw)
+        """
+        Same as _get but with by_name on ass default
+        """
+        kw['by_name'] = True
+        return self._get(*args, **kw)
+
+    def _get_ref(self, obj, cls=None, **kw):
+        """
+        Used to either check that passed 'obj' is a ModelBase inheriting object
+        and just return it
+
+        :param obj: ID or instance / ref of the object
+        :param cls: The class to run self._get on if obj is not a ref
+        """
+        if cls and obj:
+            return self._get(cls, obj)
+        elif isinstance(obj, models.ModelBase):
+            return obj
+        else:
+            msg = 'Missing obj and/or obj and cls...'
+            raise exceptions.BadRequest(msg)
+
+    def _make_rel_row(self, row, rel_attr, values):
+        """
+        Get the class of the relation attribute in 'rel_attr' and make a
+        row from values with it.
+
+        :param row: A instance of ModelBase
+        :param rel_attr: The relation attribute
+        :param values: The values to create the new row from
+        """
+        cls = row.__mapper__.get_property(rel_attr).mapper.class_
+        return cls(**values)
 
     def _update(self, cls, id_, values):
         """
@@ -206,39 +238,33 @@ class Connection(base.Connection):
     def language_delete(self, id_):
         self._delete(models.Language, id_)
 
+    # ContactInfo
     def contact_info_add(self, obj, values, cls=None,
                          rel_attr='contact_info'):
         """
         :param entity: The object to add the contact_info to
         :param values: The values to add
         """
-        if cls and obj:
-            row = self._get(cls, obj)
-        elif isinstance(obj, models.ModelBase):
-            row = obj
-        else:
-            msg = 'Missing obj and/or obj and cls...'
-            raise exceptions.BadRequest(msg)
+        row = self._get_ref(obj, cls=cls)
 
-        info_cls = obj.__mapper__.get_property(rel_attr).mapper.class_
-        info_row = info_cls(**values)
+        rel_row = self._make_rel_row(obj, rel_attr, values)
 
         local, remote = db_utils.get_prop_names(row)
 
         if rel_attr in remote:
             if isinstance(row[rel_attr], list):
-                row[rel_attr].append(info_row)
+                row[rel_attr].append(rel_row)
             else:
-                row[rel_attr] = info_row
+                row[rel_attr] = rel_row
         else:
             msg = 'Attempted to set non-relation %s' % rel_attr
             raise exceptions.BadRequest(msg)
 
         if cls:
-            self._save(info_row)
-            return dict(info_row)
+            self._save(rel_row)
+            return dict(rel_row)
         else:
-            return info_row
+            return rel_row
 
     def contact_info_get(self, info_id):
         self._get(models.ContactInfo, info_id)
@@ -452,7 +478,8 @@ class Connection(base.Connection):
         merchant.customers.append(customer)
 
         if contact_info:
-            self.contact_info_add(customer, contact_info)
+            info_row = self.contact_info_add(customer, contact_info)
+            customer.default_info = info_row
 
         self._save(customer)
         return self._customer(customer)
@@ -555,6 +582,7 @@ class Connection(base.Connection):
         """
         self._delete(models.User, user_id)
 
+    # Products
     def _product(self, row):
         product = dict(row)
         return product
