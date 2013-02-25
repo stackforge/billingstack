@@ -156,6 +156,10 @@ class ContactInfo(BASE):
     country_name = Column(Unicode(100))
     postal_code = Column(Unicode(40))
 
+    phone = Column(Unicode(100))
+    email = Column(Unicode(100))
+    website = Column(Unicode(100))
+
 
 class CustomerInfo(ContactInfo):
     id = Column(UUID, ForeignKey("contact_info.id",

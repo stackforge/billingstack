@@ -8,6 +8,8 @@
     "locality": "Stavanger",
     "region": "Rogaland",
     "postal_code": "4000",
-    "country_name": "Norway"
+    "country_name": "Norway",
+    "phone": "22 22 22 22",
+    "email": "bill.biller@comp-x.com"
   }
 ]
