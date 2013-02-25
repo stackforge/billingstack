@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from sqlalchemy import or_
-from sqlalchemy.orm import exc, object_mapper
+from sqlalchemy.orm import exc
 from billingstack.openstack.common import cfg
 from billingstack.openstack.common import log as logging
 from billingstack import exceptions
@@ -511,11 +511,8 @@ class Connection(base.Connection):
         self._save(customer)
         return self._customer(customer)
 
-    def customer_list(self, merchant_id, **kw):
-        q = self.session.query(models.Customer)
-        q = q.filter_by(merchant_id=merchant_id)
-
-        rows = self._list(query=q, **kw)
+    def customer_list(self, **kw):
+        rows = self._list(models.Customer, **kw)
         return map(dict, rows)
 
     def customer_get(self, customer_id):
