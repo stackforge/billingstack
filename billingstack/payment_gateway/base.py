@@ -133,7 +133,7 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def transaction_settle(self, ):
+    def transaction_settle(self, id_):
         """
         Settle a Transaction
 
@@ -141,7 +141,7 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def transaction_void(self, *args, **kw):
+    def transaction_void(self, id_):
         """
         Void a Transaction
 
@@ -149,7 +149,7 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def transaction_refund(self, *args, **kw):
+    def transaction_refund(self, id_):
         """
         Refund a Transaction
 
