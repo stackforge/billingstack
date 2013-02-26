@@ -15,7 +15,8 @@
 
 import uuid
 
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
+
 from billingstack.openstack.common import context
 from billingstack.openstack.common.gettextutils import _
 from billingstack.openstack.common import importutils

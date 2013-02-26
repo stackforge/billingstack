@@ -16,6 +16,9 @@
 #
 # Copied: billingstack
 import sys
+
+from oslo.config import cfg
+
 from billingstack import utils
 from billingstack.manage import Shell
 

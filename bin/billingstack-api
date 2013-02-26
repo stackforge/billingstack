@@ -22,6 +22,8 @@ import os
 import sys
 from wsgiref import simple_server
 
+from oslo.config import cfg
+
 from billingstack.api import app
 from billingstack import service
 from billingstack.openstack.common import cfg

@@ -462,7 +462,7 @@ class Connection(base.Connection):
 
     def payment_method_get(self, pm_id, **kw):
         row = self._get_id_or_name(models.PaymentMethod, pm_id)
-        return self._dict(row)
+        return self._dict(row, extra=['provider_method'])
 
     def payment_method_update(self, pm_id, values):
         row = self._update(models.PaymentMethod, pm_id, values)

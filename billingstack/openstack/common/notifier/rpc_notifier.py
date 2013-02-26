@@ -13,8 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo.config import cfg
 
-from billingstack.openstack.common import cfg
 from billingstack.openstack.common import context as req_context
 from billingstack.openstack.common.gettextutils import _
 from billingstack.openstack.common import log as logging
