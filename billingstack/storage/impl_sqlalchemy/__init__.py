@@ -172,6 +172,8 @@ class Connection(base.Connection):
         for key in extra:
             if isinstance(row[key], list):
                 data[key] = map(dict, row[key])
+            else:
+                data[key] = dict(row[key])
         return data
 
     def _kv_rows(self, rows, key='name'):
@@ -450,21 +452,21 @@ class Connection(base.Connection):
         row.provider_method = pg_method
 
         self._save(row)
-        return dict(row)
+        return self._dict(row, extra=['provider_method'])
 
     def payment_method_list(self, customer_id, **kw):
         q = self.session.query(models.PaymentMethod)\
             .filter_by(customer_id=customer_id)
         rows = self._list(query=q, **kw)
-        return map(dict, rows)
+        return [self._dict(row, extra=['provider_method']) for row in rows]
 
     def payment_method_get(self, pm_id, **kw):
         row = self._get_id_or_name(models.PaymentMethod, pm_id)
-        return dict(row)
+        return self._dict(row)
 
     def payment_method_update(self, pm_id, values):
         row = self._update(models.PaymentMethod, pm_id, values)
-        return dict(row)
+        return self._dict(row, extra=['provider_method'])
 
     def payment_method_delete(self, pm_id):
         self._delete(models.PaymentMethod, pm_id)
