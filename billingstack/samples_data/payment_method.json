@@ -1,8 +1,8 @@
 [
   {
     "name": "Visa",
-    "identifier": "12312312301212",
-    "expires": "01-2020",
-    "data": {"cvs2": "007"}
+    "identifier": "5105105105105100",
+    "expires": "05/2012",
+    "data": {"cardholder": "Mr Holder", "cvv": "007"}
   }
 ]
