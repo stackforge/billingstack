@@ -49,58 +49,68 @@ class Provider(Plugin):
         return get_connection()
 
     @classmethod
-    def account_create(self, values):
+    def account_add(self, values):
         """
         Create a new Account
+
+        :param values: A Customer as dict
         """
         raise NotImplementedError
 
-    def account_get(self, *args, **kw):
+    def account_get(self, id_):
+        """
+        List Accounts
+
+        :param id_: Account ID to get
+        """
+        raise NotImplementedError
+
+    def account_list(self):
         """
         List Accounts
         """
         raise NotImplementedError
 
-    def account_list(self, *args, **kw):
-        """
-        List Accounts
-        """
-        raise NotImplementedError
-
-    def account_delete(self, *args, **kw):
+    def account_delete(self, id_):
         """
         Delete Account
+
+        :param id_: Account ID to delete
         """
         raise NotImplementedError
 
-    def payment_method_create(self, account, values):
+    def payment_method_add(self, account_id, values):
         """
         Create a new Credit Card or similar
 
-        :param account: The Account entity to create it on
-        :param values: Values to create it with
+        :param account_d: The Account ID to add this PM to
+        :param values: Values to create the PM from
         """
         raise NotImplementedError
 
-    def payment_method_get(self, *args, **kw):
+    def payment_method_get(self, id_):
         """
         Get a PaymentMethod
+
+        :param id_: The ID of the PM to get
         """
         raise NotImplementedError
 
-    def payment_method_list(self, *args, **kw):
+    def payment_method_list(self, account_id):
         """
         List PaymentMethods
+
+        :param account_id: The Account ID to list Pms for
         """
         raise NotImplementedError
 
-    def payment_method_delete(self, *args, **kw):
+    def payment_method_delete(self, id_):
         """
         Delete a PaymentMethod
         """
         raise NotImplementedError
 
-    def transaction_create(self, account, values):
+    def transaction_add(self, account, values):
         """
         Create a new Transaction
 
@@ -109,38 +119,40 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def transaction_get(self, *args, **kw):
+    def transaction_get(self, id_):
         """
         Get a Transaction
+
+        :param id_: The ID of the Transaction
         """
         raise NotImplementedError
 
-    def transaction_list(self, *args, **kw):
+    def transaction_list(self):
         """
         List Transactions
         """
         raise NotImplementedError
 
-    def transaction_delete(self, *args, **kw):
-        """
-        Delete Transaction
-        """
-        raise NotImplementedError
-
-    def transaction_settle(self, *args, **kw):
+    def transaction_settle(self, ):
         """
         Settle a Transaction
+
+        :param id_: The ID of the Transaction
         """
         raise NotImplementedError
 
     def transaction_void(self, *args, **kw):
         """
         Void a Transaction
+
+        :param id_: The ID of the Transaction
         """
         raise NotImplementedError
 
     def transaction_refund(self, *args, **kw):
         """
         Refund a Transaction
+
+        :param id_: The ID of the Transaction
         """
         raise NotImplementedError
