@@ -372,8 +372,6 @@ class Plan(BASE):
     description = Column(Unicode(255))
     provider = Column(Unicode(255), nullable=False)
 
-    extra = Column(JSON)
-
     plan_items = relationship('PlanItem', backref='plan')
 
     merchant_id = Column(UUID, ForeignKey('merchant.id',
@@ -424,8 +422,6 @@ class Product(BASE):
     measure = Column(Unicode(255))
     source = Column(Unicode(255))
     type = Column(Unicode(255))
-
-    extra = Column(JSON)
 
     price = relationship('Pricing', backref='product', uselist=False)
 
