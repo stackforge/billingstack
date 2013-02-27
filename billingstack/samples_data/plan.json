@@ -1,0 +1,9 @@
+[
+    {
+        "name": "Compute Server",
+        "title": "Compute Server that has vCPU and so on",
+        "properties": {
+            "random": 1
+        }
+    }
+]

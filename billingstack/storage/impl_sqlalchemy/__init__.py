@@ -689,6 +689,8 @@ class Connection(base.Connection):
             else None
         return plan
 
+    def plan_item_add(self, plan, values):
+        self._get_row(plan, models.PlanItem)
     def plan_add(self, merchant_id, values):
         """
         Add a new Plan
@@ -697,6 +699,8 @@ class Connection(base.Connection):
         :param values: Values describing the new Plan
         """
         merchant = self._get(models.Merchant, merchant_id)
+
+        items = values.pop('items', [])
 
         plan = models.Plan(**values)
         plan.merchant = merchant
