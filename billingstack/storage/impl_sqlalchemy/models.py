@@ -386,8 +386,7 @@ class PlanProperties(BASE):
         UUID,
         ForeignKey('plan.id',
                    ondelete='CASCADE',
-                   onupdate='CASCADE'),
-                   nullable=False)
+                   onupdate='CASCADE'))
     name = Column(Unicode(60), index=True, nullable=False)
     value = Column(UnicodeText)
 
@@ -440,8 +439,7 @@ class ProductProperties(BASE):
         UUID,
         ForeignKey('product.id',
                    ondelete='CASCADE',
-                   onupdate='CASCADE'),
-        nullable=False)
+                   onupdate='CASCADE'))
     name = Column(Unicode(60), index=True, nullable=False)
     value = Column(UnicodeText)
 

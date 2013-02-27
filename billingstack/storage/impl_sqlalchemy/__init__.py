@@ -625,8 +625,12 @@ class Connection(base.Connection):
         """
         merchant = self._get(models.Merchant, merchant_id)
 
+        properties = values.pop('properties', {})
+
         product = models.Product(**values)
         product.merchant = merchant
+
+        self.set_properties(product, properties)
 
         self._save(product)
         return self._product(product)
@@ -659,8 +663,12 @@ class Connection(base.Connection):
         :param product_id: The Product ID
         :param values: Values to update with
         """
+        properties = values.pop('properties', {})
+
         row = self._get(models.Product, product_id)
         row.update(values)
+
+        self.set_properties(row, properties)
 
         self._save(row)
         return self._product(row)
@@ -672,3 +680,68 @@ class Connection(base.Connection):
         :param product_id: Product ID
         """
         self._delete(models.Product, product_id)
+
+    # Plan
+    def _plan(self, row):
+        plan = dict(row)
+
+        plan['properties'] = map(dict, row.properties) if row.properties\
+            else None
+        return plan
+
+    def plan_add(self, merchant_id, values):
+        """
+        Add a new Plan
+
+        :param merchant_id: The Merchant
+        :param values: Values describing the new Plan
+        """
+        merchant = self._get(models.Merchant, merchant_id)
+
+        plan = models.Plan(**values)
+        plan.merchant = merchant
+
+        self._save(plan)
+        return self._plan(plan)
+
+    def plan_list(self, merchant_id, **kw):
+        """
+        List Plan
+
+        :param merchant_id: The Merchant to list it for
+        """
+        q = self.session.query(models.Plan)\
+            .filter_by(merchant_id=merchant_id)
+
+        rows = self._list(query=q, **kw)
+        return map(self._plan, rows)
+
+    def plan_get(self, plan_id):
+        """
+        Get a Plan
+
+        :param plan_id: The Plan ID
+        """
+        row = self._get(models.Plan, plan_id)
+        return self._plan(row)
+
+    def plan_update(self, plan_id, values):
+        """
+        Update a Plan
+
+        :param plan_id: The Plan ID
+        :param values: Values to update with
+        """
+        row = self._get(models.Plan, plan_id)
+        row.update(values)
+
+        self._save(row)
+        return self._plan(row)
+
+    def plan_delete(self, plan_id):
+        """
+        Delete a Plan
+
+        :param plan_id: Plan ID
+        """
+        self._delete(models.Plan, plan_id)

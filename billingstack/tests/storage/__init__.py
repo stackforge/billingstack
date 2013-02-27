@@ -47,7 +47,7 @@ class StorageDriverTestCase(TestCase):
         self.storage_conn.set_properties(data['id'], metadata, cls=models.Product)
 
         actual = self.storage_conn.product_get(data['id'])
-        self.assertLen(3, actual['properties'])
+        self.assertLen(4, actual['properties'])
 
     # Payment Gateways
     def test_pg_provider_register(self):
