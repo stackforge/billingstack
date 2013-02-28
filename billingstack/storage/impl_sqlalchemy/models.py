@@ -276,10 +276,10 @@ class Customer(BASE):
                    onupdate='CASCADE', name='default_info'))
 
     currency = relationship('Currency', uselist=False, backref='customers')
-    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
+    currency_id = Column(UUID, ForeignKey('currency.id'))
 
     language = relationship('Language', uselist=False, backref='customers')
-    language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
+    language_id = Column(UUID, ForeignKey('language.id'))
 
 
 class PaymentMethod(BASE):
