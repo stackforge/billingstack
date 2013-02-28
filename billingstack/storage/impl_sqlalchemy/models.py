@@ -212,6 +212,7 @@ class Merchant(BASE):
     A Merchant is like a Account in Recurly
     """
     name = Column(Unicode(60), nullable=False)
+    title = Column(Unicode(60))
 
     customers = relationship('Customer', backref='merchant')
     payment_gateways = relationship('PGAccountConfig', backref='merchant')
@@ -250,6 +251,7 @@ class Customer(BASE):
     A Customer is linked to a Merchant and can have Users related to it
     """
     name = Column(Unicode(60), nullable=False)
+    title = Column(Unicode(60))
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
@@ -274,10 +276,10 @@ class Customer(BASE):
                    onupdate='CASCADE', name='default_info'))
 
     currency = relationship('Currency', uselist=False, backref='customers')
-    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
+    currency_id = Column(UUID, ForeignKey('currency.id'))
 
     language = relationship('Language', uselist=False, backref='customers')
-    language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
+    language_id = Column(UUID, ForeignKey('language.id'))
 
 
 class PaymentMethod(BASE):
