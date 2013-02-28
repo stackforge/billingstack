@@ -212,6 +212,7 @@ class Merchant(BASE):
     A Merchant is like a Account in Recurly
     """
     name = Column(Unicode(60), nullable=False)
+    title = Column(Unicode(60))
 
     customers = relationship('Customer', backref='merchant')
     payment_gateways = relationship('PGAccountConfig', backref='merchant')
