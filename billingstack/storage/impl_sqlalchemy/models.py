@@ -251,6 +251,7 @@ class Customer(BASE):
     A Customer is linked to a Merchant and can have Users related to it
     """
     name = Column(Unicode(60), nullable=False)
+    title = Column(Unicode(60))
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
