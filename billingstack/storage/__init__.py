@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 # Copied: Moniker
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.storage.base import StorageEngine
 

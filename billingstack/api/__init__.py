@@ -16,7 +16,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 
 API_SERVICE_OPTS = [
     cfg.IntOpt('api_port', default=9091,

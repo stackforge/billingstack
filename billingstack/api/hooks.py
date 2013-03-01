@@ -1,6 +1,6 @@
 from pecan import hooks
 
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 from billingstack.openstack.common import log
 from billingstack import storage
 

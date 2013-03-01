@@ -1,7 +1,7 @@
 import copy
 import unittest2
 import mox
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 # NOTE: Currently disabled
 # from billingstack.openstack.common import policy
 from billingstack.openstack.common import log as logging

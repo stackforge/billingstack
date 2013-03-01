@@ -1,5 +1,5 @@
 import os
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 
 
 cfg.CONF.register_opts([

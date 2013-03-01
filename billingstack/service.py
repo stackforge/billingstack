@@ -20,7 +20,7 @@
 import os
 import socket
 
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 from billingstack.openstack.common import rpc
 from billingstack.openstack.common import context
 from billingstack.openstack.common import log

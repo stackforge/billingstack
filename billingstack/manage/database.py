@@ -13,7 +13,7 @@
 # under the License.
 
 
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 from billingstack.openstack.common import log
 from billingstack.manage.base import Command
 from billingstack.storage import get_connection

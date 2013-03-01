@@ -23,7 +23,7 @@
 import datetime
 import logging
 
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 
 from billingstack.tests.api.v1.base import FunctionalTest
 

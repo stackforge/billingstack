@@ -13,7 +13,7 @@
 # under the License.
 from sqlalchemy import or_
 from sqlalchemy.orm import exc
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack import exceptions
 from billingstack import utils as common_utils

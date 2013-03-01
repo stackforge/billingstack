@@ -23,7 +23,7 @@ from alembic import command as alembic_command
 from alembic import config as alembic_config
 from alembic import util as alembic_util
 
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
 from billingstack.openstack.common.gettextutils import _
 
 
