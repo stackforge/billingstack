@@ -8,12 +8,12 @@ from billingstack import utils
 class UtilsTests(unittest2.TestCase):
     def test_get_currency(self):
         currency = utils.get_currency('nok')
-        expected = {'letter': u'nok', 'name': u'Norwegian Krone'}
+        expected = {'name': u'nok', 'title': u'Norwegian Krone'}
         self.assertEqual(expected, currency)
 
     def test_get_language(self):
         lang = utils.get_language('nor')
-        expected = {'name': u'Norwegian', 'letter': u'nor'}
+        expected = {'title': u'Norwegian', 'name': u'nor'}
         self.assertEqual(expected, lang)
 
     def test_invalid_raises(self):

@@ -46,18 +46,18 @@ class Currency(BASE):
     """
     Allowed currency
     """
-    __table_args__ = (UniqueConstraint('letter', name='currency'),)
-    letter = Column(Unicode(10), nullable=False)
-    name = Column(Unicode(100), nullable=False)
+    __table_args__ = (UniqueConstraint('name', name='currency'),)
+    name = Column(Unicode(10), nullable=False)
+    title = Column(Unicode(100), nullable=False)
 
 
 class Language(BASE):
     """
     A Language
     """
-    __table_args__ = (UniqueConstraint('letter', name='language'),)
-    letter = Column(Unicode(10), nullable=False)
-    name = Column(Unicode(100), nullable=False)
+    __table_args__ = (UniqueConstraint('name', name='language'),)
+    name = Column(Unicode(10), nullable=False)
+    title = Column(Unicode(100), nullable=False)
 
 
 pg_provider_methods = Table('pg_provider_methods', BASE.metadata,

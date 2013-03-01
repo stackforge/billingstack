@@ -223,7 +223,7 @@ class Connection(base.Connection):
         """
         Add a supported currency to the database
         """
-        data = common_utils.get_currency(values['letter'])
+        data = common_utils.get_currency(values['name'])
         row = models.Currency(**data)
         self._save(row)
         return dict(row)
@@ -248,7 +248,7 @@ class Connection(base.Connection):
         """
         Add a supported language to the database
         """
-        data = common_utils.get_language(values['letter'])
+        data = common_utils.get_language(values['name'])
         row = models.Language(**data)
         self._save(row)
         return dict(row)

@@ -63,16 +63,17 @@ def get_country(country_obj, **kw):
                 if not k.startswith('_')])
 
 
-def get_currency(letter):
-    obj = get_country(pycountry.currencies, letter=letter.upper())
-    obj['letter'] = obj['letter'].lower()
-    del obj['numeric']
-    return obj
+def get_currency(name):
+    obj = get_country(pycountry.currencies, letter=name.upper())
+    return {
+        'name': obj['letter'].lower(),
+        'title': obj['name']}
 
 
-def get_language(letter):
-    obj = get_country(pycountry.languages, terminology=letter)
-    return {'letter': obj['terminology'].lower(), 'name': obj['name']}
+def get_language(name):
+    obj = get_country(pycountry.languages, terminology=name)
+    data = {'name': obj['terminology'].lower(), 'title': obj['name']}
+    return data
 
 
 def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):

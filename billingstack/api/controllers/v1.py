@@ -48,13 +48,13 @@ class Base(Base):
 
 class Currency(Base):
     id = text
-    letter = text
     name = text
+    title = text
 
 
 class Language(Base):
-    letter = text
     name = text
+    title = text
 
 
 class ContactInfo(Base):
