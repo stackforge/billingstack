@@ -396,7 +396,11 @@ class PlanProperties(BASE):
 class PlanItem(BASE):
     description = Column(Unicode(255))
 
-    price = relationship('Pricing', backref='plan_item', uselist=False)
+    price_rules = relationship(
+        'Pricing',
+        backref=backref('plan_items', uselist=False),
+        lazy='dynamic', cascade='delete-orphan',
+        passive_deletes=True)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
                      nullable=False)
@@ -451,7 +455,12 @@ class Subscription(BASE):
     resource_id = Column(Unicode(255))
     resource_type = Column(Unicode(255))
 
-    usages = relationship('Usage', backref='subscription')
+    usages = relationship(
+        'Usage',
+        backref='subscription',
+        lazy='dynamic',
+        cascade='delete-orphan',
+        passive_deletes=True)
 
     plan = relationship('Plan', backref='subscriptions', uselist=False)
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
