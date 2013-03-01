@@ -54,12 +54,13 @@ class Connection(base.Connection):
         """ Semi-Private Method to reset the database schema """
         models.BASE.metadata.drop_all(self.session.bind)
 
-    def _save(self, obj):
+    def _save(self, obj, save=True):
+        if not save:
+            return obj
         try:
-            obj.save(self.session)
+            return obj.save(self.session)
         except exceptions.Duplicate:
             raise
-        return obj
 
     def _list(self, cls=None, query=None, criterion=None):
         """
@@ -147,10 +148,10 @@ class Connection(base.Connection):
         :param obj: ID or instance / ref of the object
         :param cls: The class to run self._get on if obj is not a ref
         """
-        if cls and obj:
-            return self._get(cls, obj)
-        elif isinstance(obj, models.ModelBase):
+        if isinstance(obj, models.ModelBase):
             return obj
+        elif isinstance(obj, basestring) and cls:
+            return self._get(cls, obj)
         else:
             msg = 'Missing obj and/or obj and cls...'
             raise exceptions.BadRequest(msg)
@@ -681,16 +682,39 @@ class Connection(base.Connection):
         """
         self._delete(models.Product, product_id)
 
+    # PlanItem
+    def plan_item_add(self, values, save=True):
+        ref = models.PlanItem()
+        return self._plan_item_update(ref, values, save=save)
+
+    def plan_item_update(self, item, values, save=True):
+        return self._plan_item_update(item, values, save=save)
+
+    def _plan_item_update(self, item, values, save=True):
+        row = self._get_row(item, models.PlanItem)
+        row.update(values)
+        return self._save(row, save=save)
+
+    def plan_item_list(self, **kw):
+        return self._list(models.PlanItem, **kw)
+
+    def plan_item_get(self, plan_id):
+        row = self._get(models.PlanItem, plan_id)
+        return dict(row)
+
+    def plan_item_delete(self, plan_id):
+        self._delete(models.PlanItem, plan_id)
+
     # Plan
     def _plan(self, row):
         plan = dict(row)
 
         plan['properties'] = map(dict, row.properties) if row.properties\
             else None
+        plan['plan_items'] = map(dict, row.plan_items) if row.plan_items\
+            else None
         return plan
 
-    def plan_item_add(self, plan, values):
-        self._get_row(plan, models.PlanItem)
     def plan_add(self, merchant_id, values):
         """
         Add a new Plan
@@ -700,10 +724,17 @@ class Connection(base.Connection):
         """
         merchant = self._get(models.Merchant, merchant_id)
 
-        items = values.pop('items', [])
+        items = values.pop('plan_items', [])
+        properties = values.pop('properties', {})
 
         plan = models.Plan(**values)
+
         plan.merchant = merchant
+        self.set_properties(plan, properties)
+
+        for i in items:
+            item_row = self.plan_item_add(i, save=False)
+            plan.plan_items.append(item_row)
 
         self._save(plan)
         return self._plan(plan)
@@ -736,8 +767,12 @@ class Connection(base.Connection):
         :param plan_id: The Plan ID
         :param values: Values to update with
         """
+        properties = values.pop('properties', {})
+
         row = self._get(models.Plan, plan_id)
         row.update(values)
+
+        self.set_properties(row, properties)
 
         self._save(row)
         return self._plan(row)

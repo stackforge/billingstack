@@ -372,7 +372,7 @@ class Plan(BASE):
     name = Column(Unicode(60), nullable=False)
     title = Column(Unicode(100))
     description = Column(Unicode(255))
-    provider = Column(Unicode(255), nullable=False)
+    #provider = Column(Unicode(255), nullable=False)
 
     plan_items = relationship('PlanItem', backref='plan')
 
@@ -394,18 +394,12 @@ class PlanProperties(BASE):
 
 
 class PlanItem(BASE):
-    name = Column(Unicode(60), nullable=False)
-    title = Column(Unicode(100))
     description = Column(Unicode(255))
 
     price = relationship('Pricing', backref='plan_item', uselist=False)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
                      nullable=False)
-
-    merchant = relationship('Merchant', backref='plan_items')
-    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
-                         nullable=False)
 
     product = relationship('Product', backref='plan_items', uselist=False)
     product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'),

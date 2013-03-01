@@ -396,3 +396,45 @@ class StorageDriverTestCase(TestCase):
     def test_product_delete_missing(self):
         self.assertMissing(self.storage_conn.product_delete, UUID)
 
+    # Plan
+    def test_plan_add_with_items(self):
+        _, p1 = self.product_add(self.merchant['id'])
+        _, p2 = self.product_add(self.merchant['id'])
+
+        values = {
+            'plan_items': [{'product_id': p1['id']}, {'product_id': p2['id']}]
+        }
+
+        fixture, data = self.plan_add(self.merchant['id'], values=values)
+        self.assertData(fixture, data)
+
+    def test_plan_add_without_items(self):
+        fixture, data = self.plan_add(self.merchant['id'])
+        self.assertData(fixture, data)
+
+    def test_plan_get(self):
+        fixture, data = self.plan_add(self.merchant['id'])
+        actual = self.storage_conn.plan_get(data['id'])
+        self.assertData(data, actual)
+
+    def test_plan_get_missing(self):
+        self.assertMissing(self.storage_conn.plan_get, UUID)
+
+    def test_plan_update(self):
+        fixture, data = self.plan_add(self.merchant['id'])
+
+        fixture['name'] = 'test'
+        updated = self.storage_conn.plan_update(data['id'], fixture)
+
+        self.assertData(fixture, updated)
+
+    def test_plan_update_missing(self):
+        self.assertMissing(self.storage_conn.plan_update, UUID, {})
+
+    def test_plan_delete(self):
+        fixture, data = self.plan_add(self.merchant['id'])
+        self.storage_conn.plan_delete(data['id'])
+        self.assertMissing(self.storage_conn.plan_get, data['id'])
+
+    def test_plan_delete_missing(self):
+        self.assertMissing(self.storage_conn.plan_delete, UUID)
