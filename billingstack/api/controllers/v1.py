@@ -174,10 +174,15 @@ class UsersController(RestBase):
 
     @wsme_pecan.wsexpose([User], unicode)
     def get_all(self):
+        criterion = {}
+
+        if 'customer_id' in request.context:
+            criterion['customer_id'] = request.context['customer_id']
+
         users = request.storage_conn.user_list(
             request.context['merchant_id'],
-            customer_id=request.context.get('customer_id'),
-            user_id=request.context.get('user_id'))
+            criterion=criterion)
+
         return [User(**o) for o in users]
 
     @wsme_pecan.wsexpose(User, body=User)
