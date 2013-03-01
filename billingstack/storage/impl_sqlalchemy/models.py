@@ -399,7 +399,7 @@ class PlanItem(BASE):
     price_rules = relationship(
         'Pricing',
         backref=backref('plan_items', uselist=False),
-        lazy='dynamic', cascade='delete-orphan',
+        lazy='dynamic', cascade='delete, delete-orphan',
         passive_deletes=True)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
@@ -459,7 +459,7 @@ class Subscription(BASE):
         'Usage',
         backref='subscription',
         lazy='dynamic',
-        cascade='delete-orphan',
+        cascade='delete, delete-orphan',
         passive_deletes=True)
 
     plan = relationship('Plan', backref='subscriptions', uselist=False)
