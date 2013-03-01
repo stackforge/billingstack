@@ -112,7 +112,7 @@ class RestBase(RestController):
         LOG.debug("Lookup: id '%s' parts '%s'", id_, parts)
 
         values = None, ()
-        if isinstance(self.__resource__, dict):
+        if isinstance(self.__resource__, dict) and id_ in self.__resource__:
             cls = self.__resource__[id_]
             values = cls(parent=self, id_=id_), parts
         elif self.__resource__ and issubclass(self.__resource__, RestBase):
