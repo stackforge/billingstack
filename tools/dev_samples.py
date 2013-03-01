@@ -42,6 +42,9 @@ if __name__ == '__main__':
     for l in samples['language']:
         languages[l['letter']] = conn.language_add(l)
 
+    for method in samples['pg_method']:
+        conn.pg_method_add(method)
+
     country_data = {
         "currency_id": currencies['nok']['id'],
         "language_id": languages['nor']['id']}
