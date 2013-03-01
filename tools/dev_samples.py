@@ -37,11 +37,11 @@ if __name__ == '__main__':
     currencies = {}
     for c in samples['currency']:
         print "ADDING", c
-        currencies[c['letter']] = conn.currency_add(c)
+        currencies[c['name']] = conn.currency_add(c)
 
     languages = {}
     for l in samples['language']:
-        languages[l['letter']] = conn.language_add(l)
+        languages[l['name']] = conn.language_add(l)
 
     for method in samples['pg_method']:
         conn.pg_method_add(method)
