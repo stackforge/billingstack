@@ -2,7 +2,8 @@
 
 import sys
 
-from billingstack.openstack.common import cfg
+from oslo.config import cfg
+
 from billingstack.openstack.common import log as logging
 
 from billingstack import service
