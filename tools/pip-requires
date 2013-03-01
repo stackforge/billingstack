@@ -1,6 +1,7 @@
 WebOb>=1.2
 eventlet
-pecan
+#pecan
+-e git://github.com/ryanpetrello/pecan.git@next#egg=pecan
 stevedore
 argparse
 -e hg+https://bitbucket.org/cdevienne/wsme/#egg=wsme

@@ -92,10 +92,12 @@ class Customer(Account):
 
 
 class RestBase(RestController):
-    resource = None
+    __resource__ = None
     __id__ = None
 
     def __init__(self, parent=None, id_=None):
+        #import ipdb
+        #ipdb.set_trace()
         self.parent = parent
         if self.__id__:
             request.context[self.__id__ + '_id'] = id_
@@ -110,16 +112,25 @@ class RestBase(RestController):
         LOG.debug("Lookup: id '%s' parts '%s'", id_, parts)
 
         values = None, ()
-        if type(self.resource) == dict:
-            cls = self._lookup_resource(id_, parts)
+        if isinstance(self.__resource__, dict):
+            cls = self.__resource__[id_]
             values = cls(parent=self, id_=id_), parts
-        elif self.resource and issubclass(self.resource, RestBase):
-            values = self.resource(parent=self, id_=id_), parts
-        LOG.debug("Returning %s", values)
+        elif self.__resource__ and issubclass(self.__resource__, RestBase):
+            values = self.__resource__(parent=self, id_=id_), parts
+        print "Returning", values
         return values
 
-    def _lookup_resource(self, key, parts):
-        return self.resource.get(key)
+    def __getattr__(self, name):
+        """
+        Overload this to look in self.__resource__ if name is defined as a
+        Controller
+        """
+        if name in self.__dict__:
+            return self.__dict__[name]
+        elif isinstance(self.__resource__, dict) and name in self.__resource__:
+            return self.__resource__[name]()
+        else:
+            raise AttributeError
 
 
 class CurrenciesController(RestBase):
@@ -136,6 +147,7 @@ class LanguagesController(RestBase):
     @wsme_pecan.wsexpose([Language])
     def get_all(self):
         return [Language(**o) for o in request.storage_conn.language_list()]
+
 
 class UserController(RestBase):
     """User controller"""
@@ -155,8 +167,10 @@ class UserController(RestBase):
     def delete(self):
         request.storage_conn.user_delete(self.id_)
 
+
 class UsersController(RestBase):
     """Users controller"""
+    __resource__ = UserController
 
     @wsme_pecan.wsexpose([User], unicode)
     def get_all(self):
@@ -175,7 +189,7 @@ class UsersController(RestBase):
 class CustomerController(RestBase):
     """Customer controller"""
     __id__ = 'customer'
-    resource = {
+    __resource__ = {
         "users": UsersController
     }
 
@@ -196,23 +210,25 @@ class CustomerController(RestBase):
 
 class CustomersController(RestBase):
     """Customers controller"""
-
-    resource = CustomerController
+    __resource__ = CustomerController
 
     @wsme_pecan.wsexpose([Customer])
     def get_all(self):
-        customers = request.storage_conn.customer_list(self.parent.id_)
+        customers = request.storage_conn.customer_list(
+            criterion={"merchant_id": self.parent.id_})
         return [Customer(**o) for o in customers]
 
     @wsme_pecan.wsexpose(Customer, body=Customer)
     def post(self, body):
-        customer = request.storage_conn.customer_add(body.as_dict())
+        customer = request.storage_conn.customer_add(
+            request.context['merchant_id'],
+            body.as_dict())
         return Customer(**customer)
 
 
 class MerchantController(RestBase):
     __id__ = 'merchant'
-    resource = {
+    __resource__ = {
         "customers": CustomersController,
         "users": UsersController
     }
@@ -234,7 +250,7 @@ class MerchantController(RestBase):
 
 class MerchantsController(RestBase):
     """Merchants controller"""
-    resource = MerchantController
+    __resource__ = MerchantController
 
     @wsme_pecan.wsexpose([Merchant])
     def get_all(self):
@@ -244,7 +260,6 @@ class MerchantsController(RestBase):
     def post(self, body):
         merchant = request.storage_conn.merchant_add(body.as_dict())
         return Merchant(**merchant)
-
 
 
 class V1Controller(object):
