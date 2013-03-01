@@ -16,6 +16,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import inspect
 import pecan
 from pecan import request
 from pecan.rest import RestController
@@ -111,14 +112,9 @@ class RestBase(RestController):
         parts = url_data[1:] if len(url_data) > 1 else ()
         LOG.debug("Lookup: id '%s' parts '%s'", id_, parts)
 
-        values = None, ()
-        if isinstance(self.__resource__, dict) and id_ in self.__resource__:
-            cls = self.__resource__[id_]
-            values = cls(parent=self, id_=id_), parts
-        elif self.__resource__ and issubclass(self.__resource__, RestBase):
-            values = self.__resource__(parent=self, id_=id_), parts
-        print "Returning", values
-        return values
+        resource = self.__resource__
+        if inspect.isclass(resource) and issubclass(resource, RestBase):
+            return resource(parent=self, id_=id_), parts
 
     def __getattr__(self, name):
         """
@@ -128,7 +124,7 @@ class RestBase(RestController):
         if name in self.__dict__:
             return self.__dict__[name]
         elif isinstance(self.__resource__, dict) and name in self.__resource__:
-            return self.__resource__[name]()
+            return self.__resource__[name](parent=self)
         else:
             raise AttributeError
 
