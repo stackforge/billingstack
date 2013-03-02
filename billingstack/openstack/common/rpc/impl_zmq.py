@@ -398,16 +398,23 @@ class ZmqBaseReactor(ConsumerBase):
 
         LOG.info(_("Out reactor registered"))
 
-    def consume_in_thread(self):
-        def _consume(sock):
-            LOG.info(_("Consuming socket"))
-            while True:
-                self.consume(sock)
+    def _consumer_thread_callback(self, sock):
+        """ Consumer thread callback used by consume_in_* """
 
+        LOG.info(_("Consuming socket"))
+        while True:
+            self.consume(sock)
+
+    def consume_in_thread(self):
         for k in self.proxies.keys():
             self.threads.append(
-                self.pool.spawn(_consume, k)
+                self.pool.spawn(self._consumer_thread_callback, k)
             )
+
+    def consume_in_thread_group(self, thread_group):
+        """ Consume from all queues/consumers in the supplied ThreadGroup"""
+        for k in self.proxies.keys():
+            thread_group.add_thread(self._consumer_thread_callback, k)
 
     def wait(self):
         for t in self.threads:
@@ -585,6 +592,9 @@ class ZmqReactor(ZmqBaseReactor):
 
         self.pool.spawn_n(self.process, proxy, ctx, request)
 
+    def consume_in_thread_group(self, thread_group):
+        self.reactor.consume_in_thread_group(thread_group)
+
 
 class Connection(rpc_common.Connection):
     """Manages connections and threads."""
@@ -594,6 +604,9 @@ class Connection(rpc_common.Connection):
         self.reactor = ZmqReactor(conf)
 
     def create_consumer(self, topic, proxy, fanout=False):
+        # Register with matchmaker.
+        _get_matchmaker().register(topic, CONF.rpc_zmq_host)
+
         # Subscription scenarios
         if fanout:
             sock_type = zmq.SUB
@@ -620,6 +633,10 @@ class Connection(rpc_common.Connection):
         self.topics.append(topic)
 
     def close(self):
+        _get_matchmaker().stop_heartbeat()
+        for topic in self.topics:
+            _get_matchmaker().unregister(topic, CONF.rpc_zmq_host)
+
         self.reactor.close()
         self.topics = []
 
@@ -627,6 +644,7 @@ class Connection(rpc_common.Connection):
         self.reactor.wait()
 
     def consume_in_thread(self):
+        _get_matchmaker().start_heartbeat()
         self.reactor.consume_in_thread()
 
 
@@ -785,7 +803,7 @@ def fanout_cast(conf, context, topic, msg, **kwargs):
     _multi_send(_cast, context, 'fanout~' + str(topic), msg, **kwargs)
 
 
-def notify(conf, context, topic, msg, **kwargs):
+def notify(conf, context, topic, msg, envelope):
     """
     Send notification event.
     Notifications are sent to topic-priority.
@@ -793,9 +811,8 @@ def notify(conf, context, topic, msg, **kwargs):
     """
     # NOTE(ewindisch): dot-priority in rpc notifier does not
     # work with our assumptions.
-    topic.replace('.', '-')
-    kwargs['envelope'] = kwargs.get('envelope', True)
-    cast(conf, context, topic, msg, **kwargs)
+    topic = topic.replace('.', '-')
+    cast(conf, context, topic, msg, envelope=envelope)
 
 
 def cleanup():
