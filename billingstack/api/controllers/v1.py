@@ -57,6 +57,29 @@ class Language(Base):
     title = text
 
 
+class PGMethod(Base):
+    id = text
+    name = text
+    title = text
+    desription = text
+
+    type = text
+    extra = text
+
+
+class PGProvider(Base):
+    def __init__(self, **kw):
+        kw['methods'] = [PGMethod(**m) for m in kw.get('methods', {})]
+        super(PGProvider, self).__init__(**kw)
+
+    id = text
+    name = text
+    title = text
+    description = text
+
+    methods = [PGMethod]
+
+
 class ContactInfo(Base):
     address1 = text
     address2 = text
@@ -146,6 +169,16 @@ class LanguagesController(RestBase):
     def get_all(self):
         data = request.central_api.language_list(request.ctxt)
         return [Language(**i) for i in data]
+
+
+class PGProvidersController(RestBase):
+    """
+    PaymentGatewayProviders
+    """
+    @wsme_pecan.wsexpose([PGProvider])
+    def get_all(self):
+        rows = request.central_api.pg_provider_list(request.ctxt)
+        return [PGProvider(**i) for i in rows]
 
 
 class UserController(RestBase):
@@ -279,8 +312,12 @@ class MerchantsController(RestBase):
         return Merchant(**merchant)
 
 
-class V1Controller(object):
+class V1Controller(RestBase):
     """Version 1 API controller."""
+
+    __resource__ = {
+        'payment-gateway-providers': PGProvidersController
+    }
 
     currencies = CurrenciesController()
     languages = LanguagesController()
