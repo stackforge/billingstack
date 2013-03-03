@@ -9,7 +9,7 @@ from billingstack.storage import get_connection
 LOG = log.getLogger(__name__)
 
 
-def _register(ep, conn):
+def _register(ep, context, conn):
     provider = ep.plugin
 
     values = provider.values()
@@ -23,14 +23,14 @@ def _register(ep, conn):
         return
 
     try:
-        conn.pg_provider_register(values, methods=methods)
-    except exceptions.ConfigurationError, e:
+        conn.pg_provider_register(context, values, methods=methods)
+    except exceptions.ConfigurationError:
         return
 
     LOG.debug("Registered PGP %s with methods %s", values, methods)
 
 
-def register_providers():
+def register_providers(context):
     conn = get_connection()
     em = ExtensionManager(Provider.__plugin_ns__)
-    em.map(_register, conn)
+    em.map(_register, context, conn)

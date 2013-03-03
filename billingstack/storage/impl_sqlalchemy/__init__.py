@@ -58,7 +58,7 @@ class Connection(base.Connection):
         if not save:
             return obj
         try:
-            return obj.save(self.session)
+            obj.save(self.session)
         except exceptions.Duplicate:
             raise
 
@@ -219,7 +219,7 @@ class Connection(base.Connection):
                     row[rel_attr].remove(existing[key])
 
     # Currency
-    def currency_add(self, values):
+    def currency_add(self, ctxt, values):
         """
         Add a supported currency to the database
         """
@@ -228,23 +228,23 @@ class Connection(base.Connection):
         self._save(row)
         return dict(row)
 
-    def currency_list(self):
-        rows = self._list(models.Currency)
+    def currency_list(self, ctxt, **kw):
+        rows = self._list(models.Currency, **kw)
         return map(dict, rows)
 
-    def currency_get(self, currency_id):
-        row = self._get(models.Currency, currency_id)
+    def currency_get(self, ctxt, id_):
+        row = self._get(models.Currency, id_)
         return dict(row)
 
-    def currency_update(self, currency_id, values):
-        row = self._update(models.Currency, currency_id, values)
+    def currency_update(self, ctxt, id_, values):
+        row = self._update(models.Currency, id_, values)
         return dict(row)
 
-    def currency_delete(self, currency_id):
-        self._delete(models.Currency, currency_id)
+    def currency_delete(self, ctxt, id_):
+        self._delete(models.Currency, id_)
 
     # Language
-    def language_add(self, values):
+    def language_add(self, ctxt, values):
         """
         Add a supported language to the database
         """
@@ -253,23 +253,23 @@ class Connection(base.Connection):
         self._save(row)
         return dict(row)
 
-    def language_list(self):
-        rows = self._list(models.Language)
+    def language_list(self, ctxt, **kw):
+        rows = self._list(models.Language, **kw)
         return map(dict, rows)
 
-    def language_get(self, id_):
+    def language_get(self, ctxt, id_):
         row = self._get(models.Language, id_)
         return dict(row)
 
-    def language_update(self, id_, values):
+    def language_update(self, ctxt, id_, values):
         row = self._update(models.Language, id_, values)
         return dict(row)
 
-    def language_delete(self, id_):
+    def language_delete(self, ctxt, id_):
         self._delete(models.Language, id_)
 
     # ContactInfo
-    def contact_info_add(self, obj, values, cls=None,
+    def contact_info_add(self, ctxt, obj, values, cls=None,
                          rel_attr='contact_info'):
         """
         :param entity: The object to add the contact_info to
@@ -296,17 +296,17 @@ class Connection(base.Connection):
         else:
             return rel_row
 
-    def contact_info_get(self, info_id):
-        self._get(models.ContactInfo, info_id)
+    def contact_info_get(self, ctxt, id_):
+        self._get(models.ContactInfo, id_)
 
-    def contact_info_update(self, info_id, values):
-        return self._update(models.ContactInfo, info_id, values)
+    def contact_info_update(self, ctxt, id_, values):
+        return self._update(models.ContactInfo, id_, values)
 
-    def contact_info_delete(self, info_id):
-        self._delete(models.ContactInfo, info_id)
+    def contact_info_delete(self, ctxt, id_):
+        self._delete(models.ContactInfo, id_)
 
     # Payment Gateway Providers
-    def pg_provider_register(self, values, methods=[]):
+    def pg_provider_register(self, ctxt, values, methods=[]):
         """
         Register a Provider and it's Methods
         """
@@ -320,27 +320,24 @@ class Connection(base.Connection):
 
         provider.update(values)
 
-        self._set_provider_methods(provider, methods)
+        self._set_provider_methods(ctxt, provider, methods)
 
         self._save(provider)
         return self._dict(provider, extra=['methods'])
 
-    def pg_provider_list(self, **kw):
+    def pg_provider_list(self, ctxt, **kw):
         """
         List available PG Providers
         """
-        q = self.session.query(models.PGProvider)
-
-        rows = self._list(query=q, **kw)
-
+        rows = self._list(models.PGProvider, **kw)
         return [self._dict(r, extra=['methods']) for r in rows]
 
-    def pg_provider_get(self, pgp_id):
+    def pg_provider_get(self, ctxt, pgp_id):
         row = self._get(models.PGProvider, pgp_id)
         return self._dict(row, extra=['methods'])
 
-    def pg_provider_deregister(self, pgp_id):
-        self._delete(models.PGProvider, pgp_id)
+    def pg_provider_deregister(self, ctxt, id_):
+        self._delete(models.PGProvider, id_)
 
     def _get_provider_methods(self, provider):
         """
@@ -353,11 +350,11 @@ class Connection(base.Connection):
             methods[key] = m
         return methods
 
-    def _set_provider_methods(self, provider, config_methods):
+    def _set_provider_methods(self, ctxt, provider, config_methods):
         """
         Helper method for setting the Methods for a Provider
         """
-        rows = self.pg_method_list(criterion={"owner_id": None})
+        rows = self.pg_method_list(ctxt, criterion={"owner_id": None})
         system_methods = self._kv_rows(rows, key=models.PGMethod.make_key)
 
         existing = self._get_provider_methods(provider)
@@ -393,26 +390,26 @@ class Connection(base.Connection):
                 raise exceptions.ConfigurationError(msg)
 
     # PGMethods
-    def pg_method_add(self, values):
+    def pg_method_add(self, ctxt, values):
         row = models.PGMethod(**values)
         self._save(row)
         return dict(row)
 
-    def pg_method_list(self, **kw):
+    def pg_method_list(self, ctxt, **kw):
         return self._list(models.PGMethod, **kw)
 
-    def pg_method_get(self, method_id):
-        return self._get(models.PGMethod, method_id)
+    def pg_method_get(self, ctxt, id_):
+        return self._get(models.PGMethod, id_)
 
-    def pg_method_update(self, method_id, values):
-        row = self._update(models.PGMethod, method_id, values)
+    def pg_method_update(self, ctxt, id_, values):
+        row = self._update(models.PGMethod, id_, values)
         return dict(row)
 
-    def pg_method_delete(self, method_id):
-        return self._delete(models.PGMethod, method_id)
+    def pg_method_delete(self, ctxt, id_):
+        return self._delete(models.PGMethod, id_)
 
     # Payment Gateway Configuration
-    def pg_config_add(self, merchant_id, provider_id, values):
+    def pg_config_add(self, ctxt, merchant_id, provider_id, values):
         merchant = self._get_id_or_name(models.Merchant, merchant_id)
         provider = self._get_id_or_name(models.PGProvider, provider_id)
 
@@ -423,25 +420,23 @@ class Connection(base.Connection):
         self._save(row)
         return dict(row)
 
-    def pg_config_list(self, merchant_id, **kw):
-        q = self.session.query(models.PGAccountConfig)\
-            .filter_by(merchant_id=merchant_id)
-        rows = self._list(query=q, **kw)
+    def pg_config_list(self, ctxt, **kw):
+        rows = self._list(models.PGAccountConfig, **kw)
         return map(dict, rows)
 
-    def pg_config_get(self, cfg_id):
-        row = self._get(models.PGAccountConfig, cfg_id)
+    def pg_config_get(self, ctxt, id_):
+        row = self._get(models.PGAccountConfig, id_)
         return dict(row)
 
-    def pg_config_update(self, cfg_id, values):
-        row = self._update(models.PGAccountConfig, cfg_id, values)
+    def pg_config_update(self, ctxt, id_, values):
+        row = self._update(models.PGAccountConfig, id_, values)
         return dict(row)
 
-    def pg_config_delete(self, cfg_id):
-        self._delete(models.PGAccountConfig, cfg_id)
+    def pg_config_delete(self, ctxt, id_):
+        self._delete(models.PGAccountConfig, id_)
 
     # PaymentMethod
-    def payment_method_add(self, customer_id, pg_method_id, values):
+    def payment_method_add(self, ctxt, customer_id, pg_method_id, values):
         """
         Configure a PaymentMethod like a CreditCard
         """
@@ -455,44 +450,42 @@ class Connection(base.Connection):
         self._save(row)
         return self._dict(row, extra=['provider_method'])
 
-    def payment_method_list(self, customer_id, **kw):
-        q = self.session.query(models.PaymentMethod)\
-            .filter_by(customer_id=customer_id)
-        rows = self._list(query=q, **kw)
+    def payment_method_list(self, ctxt, **kw):
+        rows = self._list(models.PaymentMethod, **kw)
         return [self._dict(row, extra=['provider_method']) for row in rows]
 
-    def payment_method_get(self, pm_id, **kw):
-        row = self._get_id_or_name(models.PaymentMethod, pm_id)
+    def payment_method_get(self, ctxt, id_, **kw):
+        row = self._get_id_or_name(models.PaymentMethod, id_)
         return self._dict(row, extra=['provider_method'])
 
-    def payment_method_update(self, pm_id, values):
-        row = self._update(models.PaymentMethod, pm_id, values)
+    def payment_method_update(self, ctxt, id_, values):
+        row = self._update(models.PaymentMethod, id_, values)
         return self._dict(row, extra=['provider_method'])
 
-    def payment_method_delete(self, pm_id):
-        self._delete(models.PaymentMethod, pm_id)
+    def payment_method_delete(self, ctxt, id_):
+        self._delete(models.PaymentMethod, id_)
 
     # Merchant
-    def merchant_add(self, values):
+    def merchant_add(self, ctxt, values):
         row = models.Merchant(**values)
 
         self._save(row)
         return dict(row)
 
-    def merchant_list(self, **kw):
+    def merchant_list(self, ctxt, **kw):
         rows = self._list(models.Merchant, **kw)
         return map(dict, rows)
 
-    def merchant_get(self, merchant_id):
-        row = self._get(models.Merchant, merchant_id)
+    def merchant_get(self, ctxt, id_):
+        row = self._get(models.Merchant, id_)
         return dict(row)
 
-    def merchant_update(self, merchant_id, values):
-        row = self._update(models.Merchant, merchant_id, values)
+    def merchant_update(self, ctxt, id_, values):
+        row = self._update(models.Merchant, id_, values)
         return dict(row)
 
-    def merchant_delete(self, merchant_id):
-        self._delete(models.Merchant, merchant_id)
+    def merchant_delete(self, ctxt, id_):
+        self._delete(models.Merchant, id_)
 
     # Customer
     def _customer(self, row):
@@ -501,33 +494,34 @@ class Connection(base.Connection):
             else None
         return data
 
-    def customer_add(self, merchant_id, values, contact_info=None):
+    def customer_add(self, ctxt, merchant_id, values):
         merchant = self._get(models.Merchant, merchant_id)
 
+        contact_info = values.pop('contact_info', None)
         customer = models.Customer(**values)
         merchant.customers.append(customer)
 
         if contact_info:
-            info_row = self.contact_info_add(customer, contact_info)
+            info_row = self.contact_info_add(ctxt, customer, contact_info)
             customer.default_info = info_row
 
         self._save(customer)
         return self._customer(customer)
 
-    def customer_list(self, **kw):
+    def customer_list(self, ctxt, **kw):
         rows = self._list(models.Customer, **kw)
         return map(dict, rows)
 
-    def customer_get(self, customer_id):
-        row = self._get(models.Customer, customer_id)
+    def customer_get(self, ctxt, id_):
+        row = self._get(models.Customer, id_)
         return self._customer(row)
 
-    def customer_update(self, customer_id, values):
-        row = self._update(models.Customer, customer_id, values)
+    def customer_update(self, ctxt, id_, values):
+        row = self._update(models.Customer, id_, values)
         return self._customer(row)
 
-    def customer_delete(self, customer_id):
-        return self._delete(models.Customer, customer_id)
+    def customer_delete(self, ctxt, id_):
+        return self._delete(models.Customer, id_)
 
     # Users
     def _user(self, row):
@@ -541,16 +535,17 @@ class Connection(base.Connection):
             else None
         return user
 
-    def user_add(self, merchant_id, values, customer_id=None,
-                 contact_info=None):
+    def user_add(self, ctxt, merchant_id, values):
         """
         Add user
 
         :param merchant_id: Merchant ID
         :param values: Values to create the new User from
-        :param customer_id: The Customer to link this user to
         """
         merchant = self._get(models.Merchant, merchant_id)
+
+        customer_id = values.pop('customer_id', None)
+        contact_info = values.pop('contact_info', None)
 
         user = models.User(**values)
         user.merchant = merchant
@@ -560,54 +555,51 @@ class Connection(base.Connection):
             customer.users.append(user)
 
         if contact_info:
-            self.contact_info_add(user, contact_info)
+            self.contact_info_add(ctxt, user, contact_info)
 
         self._save(user)
         return self._user(user)
 
-    def user_list(self, merchant_id, customer_id=None, **kw):
+    def user_list(self, ctxt, criterion={}, **kw):
         """
         List users
-
-        :param merchant_id: Merchant to list users for
         """
-        q = self.session.query(models.User)
-        q = q.filter_by(merchant_id=merchant_id)
+        query = self.session.query(models.User)
 
+        customer_id = criterion.pop('customer_id', None)
         if customer_id:
-            q = q.join(models.User.customers).\
-                filter(models.Customer.id == customer_id)
-
-        rows = self._list(query=q, **kw)
+            query = query.join(models.User.customers)\
+                .filter(models.Customer.id == customer_id)
+        rows = self._list(query=query, criterion=criterion, **kw)
 
         return map(self._user, rows)
 
-    def user_get(self, user_id):
+    def user_get(self, ctxt, id_):
         """
         Get a user
 
-        :param user_id: User ID
+        :param id_: User ID
         """
-        row = self._get(models.User, user_id)
+        row = self._get(models.User, id_)
         return self._user(row)
 
-    def user_update(self, user_id, values):
+    def user_update(self, ctxt, id_, values):
         """
         Update user
 
-        :param user_id: User ID
+        :param id_: User ID
         :param values: Values to update
         """
-        row = self._update(models.User, user_id, values)
+        row = self._update(models.User, id_, values)
         return self._user(row)
 
-    def user_delete(self, user_id):
+    def user_delete(self, ctxt, id_):
         """
         Delete a user
 
-        :param user_id: User ID
+        :param id_: User ID
         """
-        self._delete(models.User, user_id)
+        self._delete(models.User, id_)
 
     # Products
     def _product(self, row):
@@ -617,7 +609,7 @@ class Connection(base.Connection):
             else None
         return product
 
-    def product_add(self, merchant_id, values):
+    def product_add(self, ctxt, merchant_id, values):
         """
         Add a new Product
 
@@ -636,37 +628,34 @@ class Connection(base.Connection):
         self._save(product)
         return self._product(product)
 
-    def product_list(self, merchant_id, **kw):
+    def product_list(self, ctxt, **kw):
         """
         List Products
 
         :param merchant_id: The Merchant to list it for
         """
-        q = self.session.query(models.Product)
-        q = q.filter_by(merchant_id=merchant_id)
-
-        rows = self._list(query=q, **kw)
+        rows = self._list(models.Merchant, **kw)
         return map(self._product, rows)
 
-    def product_get(self, product_id):
+    def product_get(self, ctxt, id_):
         """
         Get a Product
 
-        :param product_id: The Product ID
+        :param id_: The Product ID
         """
-        row = self._get(models.Product, product_id)
+        row = self._get(models.Product, id_)
         return self._product(row)
 
-    def product_update(self, product_id, values):
+    def product_update(self, ctxt, id_, values):
         """
         Update a Product
 
-        :param product_id: The Product ID
+        :param id_: The Product ID
         :param values: Values to update with
         """
         properties = values.pop('properties', {})
 
-        row = self._get(models.Product, product_id)
+        row = self._get(models.Product, id_)
         row.update(values)
 
         self.set_properties(row, properties)
@@ -674,20 +663,20 @@ class Connection(base.Connection):
         self._save(row)
         return self._product(row)
 
-    def product_delete(self, product_id):
+    def product_delete(self, ctxt, id_):
         """
         Delete a Product
 
-        :param product_id: Product ID
+        :param id_: Product ID
         """
-        self._delete(models.Product, product_id)
+        self._delete(models.Product, id_)
 
     # PlanItem
-    def plan_item_add(self, values, save=True):
+    def plan_item_add(self, ctxt, values, save=True):
         ref = models.PlanItem()
         return self._plan_item_update(ref, values, save=save)
 
-    def plan_item_update(self, item, values, save=True):
+    def plan_item_update(self, ctxt, item, values, save=True):
         return self._plan_item_update(item, values, save=save)
 
     def _plan_item_update(self, item, values, save=True):
@@ -695,15 +684,15 @@ class Connection(base.Connection):
         row.update(values)
         return self._save(row, save=save)
 
-    def plan_item_list(self, **kw):
+    def plan_item_list(self, ctxt, **kw):
         return self._list(models.PlanItem, **kw)
 
-    def plan_item_get(self, plan_id):
-        row = self._get(models.PlanItem, plan_id)
+    def plan_item_get(self, ctxt, id_):
+        row = self._get(models.PlanItem, id_)
         return dict(row)
 
-    def plan_item_delete(self, plan_id):
-        self._delete(models.PlanItem, plan_id)
+    def plan_item_delete(self, ctxt, id_):
+        self._delete(models.PlanItem, id_)
 
     # Plan
     def _plan(self, row):
@@ -715,7 +704,7 @@ class Connection(base.Connection):
             else None
         return plan
 
-    def plan_add(self, merchant_id, values):
+    def plan_add(self, ctxt, merchant_id, values):
         """
         Add a new Plan
 
@@ -733,43 +722,40 @@ class Connection(base.Connection):
         self.set_properties(plan, properties)
 
         for i in items:
-            item_row = self.plan_item_add(i, save=False)
+            item_row = self.plan_item_add(ctxt, i, save=False)
             plan.plan_items.append(item_row)
 
         self._save(plan)
         return self._plan(plan)
 
-    def plan_list(self, merchant_id, **kw):
+    def plan_list(self, ctxt, **kw):
         """
         List Plan
 
         :param merchant_id: The Merchant to list it for
         """
-        q = self.session.query(models.Plan)\
-            .filter_by(merchant_id=merchant_id)
-
-        rows = self._list(query=q, **kw)
+        rows = self._list(models.Plan, **kw)
         return map(self._plan, rows)
 
-    def plan_get(self, plan_id):
+    def plan_get(self, ctxt, id_):
         """
         Get a Plan
 
-        :param plan_id: The Plan ID
+        :param id_: The Plan ID
         """
-        row = self._get(models.Plan, plan_id)
+        row = self._get(models.Plan, id_)
         return self._plan(row)
 
-    def plan_update(self, plan_id, values):
+    def plan_update(self, ctxt, id_, values):
         """
         Update a Plan
 
-        :param plan_id: The Plan ID
+        :param id_: The Plan ID
         :param values: Values to update with
         """
         properties = values.pop('properties', {})
 
-        row = self._get(models.Plan, plan_id)
+        row = self._get(models.Plan, id_)
         row.update(values)
 
         self.set_properties(row, properties)
@@ -777,10 +763,10 @@ class Connection(base.Connection):
         self._save(row)
         return self._plan(row)
 
-    def plan_delete(self, plan_id):
+    def plan_delete(self, ctxt, id_):
         """
         Delete a Plan
 
-        :param plan_id: Plan ID
+        :param id_: Plan ID
         """
-        self._delete(models.Plan, plan_id)
+        self._delete(models.Plan, id_)

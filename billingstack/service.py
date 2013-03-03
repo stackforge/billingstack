@@ -17,9 +17,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
-import socket
-
 from oslo.config import cfg
 from billingstack.openstack.common import rpc
 from billingstack.openstack.common import context
@@ -30,15 +27,10 @@ from billingstack.openstack.common.rpc import service as rpc_service
 cfg.CONF.register_opts([
     cfg.IntOpt('periodic_interval',
                default=600,
-               help='seconds between running periodic tasks'),
-    cfg.StrOpt('host',
-               default=socket.getfqdn(),
-               help='Name of this node.  This can be an opaque identifier.  '
-               'It is not necessarily a hostname, FQDN, or IP address. '
-               'However, the node name must be valid within '
-               'an AMQP key, and if using ZeroMQ, a valid '
-               'hostname, FQDN, or IP address'),
+               help='seconds between running periodic tasks')
 ])
+
+cfg.CONF.import_opt('host', 'billingstack.netconf')
 
 
 class PeriodicService(rpc_service.Service):
@@ -49,12 +41,6 @@ class PeriodicService(rpc_service.Service):
         self.tg.add_timer(cfg.CONF.periodic_interval,
                           self.manager.periodic_tasks,
                           context=admin_context)
-
-
-def _sanitize_cmd_line(argv):
-    """Remove non-nova CLI options from argv."""
-    cli_opt_names = ['--%s' % o.name for o in CLI_OPTIONS]
-    return [a for a in argv if a in cli_opt_names]
 
 
 def prepare_service(argv=[]):

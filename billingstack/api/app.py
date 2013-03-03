@@ -19,6 +19,7 @@
 from pecan import configuration
 from pecan import make_app
 
+from billingstack.api import auth
 from billingstack.api import config as api_config
 from billingstack.api import hooks
 
@@ -32,13 +33,17 @@ def get_pecan_config():
 def setup_app(pecan_config=None, extra_hooks=None):
 
     app_hooks = [hooks.ConfigHook(),
-                 hooks.DBHook()]
+                 hooks.DBHook(),
+                 hooks.RPCHook()
+                 ]
 
     if extra_hooks:
         app_hooks.extend(extra_hooks)
 
     if not pecan_config:
         pecan_config = get_pecan_config()
+
+    app_hooks.append(auth.AutherHook())
 
     configuration.set_config(dict(pecan_config), overwrite=True)
 

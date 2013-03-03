@@ -97,8 +97,6 @@ class RestBase(RestController):
     __id__ = None
 
     def __init__(self, parent=None, id_=None):
-        #import ipdb
-        #ipdb.set_trace()
         self.parent = parent
         if self.__id__:
             request.context[self.__id__ + '_id'] = id_
@@ -106,6 +104,9 @@ class RestBase(RestController):
 
     @pecan.expose()
     def _lookup(self, *url_data):
+        """
+        A fun approach to _lookup - checks self.__resource__ for the "id"
+        """
         id_ = None
         if len(url_data) >= 1:
             id_ = url_data[0]
@@ -130,11 +131,12 @@ class RestBase(RestController):
 
 
 class CurrenciesController(RestBase):
-    """Currencies controller"""
+    """Currsencies controller"""
 
     @wsme_pecan.wsexpose([Currency])
     def get_all(self):
-        return [Currency(**o) for o in request.storage_conn.currency_list()]
+        data = request.central_api.currency_list(request.ctxt)
+        return [Currency(**i) for i in data]
 
 
 class LanguagesController(RestBase):
@@ -142,7 +144,8 @@ class LanguagesController(RestBase):
 
     @wsme_pecan.wsexpose([Language])
     def get_all(self):
-        return [Language(**o) for o in request.storage_conn.language_list()]
+        data = request.central_api.language_list(request.ctxt)
+        return [Language(**i) for i in data]
 
 
 class UserController(RestBase):
@@ -183,7 +186,10 @@ class UsersController(RestBase):
 
     @wsme_pecan.wsexpose(User, body=User)
     def post(self, body):
-        user = request.storage_conn.user_add(body.as_dict())
+        user = request.storage_conn.user_add(
+            request.ctxt,
+            request.context['merchant_id'],
+            body.as_dict())
         return User(**user)
 
 
@@ -196,17 +202,20 @@ class CustomerController(RestBase):
 
     @wsme_pecan.wsexpose(Customer, unicode)
     def get_all(self):
-        customer = request.storage_conn.customer_get(self.id_)
+        customer = request.central_api.customer_get(request.ctxt, self.id_)
         return Customer(**dict(customer))
 
     @wsme_pecan.wsexpose(Customer, body=Customer)
     def put(self, body):
-        m = request.storage_conn.customer_update(self.id_, body.as_dict())
+        m = request.central_api.customer_update(
+            request.ctxt,
+            self.id_,
+            body.as_dict())
         return Customer(**m)
 
     @wsme_pecan.wsexpose()
     def delete(self):
-        request.storage_conn.customer_delete(self.id_)
+        request.central_api.customer_delete(request.ctxt, self.id_)
 
 
 class CustomersController(RestBase):
@@ -215,13 +224,14 @@ class CustomersController(RestBase):
 
     @wsme_pecan.wsexpose([Customer])
     def get_all(self):
-        customers = request.storage_conn.customer_list(
-            criterion={"merchant_id": self.parent.id_})
+        customers = request.central_api.customer_list(
+            request.ctxt, criterion={"merchant_id": self.parent.id_})
         return [Customer(**o) for o in customers]
 
     @wsme_pecan.wsexpose(Customer, body=Customer)
     def post(self, body):
-        customer = request.storage_conn.customer_add(
+        customer = request.central_api.customer_add(
+            request.ctxt,
             request.context['merchant_id'],
             body.as_dict())
         return Customer(**customer)
@@ -236,17 +246,20 @@ class MerchantController(RestBase):
 
     @wsme_pecan.wsexpose(Merchant)
     def get_all(self):
-        m = request.storage_conn.merchant_get(self.id_)
+        m = request.central_api.merchant_get(request.ctxt, self.id_)
         return Merchant(**dict(m))
 
     @wsme_pecan.wsexpose(Merchant, body=Merchant)
     def put(self, body):
-        m = request.storage_conn.merchant_update(self.id_, body.as_dict())
+        m = request.central_api.merchant_update(
+            request.ctxt,
+            self.id_,
+            body.as_dict())
         return Merchant(**m)
 
     @wsme_pecan.wsexpose()
     def delete(self):
-        request.storage_conn.merchant_delete(self.id_)
+        request.central_api.merchant_delete(request.ctxt, self.id_)
 
 
 class MerchantsController(RestBase):
@@ -255,11 +268,14 @@ class MerchantsController(RestBase):
 
     @wsme_pecan.wsexpose([Merchant])
     def get_all(self):
-        return [Merchant(**o) for o in request.storage_conn.merchant_list()]
+        data = request.central_api.merchant_list(request.ctxt)
+        return [Merchant(**o) for o in data]
 
     @wsme_pecan.wsexpose(Merchant, body=Merchant)
     def post(self, body):
-        merchant = request.storage_conn.merchant_add(body.as_dict())
+        merchant = request.central_api.merchant_add(
+            request.ctxt,
+            body.as_dict())
         return Merchant(**merchant)
 
 

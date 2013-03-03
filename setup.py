@@ -50,6 +50,7 @@ setup(
         'bin/billingstack-api',
         'bin/billingstack-db-manage',
         'bin/billingstack-manage',
+        'bin/billingstack-central',
     ],
     cmdclass=common_setup.get_cmdclass(),
     entry_points=textwrap.dedent("""

@@ -31,6 +31,8 @@ LOG = logging.getLogger(__name__)
 
 
 class TestMerchant(FunctionalTest):
+    __test__ = True
+   
     def test_merchant_add(self):
         fixture = self.get_fixture('merchant')
         self._account_defaults(fixture)
@@ -57,4 +59,4 @@ class TestMerchant(FunctionalTest):
 
     def test_merchant_delete(self):
         self.delete('merchants/' + self.merchant['id'])
-        self.assertLen(0, self.storage_conn.merchant_list())
+        self.assertLen(0, self.central_service.merchant_list(self.admin_ctxt))

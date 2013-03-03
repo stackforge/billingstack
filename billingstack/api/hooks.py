@@ -1,8 +1,9 @@
 from pecan import hooks
 
 from oslo.config import cfg
-from billingstack.openstack.common import log
 from billingstack import storage
+from billingstack.central.rpcapi import CentralAPI
+from billingstack.openstack.common import log
 
 
 class ConfigHook(hooks.PecanHook):
@@ -25,3 +26,8 @@ class DBHook(hooks.PecanHook):
     # def after(self, state):
     #     print 'method:', state.request.method
     #     print 'response:', state.response.status
+
+
+class RPCHook(hooks.PecanHook):
+    def before(self, state):
+        state.request.central_api = CentralAPI()

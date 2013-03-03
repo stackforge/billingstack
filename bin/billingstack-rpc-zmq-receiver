@@ -39,10 +39,10 @@ from billingstack.openstack.common.rpc import impl_zmq
 CONF = cfg.CONF
 CONF.register_opts(rpc.rpc_opts)
 CONF.register_opts(impl_zmq.zmq_opts)
-CONF(sys.argv[1:], project='billingstack')
 
 
 def main():
+    CONF(sys.argv[1:], project='billingstack')
     logging.setup("billingstack")
 
     with contextlib.closing(impl_zmq.ZmqProxy(CONF)) as reactor:

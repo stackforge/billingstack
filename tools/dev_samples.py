@@ -9,11 +9,12 @@ from billingstack.openstack.common import log as logging
 from billingstack import service
 from billingstack.samples import get_samples
 from billingstack.storage import get_connection
+from billingstack.openstack.common.context import get_admin_context
 from billingstack.storage.impl_sqlalchemy import models
 
 
-cfg.CONF.import_opt('storage_driver', 'billingstack.api',
-                    group='service:api')
+cfg.CONF.import_opt('storage_driver', 'billingstack.central',
+                    group='service:central')
 
 cfg.CONF.import_opt('database_connection', 'billingstack.storage.impl_sqlalchemy',
                     group='storage:sqlalchemy')
@@ -34,41 +35,45 @@ if __name__ == '__main__':
 
     samples = get_samples()
 
+    ctxt = get_admin_context()
+
     currencies = {}
     for c in samples['currency']:
         print "ADDING", c
-        currencies[c['name']] = conn.currency_add(c)
+        currencies[c['name']] = conn.currency_add(ctxt, c)
 
     languages = {}
     for l in samples['language']:
-        languages[l['name']] = conn.language_add(l)
+        languages[l['name']] = conn.language_add(ctxt, l)
 
     for method in samples['pg_method']:
-        conn.pg_method_add(method)
+        conn.pg_method_add(ctxt, method)
 
     country_data = {
         "currency_id": currencies['nok']['id'],
         "language_id": languages['nor']['id']}
 
     merchant = conn.merchant_add(
-        get_fixture('merchant', values=country_data))
+        ctxt, get_fixture('merchant', values=country_data))
 
     customer = conn.customer_add(
-        merchant['id'], get_fixture('customer', values=country_data))
+        ctxt, merchant['id'], get_fixture('customer', values=country_data))
 
     contact_info = get_fixture('contact_info')
 
     merchant_user = get_fixture('user')
     merchant_user['username'] = 'demo_merchant'
+    merchant_user['contact_info'] = contact_info
 
     merchant_user = conn.user_add(
-        merchant['id'], merchant_user, contact_info=contact_info)
+        ctxt, merchant['id'], merchant_user)
 
     customer_user = get_fixture('user')
     customer_user['username'] = 'demo_customer'
+    customer_user['contact_info'] = contact_info
+    customer_user['customer_id'] = customer['id']
 
     customer_user = conn.user_add(
+        ctxt,
         merchant['id'],
-        customer_user,
-        contact_info=contact_info,
-        customer_id=customer['id'])
+        customer_user)

@@ -48,6 +48,9 @@ class FunctionalTest(base.TestCase):
 
     def setUp(self):
         super(FunctionalTest, self).setUp()
+        self.central_service = self.get_central_service()
+        self.central_service.start()
+        self.setSamples()
         self.app = self._make_app()
 
     def _make_app(self, enable_acl=False):

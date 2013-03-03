@@ -28,8 +28,9 @@ LOG = logging.getLogger(__name__)
 
 
 class TestCustomer(FunctionalTest):
+    __test__ = True
     path = "merchants/%s/customers"
-
+   
     def test_customer_add(self):
         fixture = self.get_fixture('customer')
         self._account_defaults(fixture)
@@ -70,4 +71,4 @@ class TestCustomer(FunctionalTest):
         url = self.item_path(self.merchant['id'], customer['id'])
         self.delete(url)
 
-        self.assertLen(0, self.storage_conn.customer_list())
+        self.assertLen(0, self.central_service.customer_list(self.admin_ctxt))
