@@ -64,7 +64,7 @@ class PGMethod(Base):
     desription = text
 
     type = text
-    extra = text
+    properties = text
 
 
 class PGProvider(Base):

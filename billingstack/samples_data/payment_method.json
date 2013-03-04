@@ -3,6 +3,6 @@
     "name": "Visa",
     "identifier": "5105105105105100",
     "expires": "05/2012",
-    "data": {"cardholder": "Mr Holder", "cvv": "007"}
+    "properties": {"cardholder": "Mr Holder", "cvv": "007"}
   }
 ]

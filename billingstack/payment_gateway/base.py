@@ -21,7 +21,7 @@ class Provider(Plugin):
         raise NotImplementedError
 
     @classmethod
-    def data(cls):
+    def properties(cls):
         """
         Some extra data about the Provider if any, will be stored as
         JSON in the DB
@@ -34,7 +34,7 @@ class Provider(Plugin):
             name=cls.get_plugin_name(),
             title=cls.__title__,
             description=cls.__description__,
-            data=cls.data())
+            properties=cls.properties())
 
     def get_client(self):
         """

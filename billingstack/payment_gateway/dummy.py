@@ -15,5 +15,5 @@ class DummyProvider(Provider):
             {"name": "visa", "type": "creditcard"}]
 
     @classmethod
-    def data(cls):
+    def properties(cls):
         return {"enabled": 0}

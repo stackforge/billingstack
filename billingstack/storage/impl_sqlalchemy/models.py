@@ -77,7 +77,7 @@ class PGProvider(BASE):
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    extra = Column(JSON)
+    properties = Column(JSON)
 
     methods = relationship(
         'PGMethod',
@@ -115,7 +115,7 @@ class PGMethod(BASE):
     description = Column(Unicode(255))
 
     type = Column(Unicode(100), nullable=False)
-    extra = Column(JSON)
+    properties = Column(JSON)
 
     # NOTE: This is so a PGMethod can be "owned" by a Provider, meaning that
     # other Providers should not be able to use it.
@@ -288,7 +288,7 @@ class PaymentMethod(BASE):
     identifier = Column(Unicode(255), nullable=False)
     expires = Column(Unicode(255))
 
-    data = Column(JSON)
+    properties = Column(JSON)
 
     customer_id = Column(UUID, ForeignKey('customer.id', onupdate='CASCADE'),
                          nullable=False)
