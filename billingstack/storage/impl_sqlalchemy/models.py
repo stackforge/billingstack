@@ -42,6 +42,40 @@ class BaseModel(ModelBase):
 BASE = declarative_base(cls=BaseModel)
 
 
+TYPES = {
+    "float": float,
+    "str": unicode,
+    "unicode": unicode,
+    "int": int,
+    "bool": bool
+}
+
+
+class PropertyMixin(object):
+    """
+    Helper mixin for Property classes.
+
+    Store the type of the value using type() or the pre-defined data_type
+    and cast it on value when returning the value.
+
+    Supported types are in the TYPES dict.
+    """
+    data_type = Column(Unicode(20), nullable=False, default=u'str')
+    name = Column(Unicode(60), index=True, nullable=False)
+    _value = Column('value', UnicodeText)
+
+    @hybrid_property
+    def value(self):
+        data_type = TYPES.get(self.data_type, str)
+        return data_type(self._value)
+
+    @value.setter
+    def value(self, value):
+        data_type = type(value).__name__
+        self.data_type = data_type
+        self._value = value
+
+
 class Currency(BASE):
     """
     Allowed currency
@@ -381,7 +415,7 @@ class Plan(BASE):
                          ondelete='CASCADE'), nullable=False)
 
 
-class PlanProperties(BASE):
+class PlanProperty(BASE, PropertyMixin):
     __table_args__ = (UniqueConstraint('plan_id', 'name'), {})
 
     plan = relationship('Plan', backref='properties', lazy='joined')
@@ -390,8 +424,6 @@ class PlanProperties(BASE):
         ForeignKey('plan.id',
                    ondelete='CASCADE',
                    onupdate='CASCADE'))
-    name = Column(Unicode(60), index=True, nullable=False)
-    value = Column(UnicodeText)
 
 
 class PlanItem(BASE):
@@ -429,7 +461,7 @@ class Product(BASE):
                          nullable=False)
 
 
-class ProductProperties(BASE):
+class ProductProperty(BASE, PropertyMixin):
     """
     A Metadata row for something like Product or PlanItem
     """
@@ -441,8 +473,6 @@ class ProductProperties(BASE):
         ForeignKey('product.id',
                    ondelete='CASCADE',
                    onupdate='CASCADE'))
-    name = Column(Unicode(60), index=True, nullable=False)
-    value = Column(UnicodeText)
 
 
 class Subscription(BASE):

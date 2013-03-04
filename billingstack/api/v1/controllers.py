@@ -28,7 +28,7 @@ import wsmeext.pecan as wsme_pecan
 from billingstack.openstack.common import log
 from billingstack.openstack.common import jsonutils
 from billingstack.api.v1.models import Currency, Language, PGProvider
-from billingstack.api.v1.models import Customer, Merchant, User
+from billingstack.api.v1.models import Customer, Merchant, User, Plan, Product
 
 LOG = log.getLogger(__name__)
 
@@ -149,7 +149,85 @@ class UsersController(RestBase):
             body.as_dict())
         return User(**user)
 
+# Plans
+class PlanController(RestBase):
+    __id__ = 'plan'
 
+    @wsme_pecan.wsexpose(Plan)
+    def get_all(self):
+        row = request.central_api.plan_get(request.ctxt, self.id_)
+        return Plan(**row)
+
+    @wsme_pecan.wsexpose(Plan, body=Plan)
+    def put(self, body):
+        m = request.central_api.plan_update(
+            request.ctxt,
+            self.id_,
+            body.as_dict())
+        return Plan(**m)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.plan_delete(request.ctxt, self.id_)
+
+
+class PlansController(RestBase):
+    __resource__ = PlanController
+
+    @wsme_pecan.wsexpose([Plan])
+    def get_all(self):
+        rows = request.central_api.plan_list(request.ctxt)
+        return [Plan(**i) for i in rows]
+
+    @wsme_pecan.wsexpose(Plan, body=Plan)
+    def post(self, body):
+        row = request.central_api.plan_add(
+            request.ctxt,
+            request.context['merchant_id'],
+            body.as_dict())
+        return Plan(**row)
+
+
+# Products
+class ProductController(RestBase):
+    __id__ = 'product'
+
+    @wsme_pecan.wsexpose(Product)
+    def get_all(self):
+        row = request.central_api.product_get(request.ctxt, self.id_)
+        return Product(**row)
+
+    @wsme_pecan.wsexpose(Product, body=Product)
+    def put(self, body):
+        m = request.central_api.product_update(
+            request.ctxt,
+            self.id_,
+            body.as_dict())
+        return Product(**m)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.product_delete(request.ctxt, self.id_)
+
+
+class ProductsController(RestBase):
+    __resource__ = ProductController
+
+    @wsme_pecan.wsexpose([Product])
+    def get_all(self):
+        rows = request.central_api.product_list(request.ctxt)
+        return [Product(**i) for i in rows]
+
+    @wsme_pecan.wsexpose(Product, body=Product)
+    def post(self, body):
+        row = request.central_api.product_add(
+            request.ctxt,
+            request.context['merchant_id'],
+            body.as_dict())
+        return Product(**row)
+
+
+# Customers
 class CustomerController(RestBase):
     """Customer controller"""
     __id__ = 'customer'
@@ -198,6 +276,8 @@ class MerchantController(RestBase):
     __id__ = 'merchant'
     __resource__ = {
         "customers": CustomersController,
+        "plans": PlansController,
+        "products": ProductsController,
         "users": UsersController
     }
 

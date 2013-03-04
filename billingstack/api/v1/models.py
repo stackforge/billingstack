@@ -1,7 +1,7 @@
-from wsme.types import Base, text, Unset
+from wsme.types import Base as Base_, text, Unset, DictType, UserType
 
 
-class Base(Base):
+class Base(Base_):
     def as_dict(self):
         data = {}
 
@@ -16,6 +16,25 @@ class Base(Base):
     id = text
 
 
+class Property(UserType):
+    """
+    A Property that just passes the value around...
+    """
+    def tonativetype(self, value):
+        return value
+
+    def fromnativetype(self, value):
+        return value
+
+metadata_property = Property()
+
+
+class DescribedBase(Base):
+    name = text
+    title = text
+    description = text
+
+
 class Currency(Base):
     id = text
     name = text
@@ -23,37 +42,26 @@ class Currency(Base):
 
 
 class Language(Base):
-    name = text
-    title = text
-
-
-class PGMethod(Base):
     id = text
     name = text
     title = text
-    desription = text
-    type = text
-  
 
-class PGProvider(Base):
+
+class PGMethod(DescribedBase):
+    type = text
+ 
+
+class PGProvider(DescribedBase):
     def __init__(self, **kw):
         kw['methods'] = [PGMethod(**m) for m in kw.get('methods', {})]
-        kw['properties'] = Property
-        import ipdb
-        #ipdb.set_trace()
-
         super(PGProvider, self).__init__(**kw)
 
-    id = text
-    name = text
-    title = text
-    description = text
-
     methods = [PGMethod]
-    properties = text
+    properties = DictType(key_type=text, value_type=metadata_property)
 
 
-class ContactInfo(Base):
+class ContactInfo(Base_):
+    id = text
     first_name = text
     last_name = text
     company = text
@@ -69,6 +77,7 @@ class ContactInfo(Base):
     email = text
     website = text
 
+
 class User(Base):
     def __init__(self, **kw):
         kw['contact_info'] = ContactInfo(**kw.get('contact_info', {}))
@@ -79,6 +88,17 @@ class User(Base):
     contact_info = ContactInfo
 
 
+class Product(DescribedBase):
+    measure = text
+    type = text
+
+    properties = DictType(key_type=text, value_type=metadata_property)
+   
+
+class Plan(DescribedBase):
+    properties = DictType(key_type=text, value_type=metadata_property)
+
+    
 class Account(Base):
     currency_id = text
     language_id = text

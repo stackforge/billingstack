@@ -39,7 +39,6 @@ if __name__ == '__main__':
 
     currencies = {}
     for c in samples['currency']:
-        print "ADDING", c
         currencies[c['name']] = conn.currency_add(ctxt, c)
 
     languages = {}
@@ -77,3 +76,20 @@ if __name__ == '__main__':
         ctxt,
         merchant['id'],
         customer_user)
+
+    products = {}
+    for p in samples['product']:
+        products[p['name']] = conn.product_add(ctxt, merchant['id'], p)
+
+    values = {
+        'plan_items': [
+            {'product_id': products['memory']},
+            {'product_id': products['vcpus']},
+            {'product_id': products['root_disk_size']},
+            {'product_id': products['network.incoming.bytes']},
+            {'product_id': products['network.outgoing.bytes']}
+            ]}
+
+    plan = get_fixture('plan', values=values)
+
+    conn.plan_add(ctxt, merchant['id'], get_fixture('plan'))

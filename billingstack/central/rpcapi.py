@@ -214,8 +214,9 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('plan_item_delete', id_=id_))
 
     # Plans
-    def plan_add(self, ctxt, values):
-        return self.call(ctxt, self.make_msg('plan_add', values=values))
+    def plan_add(self, ctxt, merchant_id, values):
+        return self.call(ctxt, self.make_msg('plan_add',
+                         merchant_id=merchant_id, values=values))
 
     def plan_list(self, ctxt, criterion=None):
         return self.call(ctxt, self.make_msg('plan_list', criterion=criterion))

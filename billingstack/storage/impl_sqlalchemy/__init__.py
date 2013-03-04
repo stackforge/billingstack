@@ -177,7 +177,7 @@ class Connection(base.Connection):
                 data[key] = dict(row[key])
         return data
 
-    def _kv_rows(self, rows, key='name'):
+    def _kv_rows(self, rows, key='name', func=lambda i: i):
         """
         Return a Key, Value dict where the "key" will be the key and the row as value
         """
@@ -187,7 +187,7 @@ class Connection(base.Connection):
                 data_key = key(row)
             else:
                 data_key = row[key]
-            data[data_key] = row
+            data[data_key] = func(row)
         return data
 
     def set_properties(self, obj, properties, cls=None, rel_attr='properties', purge=False):
@@ -490,8 +490,10 @@ class Connection(base.Connection):
     # Customer
     def _customer(self, row):
         data = dict(row)
+
+        data['contact_info'] = [dict(i) for i in row.contact_info]
         data['default_info'] = dict(row.default_info) if row.default_info\
-            else None
+            else {}
         return data
 
     def customer_add(self, ctxt, merchant_id, values):
@@ -605,8 +607,7 @@ class Connection(base.Connection):
     def _product(self, row):
         product = dict(row)
 
-        product['properties'] = map(dict, row.properties) if row.properties\
-            else None
+        product['properties'] = self._kv_rows(row.properties, func=lambda i: i['value'])
         return product
 
     def product_add(self, ctxt, merchant_id, values):
@@ -634,7 +635,7 @@ class Connection(base.Connection):
 
         :param merchant_id: The Merchant to list it for
         """
-        rows = self._list(models.Merchant, **kw)
+        rows = self._list(models.Product, **kw)
         return map(self._product, rows)
 
     def product_get(self, ctxt, id_):
@@ -698,10 +699,9 @@ class Connection(base.Connection):
     def _plan(self, row):
         plan = dict(row)
 
-        plan['properties'] = map(dict, row.properties) if row.properties\
-            else None
+        plan['properties'] = self._kv_rows(row.properties, func=lambda i: i['value'])
         plan['plan_items'] = map(dict, row.plan_items) if row.plan_items\
-            else None
+            else []
         return plan
 
     def plan_add(self, ctxt, merchant_id, values):

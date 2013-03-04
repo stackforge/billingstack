@@ -63,7 +63,7 @@ class FunctionalTest(base.TestCase):
 
         self.config = {
             'app': {
-                'root': 'billingstack.api.controllers.root.RootController',
+                'root': 'billingstack.api.root.RootController',
                 'modules': ['billingstack.api'],
                 'static_root': '%s/public' % root_dir,
                 'template_path': '%s/billingstack/api/templates' % root_dir,

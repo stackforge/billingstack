@@ -346,7 +346,8 @@ class StorageDriverTestCase(TestCase):
     # Customer
     def test_customer_add(self):
         fixture, data = self.customer_add(self.merchant['id'])
-        assert data['default_info'] == None
+        assert data['default_info'] == {}
+        assert data['contact_info'] == []
         self.assertData(fixture, data)
 
     def test_customer_add_with_contact_info(self):
@@ -356,6 +357,7 @@ class StorageDriverTestCase(TestCase):
             values={'contact_info': contact_fixture})
         self.assertData(customer_fixture, data)
         self.assertData(contact_fixture, data['default_info'])
+        self.assertData(contact_fixture, data['contact_info'][0])
 
     def test_customer_get(self):
         _, expected = self.customer_add(self.merchant['id'])
