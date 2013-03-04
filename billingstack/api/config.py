@@ -6,7 +6,7 @@ server = {
 
 # Pecan Application Configurations
 app = {
-    'root': 'billingstack.api.controllers.root.RootController',
+    'root': 'billingstack.api.root.RootController',
     'modules': ['billingstack.api'],
     'static_root': '%(confdir)s/public',
     'template_path': '%(confdir)s/templates',

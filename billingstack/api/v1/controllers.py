@@ -3,6 +3,7 @@
 # Copyright © 2012 Woorea Solutions, S.L
 #
 # Author: Luis Gervaso <luis@woorea.es>
+# Author: Endre Karlson <endre.karlson@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -22,97 +23,15 @@ from pecan import request
 from pecan.rest import RestController
 
 import wsmeext.pecan as wsme_pecan
-from wsme.types import Base, text, Unset
 
 
 from billingstack.openstack.common import log
-
+from billingstack.openstack.common import jsonutils
+from billingstack.api.v1.models import Currency, Language, PGProvider
+from billingstack.api.v1.models import Customer, Merchant, User
 
 LOG = log.getLogger(__name__)
 
-
-class Base(Base):
-    def as_dict(self):
-        data = {}
-
-        for attr in self._wsme_attributes:
-            value = attr.__get__(self, self.__class__)
-            if value is not Unset:
-                if isinstance(value, Base) and hasattr(value, "as_dict"):
-                    value = value.as_dict()
-                data[attr.name] = value
-        return data
-
-    id = text
-
-
-class Currency(Base):
-    id = text
-    name = text
-    title = text
-
-
-class Language(Base):
-    name = text
-    title = text
-
-
-class PGMethod(Base):
-    id = text
-    name = text
-    title = text
-    desription = text
-
-    type = text
-    properties = text
-
-
-class PGProvider(Base):
-    def __init__(self, **kw):
-        kw['methods'] = [PGMethod(**m) for m in kw.get('methods', {})]
-        super(PGProvider, self).__init__(**kw)
-
-    id = text
-    name = text
-    title = text
-    description = text
-
-    methods = [PGMethod]
-
-
-class ContactInfo(Base):
-    address1 = text
-    address2 = text
-    city = text
-    company = text
-    country = text
-    state = text
-    zip = text
-
-
-class User(Base):
-    def __init__(self, **kw):
-        kw['contact_info'] = ContactInfo(**kw.get('contact_info', {}))
-        super(User, self).__init__(**kw)
-
-    username = text
-    merchant_id = text
-    contact_info = ContactInfo
-
-
-class Account(Base):
-    currency_id = text
-    language_id = text
-
-    name = text
-
-
-class Merchant(Account):
-    pass
-
-
-class Customer(Account):
-    merchant_id = text
 
 
 class RestBase(RestController):
@@ -187,17 +106,20 @@ class UserController(RestBase):
 
     @wsme_pecan.wsexpose(Customer, unicode)
     def get_all(self):
-        user = request.storage_conn.user_get(self.id_)
+        user = request.central_api.user_get(self.id_)
         return User(**dict(user))
 
     @wsme_pecan.wsexpose(User, body=User)
     def put(self, body):
-        m = request.storage_conn.user_update(self.id_, body.as_dict())
+        m = request.central_api.user_update(
+            request.ctxt,
+            self.id_,
+            body.as_dict())
         return User(**m)
 
     @wsme_pecan.wsexpose()
     def delete(self):
-        request.storage_conn.user_delete(self.id_)
+        request.central_api.user_delete(request.ctxt, self.id_)
 
 
 class UsersController(RestBase):
@@ -206,20 +128,22 @@ class UsersController(RestBase):
 
     @wsme_pecan.wsexpose([User], unicode)
     def get_all(self):
-        criterion = {}
+        criterion = {
+            'merchant_id': request.context['merchant_id']
+        }
 
         if 'customer_id' in request.context:
             criterion['customer_id'] = request.context['customer_id']
 
-        users = request.storage_conn.user_list(
-            request.context['merchant_id'],
+        users = request.central_api.user_list(
+            request.ctxt,
             criterion=criterion)
 
         return [User(**o) for o in users]
 
     @wsme_pecan.wsexpose(User, body=User)
     def post(self, body):
-        user = request.storage_conn.user_add(
+        user = request.central_api.user_add(
             request.ctxt,
             request.context['merchant_id'],
             body.as_dict())
