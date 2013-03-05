@@ -27,7 +27,7 @@ import wsmeext.pecan as wsme_pecan
 
 from billingstack.openstack.common import log
 from billingstack.openstack.common import jsonutils
-from billingstack.api.v1.models import Currency, Language, PGProvider
+from billingstack.api.v1.models import Currency, Language, PGProvider, PGMethod
 from billingstack.api.v1.models import Customer, Merchant, User, Plan, Product
 
 LOG = log.getLogger(__name__)
@@ -98,6 +98,16 @@ class PGProvidersController(RestBase):
     def get_all(self):
         rows = request.central_api.pg_provider_list(request.ctxt)
         return [PGProvider(**i) for i in rows]
+
+
+class PGMethodsController(RestBase):
+    """
+    PGMethods lister...
+    """
+    @wsme_pecan.wsexpose([PGMethod])
+    def get_all(self):
+        rows = request.central_api.pg_method_list(request.ctxt)
+        return [PGMethod(**row) for row in rows]
 
 
 class UserController(RestBase):
@@ -320,7 +330,8 @@ class V1Controller(RestBase):
     """Version 1 API controller."""
 
     __resource__ = {
-        'payment-gateway-providers': PGProvidersController
+        'payment-gateway-providers': PGProvidersController,
+        'payment-gateway-methods': PGMethodsController
     }
 
     currencies = CurrenciesController()
