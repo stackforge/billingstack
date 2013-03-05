@@ -60,7 +60,7 @@ class PGProvider(DescribedBase):
     properties = DictType(key_type=text, value_type=metadata_property)
 
 
-class ContactInfo(Base_):
+class ContactInfo(Base):
     id = text
     first_name = text
     last_name = text
@@ -84,6 +84,7 @@ class User(Base):
         super(User, self).__init__(**kw)
 
     username = text
+    password = text
     merchant_id = text
     contact_info = ContactInfo
 

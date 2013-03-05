@@ -381,7 +381,8 @@ class StorageDriverTestCase(TestCase):
     # User
     def test_user_add(self):
         fixture, data = self.user_add(self.merchant['id'])
-        assert data['contact_info'] == None
+        del fixture['password']
+        assert data['contact_info'] == {}
         self.assertData(fixture, data)
 
     def test_user_add_with_contact_info(self):
@@ -390,6 +391,7 @@ class StorageDriverTestCase(TestCase):
             self.merchant['id'],
             values={
                 'contact_info': contact_fixture})
+        del user_fixture['password']
         self.assertData(user_fixture, data)
         self.assertData(contact_fixture, data['contact_info'])
 
@@ -400,6 +402,7 @@ class StorageDriverTestCase(TestCase):
             self.merchant['id'],
             values={
                 'customer_id': customer['id']})
+        del fixture['password']
         self.assertData(fixture, data)
 
     def test_user_list(self):
@@ -447,6 +450,8 @@ class StorageDriverTestCase(TestCase):
 
         fixture['username'] = 'test'
         updated = self.storage_conn.user_update(self.admin_ctxt, data['id'], fixture)
+
+        del fixture['password']
 
         self.assertData(fixture, updated)
 

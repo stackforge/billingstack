@@ -534,8 +534,20 @@ class Connection(base.Connection):
         """
         user = dict(row)
         user['contact_info'] = dict(row.contact_info) if row.contact_info\
-            else None
+            else {}
+        del user['password']
         return user
+
+    def _user_set_info(self, ctxt, row, values):
+        """
+        Add or Update contact info on a user with values
+        """
+        if not values:
+            return
+        if not row.contact_info:
+            self.contact_info_add(ctxt, row, values)
+        else:
+            row.contact_info.update(values)
 
     def user_add(self, ctxt, merchant_id, values):
         """
@@ -556,8 +568,7 @@ class Connection(base.Connection):
             customer = self._get(models.Customer, customer_id)
             customer.users.append(user)
 
-        if contact_info:
-            self.contact_info_add(ctxt, user, contact_info)
+        self._user_set_info(ctxt, user, contact_info)
 
         self._save(user)
         return self._user(user)
@@ -592,7 +603,11 @@ class Connection(base.Connection):
         :param id_: User ID
         :param values: Values to update
         """
+        contact_info = values.pop('contact_info', None)
+
         row = self._update(models.User, id_, values)
+
+        self._user_set_info(ctxt, row, contact_info)
         return self._user(row)
 
     def user_delete(self, ctxt, id_):
