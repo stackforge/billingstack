@@ -100,8 +100,8 @@ class Plan(DescribedBase):
 
     
 class Account(Base):
-    currency_id = text
-    language_id = text
+    currency_name = text
+    language_name = text
 
     name = text
 

@@ -154,11 +154,11 @@ class TestCase(unittest2.TestCase, AssertMixin):
 
     def _account_defaults(self, values):
         # NOTE: Do defaults
-        if not 'currency_id' in values:
-            values['currency_id'] = self.currency['id']
+        if not 'currency_name' in values:
+            values['currency_name'] = self.currency['name']
 
-        if not 'language_id' in values:
-            values['language_id'] = self.language['id']
+        if not 'language_name' in values:
+            values['language_name'] = self.language['name']
 
     def merchant_add(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('merchant', fixture, values)

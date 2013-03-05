@@ -59,14 +59,6 @@ class StorageDriverTestCase(TestCase):
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.storage_conn.pg_method_add(ctxt, fixture)
 
-    def _account_defaults(self, values):
-        # NOTE: Do defaults
-        if not 'currency_id' in values:
-            values['currency_id'] = self.currency['id']
-
-        if not 'language_id' in values:
-            values['language_id'] = self.language['id']
-
     def merchant_add(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('merchant', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)

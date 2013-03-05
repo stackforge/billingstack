@@ -34,12 +34,52 @@ class BaseModel(ModelBase):
     def __tablename__(cls):
         return utils.capital_to_underscore(cls.__name__)
 
+
+BASE = declarative_base(cls=BaseModel)
+
+
+TYPES = {
+    "float": float,
+    "str": unicode,
+    "unicode": unicode,
+    "int": int,
+    "bool": bool
+}
+
+
+class PropertyMixin(object):
+    """
+    Helper mixin for Property classes.
+
+    Store the type of the value using type() or the pre-defined data_type
+    and cast it on value when returning the value.
+
+    Supported types are in the TYPES dict.
+    """
+    id = Column(UUID, default=generate_uuid, primary_key=True)
+    data_type = Column(Unicode(20), nullable=False, default=u'str')
+    name = Column(Unicode(60), index=True, nullable=False)
+    _value = Column('value', UnicodeText)
+
+    @hybrid_property
+    def value(self):
+        data_type = TYPES.get(self.data_type, str)
+        return data_type(self._value)
+
+    @value.setter
+    def value(self, value):
+        data_type = type(value).__name__
+        self.data_type = data_type
+        self._value = value
+
+
+class BaseMixin(object):
+    """
+    A mixin that provides id, and some dates.
+    """
     id = Column(UUID, default=generate_uuid, primary_key=True)
     created_at = Column(DateTime, default=timeutils.utcnow)
     updated_at = Column(DateTime, onupdate=timeutils.utcnow)
-
-
-BASE = declarative_base(cls=BaseModel)
 
 
 TYPES = {
@@ -80,8 +120,7 @@ class Currency(BASE):
     """
     Allowed currency
     """
-    __table_args__ = (UniqueConstraint('name', name='currency'),)
-    name = Column(Unicode(10), nullable=False)
+    name = Column(Unicode(10), nullable=False, primary_key=True)
     title = Column(Unicode(100), nullable=False)
 
 
@@ -89,8 +128,7 @@ class Language(BASE):
     """
     A Language
     """
-    __table_args__ = (UniqueConstraint('name', name='language'),)
-    name = Column(Unicode(10), nullable=False)
+    name = Column(Unicode(10), nullable=False, primary_key=True)
     title = Column(Unicode(100), nullable=False)
 
 
@@ -99,7 +137,7 @@ pg_provider_methods = Table('pg_provider_methods', BASE.metadata,
     Column('method_id', UUID, ForeignKey('pg_method.id')))
 
 
-class PGProvider(BASE):
+class PGProvider(BASE, BaseMixin):
     """
     A Payment Gateway - The thing that processes a Payment Method
 
@@ -133,7 +171,7 @@ class PGProvider(BASE):
         return self.attrs_map(['provider_methods'])
 
 
-class PGMethod(BASE):
+class PGMethod(BASE, BaseMixin):
     """
     This represents a PaymentGatewayProviders method with some information
     like name, type etc to describe what is in other settings known as a
@@ -168,7 +206,7 @@ class PGMethod(BASE):
         return self.make_key(self)
 
 
-class ContactInfo(BASE):
+class ContactInfo(BASE, BaseMixin):
     """
     Contact Information about an entity like a User, Customer etc...
     """
@@ -221,7 +259,7 @@ user_merchant_role = Table('user_merchant_roles', BASE.metadata,
     Column('role', Unicode(40)))
 
 
-class User(BASE):
+class User(BASE, BaseMixin):
     """
     A User that can login.
     """
@@ -242,7 +280,7 @@ class User(BASE):
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'))
 
 
-class Merchant(BASE):
+class Merchant(BASE, BaseMixin):
     """
     A Merchant is like a Account in Recurly
     """
@@ -256,13 +294,13 @@ class Merchant(BASE):
     products = relationship('Product', backref='merchant')
 
     currency = relationship('Currency', uselist=False, backref='merchants')
-    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
+    currency_name = Column(Unicode(10), ForeignKey('currency.name'), nullable=False)
 
     language = relationship('Language', uselist=False, backref='merchants')
-    language_id = Column(UUID, ForeignKey('language.id'), nullable=False)
+    language_name = Column(Unicode(10), ForeignKey('language.name'), nullable=False)
 
 
-class PGAccountConfig(BASE):
+class PGAccountConfig(BASE, BaseMixin):
     """
     A Merchant's configuration of a PaymentGateway like api keys, url and more
     """
@@ -281,7 +319,7 @@ class PGAccountConfig(BASE):
                          nullable=False)
 
 
-class Customer(BASE):
+class Customer(BASE, BaseMixin):
     """
     A Customer is linked to a Merchant and can have Users related to it
     """
@@ -311,13 +349,13 @@ class Customer(BASE):
                    onupdate='CASCADE', name='default_info'))
 
     currency = relationship('Currency', uselist=False, backref='customers')
-    currency_id = Column(UUID, ForeignKey('currency.id'))
+    currency_name = Column(Unicode(10), ForeignKey('currency.name'))
 
     language = relationship('Language', uselist=False, backref='customers')
-    language_id = Column(UUID, ForeignKey('language.id'))
+    language_name = Column(Unicode(10), ForeignKey('language.name'))
 
 
-class PaymentMethod(BASE):
+class PaymentMethod(BASE, BaseMixin):
     name = Column(Unicode(255), nullable=False)
 
     identifier = Column(Unicode(255), nullable=False)
@@ -341,10 +379,10 @@ class InvoiceState(BASE):
     Example:
         Completed, Failed
     """
-    name = Column(Unicode(60), nullable=False)
+    name = Column(Unicode(60), nullable=False, primary_key=True)
 
 
-class Invoice(BASE):
+class Invoice(BASE, BaseMixin):
     """
     An invoice
     """
@@ -362,17 +400,17 @@ class Invoice(BASE):
     line_items = relationship('InvoiceLine', backref='invoice_lines')
 
     state = relationship('InvoiceState', backref='invoices')
-    state_id = Column(UUID, ForeignKey('invoice_state.id'), nullable=False)
+    state_id = Column(Unicode(60), ForeignKey('invoice_state.name'), nullable=False)
 
     currency = relationship('Currency', backref='invoices')
-    currency_id = Column(UUID, ForeignKey('currency.id'), nullable=False)
+    currency_name = Column(Unicode(10), ForeignKey('currency.name'), nullable=False)
 
     merchant = relationship('Merchant', backref='invoices')
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
 
 
-class InvoiceLine(BASE):
+class InvoiceLine(BASE, BaseMixin):
     """
     A Line item in which makes up the Invoice
     """
@@ -385,7 +423,7 @@ class InvoiceLine(BASE):
                                          onupdate='CASCADE'), nullable=False)
 
 
-class Pricing(BASE):
+class Pricing(BASE, BaseMixin):
     """
     Resembles a Price information in some way
     """
@@ -400,7 +438,7 @@ class Pricing(BASE):
                                            onupdate='CASCADE'))
 
 
-class Plan(BASE):
+class Plan(BASE, BaseMixin):
     """
     A Product collection like a "Virtual Web Cluster" with 10 servers
     """
@@ -416,7 +454,7 @@ class Plan(BASE):
 
 
 class PlanProperty(BASE, PropertyMixin):
-    __table_args__ = (UniqueConstraint('plan_id', 'name'), {})
+    __table_args__ = (UniqueConstraint('name', 'plan_id', name='plan'),)
 
     plan = relationship('Plan', backref='properties', lazy='joined')
     plan_id = Column(
@@ -426,7 +464,7 @@ class PlanProperty(BASE, PropertyMixin):
                    onupdate='CASCADE'))
 
 
-class PlanItem(BASE):
+class PlanItem(BASE, BaseMixin):
     description = Column(Unicode(255))
 
     price_rules = relationship(
@@ -436,14 +474,14 @@ class PlanItem(BASE):
         passive_deletes=True)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
-                     nullable=False)
+                     onupdate='CASCADE', nullable=False)
 
     product = relationship('Product', backref='plan_items', uselist=False)
-    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE'),
+    product_id = Column(UUID, ForeignKey('product.id', onupdate='CASCADE'),
                         nullable=False)
 
 
-class Product(BASE):
+class Product(BASE, BaseMixin):
     """
     A sellable Product, like vCPU hours, bandwidth units
     """
@@ -465,7 +503,7 @@ class ProductProperty(BASE, PropertyMixin):
     """
     A Metadata row for something like Product or PlanItem
     """
-    __table_args__ = (UniqueConstraint('product_id', 'name'), {})
+    __table_args__ = (UniqueConstraint('name', 'product_id', name='product'),)
 
     product = relationship('Product', backref='properties', lazy='joined')
     product_id = Column(
@@ -475,7 +513,7 @@ class ProductProperty(BASE, PropertyMixin):
                    onupdate='CASCADE'))
 
 
-class Subscription(BASE):
+class Subscription(BASE, BaseMixin):
     """
     The thing that ties together stuff that is to be billed
 
@@ -508,7 +546,7 @@ class Subscription(BASE):
                            nullable=False)
 
 
-class Usage(BASE):
+class Usage(BASE, BaseMixin):
     """
     A record of something that's used from for example a Metering system like
     Ceilometer
