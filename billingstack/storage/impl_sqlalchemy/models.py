@@ -91,31 +91,6 @@ TYPES = {
 }
 
 
-class PropertyMixin(object):
-    """
-    Helper mixin for Property classes.
-
-    Store the type of the value using type() or the pre-defined data_type
-    and cast it on value when returning the value.
-
-    Supported types are in the TYPES dict.
-    """
-    data_type = Column(Unicode(20), nullable=False, default=u'str')
-    name = Column(Unicode(60), index=True, nullable=False)
-    _value = Column('value', UnicodeText)
-
-    @hybrid_property
-    def value(self):
-        data_type = TYPES.get(self.data_type, str)
-        return data_type(self._value)
-
-    @value.setter
-    def value(self, value):
-        data_type = type(value).__name__
-        self.data_type = data_type
-        self._value = value
-
-
 class Currency(BASE):
     """
     Allowed currency
