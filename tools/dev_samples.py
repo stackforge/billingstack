@@ -49,8 +49,8 @@ if __name__ == '__main__':
         conn.pg_method_add(ctxt, method)
 
     country_data = {
-        "currency_id": currencies['nok']['id'],
-        "language_id": languages['nor']['id']}
+        "currency_name": currencies['nok']['name'],
+        "language_name": languages['nor']['name']}
 
     merchant = conn.merchant_add(
         ctxt, get_fixture('merchant', values=country_data))
