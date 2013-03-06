@@ -47,6 +47,14 @@ class Language(Base):
     title = text
 
 
+class PaymentMethod(Base):
+    name = text
+    identifier = text
+    expires = text
+
+    properties = DictType(key_type=text, value_type=metadata_property)
+
+
 class PGMethod(DescribedBase):
     type = text
 
