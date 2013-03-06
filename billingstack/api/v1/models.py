@@ -49,7 +49,7 @@ class Language(Base):
 
 class PGMethod(DescribedBase):
     type = text
- 
+
 
 class PGProvider(DescribedBase):
     def __init__(self, **kw):
@@ -94,15 +94,20 @@ class Product(DescribedBase):
     type = text
 
     properties = DictType(key_type=text, value_type=metadata_property)
-   
+
 
 class Plan(DescribedBase):
     properties = DictType(key_type=text, value_type=metadata_property)
 
-    
+
 class Account(Base):
-    currency_name = text
-    language_name = text
+    def __init__(self, **kw):
+        kw['language'] = kw.pop('language_name')
+        kw['currency'] = kw.pop('currency_name')
+        super(Account, self).__init__(**kw)
+
+    currency = text
+    language = text
 
     name = text
 
