@@ -1,5 +1,6 @@
 import inspect
 import pecan
+from pecan import request
 from pecan.rest import RestController
 from wsme.types import Base, UserType, Unset
 
