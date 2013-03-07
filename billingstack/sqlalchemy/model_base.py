@@ -16,12 +16,18 @@
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import object_mapper
-from billingstack import exceptions
+from sqlalchemy.ext.declarative import declared_attr
+
+from billingstack import exceptions, utils
 
 
 class ModelBase(object):
     __abstract__ = True
     __table_initialized__ = False
+
+    @declared_attr
+    def __tablename__(cls):
+        return utils.capital_to_underscore(cls.__name__)
 
     def save(self, session):
         """ Save this object """

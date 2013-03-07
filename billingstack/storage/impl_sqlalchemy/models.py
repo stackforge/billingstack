@@ -18,24 +18,19 @@ from sqlalchemy import Integer, Float, Enum, Boolean
 from sqlalchemy import DateTime, Unicode, UnicodeText
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+
 from billingstack import utils
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common import timeutils
 from billingstack.openstack.common.uuidutils import generate_uuid
-from billingstack.storage.impl_sqlalchemy.types import JSON, UUID
-from billingstack.storage.impl_sqlalchemy.model_base import ModelBase
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from billingstack.sqlalchemy.types import JSON, UUID
+from billingstack.sqlalchemy.model_base import ModelBase
 
 LOG = logging.getLogger(__name__)
 
 
-class BaseModel(ModelBase):
-    @declared_attr
-    def __tablename__(cls):
-        return utils.capital_to_underscore(cls.__name__)
-
-
-BASE = declarative_base(cls=BaseModel)
+BASE = declarative_base(cls=ModelBase)
 
 
 TYPES = {
