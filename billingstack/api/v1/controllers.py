@@ -77,7 +77,8 @@ class CurrenciesController(RestBase):
     @wsme_pecan.wsexpose([models.Currency])
     def get_all(self):
         rows = request.central_api.currency_list(request.ctxt)
-        return [models.Currency(**i) for i in rows]
+
+        return [models.Currency.from_db(r) for r in rows]
 
 
 class LanguagesController(RestBase):
@@ -86,7 +87,8 @@ class LanguagesController(RestBase):
     @wsme_pecan.wsexpose([models.Language])
     def get_all(self):
         rows = request.central_api.language_list(request.ctxt)
-        return [models.Language(**i) for i in rows]
+
+        return [models.Language.from_db(r) for r in rows]
 
 
 class PGProvidersController(RestBase):
@@ -96,7 +98,8 @@ class PGProvidersController(RestBase):
     @wsme_pecan.wsexpose([models.PGProvider])
     def get_all(self):
         rows = request.central_api.pg_provider_list(request.ctxt)
-        return [models.PGProvider(**i) for i in rows]
+
+        return [models.PGProvider.from_db(r) for r in rows]
 
 
 class PGMethodsController(RestBase):
@@ -106,7 +109,8 @@ class PGMethodsController(RestBase):
     @wsme_pecan.wsexpose([models.PGMethod])
     def get_all(self):
         rows = request.central_api.pg_method_list(request.ctxt)
-        return [models.PGMethod(**row) for row in rows]
+
+        return [models.PGMethod.from_db(r) for r in rows]
 
 
 class UserController(RestBase):
@@ -116,15 +120,16 @@ class UserController(RestBase):
     @wsme_pecan.wsexpose(models.User, unicode)
     def get_all(self):
         row = request.central_api.user_get(request.ctxt, self.id_)
-        return models.User(**dict(row))
+        return models.User.from_db(row)
 
     @wsme_pecan.wsexpose(models.User, body=models.User)
     def put(self, body):
         row = request.central_api.user_update(
             request.ctxt,
             self.id_,
-            body.as_dict())
-        return models.User(**row)
+            body.to_db())
+
+        return models.User.from_db(row)
 
     @wsme_pecan.wsexpose()
     def delete(self):
@@ -148,15 +153,17 @@ class UsersController(RestBase):
             request.ctxt,
             criterion=criterion)
 
-        return [models.User(**i) for i in rows]
+        return [models.User.from_db(r) for r in rows]
 
     @wsme_pecan.wsexpose(models.User, body=models.User)
     def post(self, body):
         row = request.central_api.user_add(
             request.ctxt,
             request.context['merchant_id'],
-            body.as_dict())
-        return models.User(**row)
+            body.to_db())
+
+        return models.User.from_db(row)
+
 
 # Plans
 class PlanController(RestBase):
@@ -165,15 +172,17 @@ class PlanController(RestBase):
     @wsme_pecan.wsexpose(models.Plan)
     def get_all(self):
         row = request.central_api.plan_get(request.ctxt, self.id_)
-        return models.Plan(**row)
+
+        return models.Plan.from_db(row)
 
     @wsme_pecan.wsexpose(models.Plan, body=models.Plan)
     def put(self, body):
         row = request.central_api.plan_update(
             request.ctxt,
             self.id_,
-            body.as_dict())
-        return models.Plan(**row)
+            body.to_db())
+
+        return models.Plan.from_db(row)
 
     @wsme_pecan.wsexpose()
     def delete(self):
@@ -186,15 +195,17 @@ class PlansController(RestBase):
     @wsme_pecan.wsexpose([models.Plan])
     def get_all(self):
         rows = request.central_api.plan_list(request.ctxt)
-        return [models.Plan(**i) for i in rows]
+
+        return [models.Plan.from_db(r) for r in rows]
 
     @wsme_pecan.wsexpose(models.Plan, body=models.Plan)
     def post(self, body):
         row = request.central_api.plan_add(
             request.ctxt,
             request.context['merchant_id'],
-            body.as_dict())
-        return models.Plan(**row)
+            body.to_db())
+
+        return models.Plan.from_db(row)
 
 
 class PaymentMethodController(RestBase):
@@ -204,15 +215,17 @@ class PaymentMethodController(RestBase):
     @wsme_pecan.wsexpose(models.PaymentMethod, unicode)
     def get_all(self):
         row = request.central_api.payment_method_get(request.ctxt, self.id_)
-        return models.PaymentMethod(**dict(row))
+
+        return models.PaymentMethod.from_db(row)
 
     @wsme_pecan.wsexpose(models.PaymentMethod, body=models.PaymentMethod)
     def put(self, body):
         row = request.central_api.payment_method_update(
             request.ctxt,
             self.id_,
-            body.as_dict())
-        return models.PaymentMethod(**row)
+            body.to_db())
+
+        return models.PaymentMethod.from_db(row)
 
     @wsme_pecan.wsexpose()
     def delete(self):
@@ -233,15 +246,16 @@ class PaymentMethodsController(RestBase):
             request.ctxt,
             criterion=criterion)
 
-        return [models.PaymentMethod(**i) for i in rows]
+        return [models.PaymentMethod.from_db(r) for r in rows]
 
     @wsme_pecan.wsexpose(models.PaymentMethod, body=models.PaymentMethod)
     def post(self, body):
         row = request.central_api.payment_method_add(
             request.ctxt,
             request.context['customer_id'],
-            body.as_dict())
-        return models.PaymentMethod(**row)
+            body.to_db())
+
+        return models.PaymentMethod.from_db(row)
 
 
 # Products
@@ -251,15 +265,17 @@ class ProductController(RestBase):
     @wsme_pecan.wsexpose(models.Product)
     def get_all(self):
         row = request.central_api.product_get(request.ctxt, self.id_)
-        return models.Product(**row)
+
+        return models.Product.from_db(row)
 
     @wsme_pecan.wsexpose(models.Product, body=models.Product)
     def put(self, body):
         row = request.central_api.product_update(
             request.ctxt,
             self.id_,
-            body.as_dict())
-        return models.Product(**row)
+            body.to_db())
+
+        return models.Product.from_db(row)
 
     @wsme_pecan.wsexpose()
     def delete(self):
@@ -272,15 +288,17 @@ class ProductsController(RestBase):
     @wsme_pecan.wsexpose([models.Product])
     def get_all(self):
         rows = request.central_api.product_list(request.ctxt)
-        return [models.Product(**i) for i in rows]
+
+        return [models.Product.from_db(r) for r in rows]
 
     @wsme_pecan.wsexpose(models.Product, body=models.Product)
     def post(self, body):
         row = request.central_api.product_add(
             request.ctxt,
             request.context['merchant_id'],
-            body.as_dict())
-        return models.Product(**row)
+            body.to_db())
+
+        return models.Product.from_db(row)
 
 
 # Customers
@@ -295,15 +313,17 @@ class CustomerController(RestBase):
     @wsme_pecan.wsexpose(models.Customer, unicode)
     def get_all(self):
         row = request.central_api.customer_get(request.ctxt, self.id_)
-        return models.Customer(**dict(row))
+
+        return models.Customer.from_db(row)
 
     @wsme_pecan.wsexpose(models.Customer, body=models.Customer)
     def put(self, body):
         row = request.central_api.customer_update(
             request.ctxt,
             self.id_,
-            body.as_dict())
-        return models.Customer(**row)
+            body.to_db())
+
+        return models.Customer.from_db(row)
 
     @wsme_pecan.wsexpose()
     def delete(self):
@@ -318,15 +338,17 @@ class CustomersController(RestBase):
     def get_all(self):
         rows = request.central_api.customer_list(
             request.ctxt, criterion={"merchant_id": self.parent.id_})
-        return [models.Customer(**o) for o in rows]
+
+        return [models.Customer.from_db(r) for r in rows]
 
     @wsme_pecan.wsexpose(models.Customer, body=models.Customer)
     def post(self, body):
-        rows = request.central_api.customer_add(
+        row = request.central_api.customer_add(
             request.ctxt,
             request.context['merchant_id'],
-            body.as_dict())
-        return models.Customer(**rows)
+            body.to_db())
+
+        return models.Customer.from_db(row)
 
 
 class MerchantController(RestBase):
@@ -341,15 +363,17 @@ class MerchantController(RestBase):
     @wsme_pecan.wsexpose(models.Merchant)
     def get_all(self):
         row = request.central_api.merchant_get(request.ctxt, self.id_)
-        return models.Merchant(**dict(row))
+
+        return models.Merchant.from_db(row)
 
     @wsme_pecan.wsexpose(models.Merchant, body=models.Merchant)
     def put(self, body):
         row = request.central_api.merchant_update(
             request.ctxt,
             self.id_,
-            body.as_dict())
-        return models.Merchant(**row)
+            body.to_db())
+
+        return models.Merchant.from_db(row)
 
     @wsme_pecan.wsexpose()
     def delete(self):
@@ -363,14 +387,16 @@ class MerchantsController(RestBase):
     @wsme_pecan.wsexpose([models.Merchant])
     def get_all(self):
         rows = request.central_api.merchant_list(request.ctxt)
-        return [models.Merchant(**o) for o in rows]
+
+        return [models.Merchant.from_db(i) for i in rows]
 
     @wsme_pecan.wsexpose(models.Merchant, body=models.Merchant)
     def post(self, body):
         row = request.central_api.merchant_add(
             request.ctxt,
-            body.as_dict())
-        return models.Merchant(**row)
+            body.to_db())
+
+        return models.Merchant.from_db(row)
 
 
 class V1Controller(RestBase):

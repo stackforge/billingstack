@@ -1,8 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright © 2012 New Dream Network, LLC (DreamHost)
-#
-# Author: Doug Hellmann <doug.hellmann@dreamhost.com>
+# Author: Endre Karlson <endre.karlson@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -15,47 +13,47 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-#
-# Coped: Ceilometer
-"""Test listing raw events.
+"""
+Test Merchants
 """
 
-import datetime
-import logging
-
-from oslo.config import cfg
-
 from billingstack.tests.api.v1.base import FunctionalTest
-
-LOG = logging.getLogger(__name__)
+from billingstack.api.v1.models import Merchant
 
 
 class TestMerchant(FunctionalTest):
     __test__ = True
-   
-    def test_merchant_add(self):
+
+    def fixture(self):
         fixture = self.get_fixture('merchant')
         self._account_defaults(fixture)
+        expected = Merchant.from_db(fixture).as_dict()
+        return expected
 
-        resp = self.post('merchants', fixture)
+    def test_merchant_add(self):
+        expected = self.fixture()
 
-        self.assertData(fixture, resp.json)
+        resp = self.post('merchants', expected)
+
+        self.assertData(expected, resp.json)
 
     def test_merchant_list(self):
         resp = self.get('merchants')
         self.assertLen(1, resp.json)
 
     def test_merchant_get(self):
+        expected = Merchant.from_db(self.merchant).as_dict()
+
         resp = self.get('merchants/' + self.merchant['id'])
-        self.assertData(resp.json, self.merchant)
+
+        self.assertData(expected, resp.json)
 
     def test_merchant_update(self):
-        fixture = self.merchant.copy()
-        fixture['name'] = 'test'
+        expected = Merchant.from_db(self.merchant).as_dict()
 
-        rest = self.put('merchants/' + self.merchant['id'], fixture)
+        resp = self.put('merchants/' + self.merchant['id'], expected)
 
-        self.assertData(rest.json, fixture)
+        self.assertData(expected, resp.json)
 
     def test_merchant_delete(self):
         self.delete('merchants/' + self.merchant['id'])

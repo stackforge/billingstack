@@ -2,7 +2,12 @@ from wsme.types import Base as Base_, text, Unset, DictType, UserType
 
 
 class Base(Base_):
+    id = text
+
     def as_dict(self):
+        """
+        Return this model as a DictType
+        """
         data = {}
 
         for attr in self._wsme_attributes:
@@ -13,7 +18,21 @@ class Base(Base_):
                 data[attr.name] = value
         return data
 
-    id = text
+    def to_db(self):
+        """
+        Returns this Model object as it's DB form
+
+        Example
+            'currency' vs 'currency_name'
+        """
+        return self.as_dict()
+
+    @classmethod
+    def from_db(cls, values):
+        """
+        Return a class of this object from values in the from_db
+        """
+        return cls(**values)
 
 
 class Property(UserType):
@@ -35,11 +54,27 @@ class DescribedBase(Base):
     description = text
 
 
+def change_suffixes(data, keys, shorten=True, suffix='_name'):
+    """
+    Loop thro the keys foreach key setting for example
+    'currency_name' > 'currency'
+    """
+    for key in keys:
+        if shorten:
+            new, old = key, key + suffix
+        else:
+            new, old = key + suffix, key
+        if old in data:
+            if new in data:
+                raise RuntimeError("Can't override old key with new key")
+
+            data[new] = data.pop(old)
+
+
 class Currency(Base):
     id = text
     name = text
     title = text
-
 
 class Language(Base):
     id = text
@@ -109,15 +144,20 @@ class Plan(DescribedBase):
 
 
 class Account(Base):
-    def __init__(self, **kw):
-        kw['language'] = kw.pop('language_name')
-        kw['currency'] = kw.pop('currency_name')
-        super(Account, self).__init__(**kw)
-
     currency = text
     language = text
 
     name = text
+
+    def to_db(self):
+        values = self.as_dict()
+        change_suffixes(values, ['currency', 'language'], shorten=False)
+        return values
+
+    @classmethod
+    def from_db(cls, values):
+        change_suffixes(values, ['currency', 'language'])
+        return cls(**values)
 
 
 class Merchant(Account):
