@@ -1,51 +1,11 @@
-from wsme.types import Base as Base_, text, Unset, DictType, UserType
+from wsme.types import text, Unset, DictType
 
 
-class Base(Base_):
+from billingstack.api.base import ModelBase, property_type
+
+
+class Base(ModelBase):
     id = text
-
-    def as_dict(self):
-        """
-        Return this model as a DictType
-        """
-        data = {}
-
-        for attr in self._wsme_attributes:
-            value = attr.__get__(self, self.__class__)
-            if value is not Unset:
-                if isinstance(value, Base) and hasattr(value, "as_dict"):
-                    value = value.as_dict()
-                data[attr.name] = value
-        return data
-
-    def to_db(self):
-        """
-        Returns this Model object as it's DB form
-
-        Example
-            'currency' vs 'currency_name'
-        """
-        return self.as_dict()
-
-    @classmethod
-    def from_db(cls, values):
-        """
-        Return a class of this object from values in the from_db
-        """
-        return cls(**values)
-
-
-class Property(UserType):
-    """
-    A Property that just passes the value around...
-    """
-    def tonativetype(self, value):
-        return value
-
-    def fromnativetype(self, value):
-        return value
-
-metadata_property = Property()
 
 
 class DescribedBase(Base):
@@ -87,7 +47,7 @@ class PaymentMethod(Base):
     identifier = text
     expires = text
 
-    properties = DictType(key_type=text, value_type=metadata_property)
+    properties = DictType(key_type=text, value_type=property_type)
 
 
 class PGMethod(DescribedBase):
@@ -100,7 +60,7 @@ class PGProvider(DescribedBase):
         super(PGProvider, self).__init__(**kw)
 
     methods = [PGMethod]
-    properties = DictType(key_type=text, value_type=metadata_property)
+    properties = DictType(key_type=text, value_type=property_type)
 
 
 class ContactInfo(Base):
@@ -136,11 +96,11 @@ class Product(DescribedBase):
     measure = text
     type = text
 
-    properties = DictType(key_type=text, value_type=metadata_property)
+    properties = DictType(key_type=text, value_type=property_type)
 
 
 class Plan(DescribedBase):
-    properties = DictType(key_type=text, value_type=metadata_property)
+    properties = DictType(key_type=text, value_type=property_type)
 
 
 class Account(Base):

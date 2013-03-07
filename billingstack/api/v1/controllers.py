@@ -16,59 +16,16 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-import inspect
-import pecan
 from pecan import request
-from pecan.rest import RestController
 
 import wsmeext.pecan as wsme_pecan
 
-
 from billingstack.openstack.common import log
-from billingstack.openstack.common import jsonutils
+from billingstack.api.base import RestBase
 from billingstack.api.v1 import models
 
+
 LOG = log.getLogger(__name__)
-
-
-
-class RestBase(RestController):
-    __resource__ = None
-    __id__ = None
-
-    def __init__(self, parent=None, id_=None):
-        self.parent = parent
-        if self.__id__:
-            request.context[self.__id__ + '_id'] = id_
-        self.id_ = id_
-
-    @pecan.expose()
-    def _lookup(self, *url_data):
-        """
-        A fun approach to _lookup - checks self.__resource__ for the "id"
-        """
-        id_ = None
-        if len(url_data) >= 1:
-            id_ = url_data[0]
-        parts = url_data[1:] if len(url_data) > 1 else ()
-        LOG.debug("Lookup: id '%s' parts '%s'", id_, parts)
-
-        resource = self.__resource__
-        if inspect.isclass(resource) and issubclass(resource, RestBase):
-            return resource(parent=self, id_=id_), parts
-
-    def __getattr__(self, name):
-        """
-        Overload this to look in self.__resource__ if name is defined as a
-        Controller
-        """
-        if name in self.__dict__:
-            return self.__dict__[name]
-        elif isinstance(self.__resource__, dict) and name in self.__resource__:
-            return self.__resource__[name](parent=self)
-        else:
-            raise AttributeError
 
 
 class CurrenciesController(RestBase):
