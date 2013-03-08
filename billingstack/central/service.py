@@ -11,7 +11,7 @@ from billingstack import utils
 
 
 cfg.CONF.import_opt('host', 'billingstack.netconf')
-cfg.CONF.import_opt('host', 'billingstack.central.rpcapi')
+cfg.CONF.import_opt('central_topic', 'billingstack.central.rpcapi')
 
 LOG = logging.getLogger(__name__)
 
