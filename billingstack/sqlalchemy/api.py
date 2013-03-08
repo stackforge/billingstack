@@ -2,10 +2,26 @@ from sqlalchemy import or_
 from sqlalchemy.orm import exc
 
 from billingstack import exceptions
-from billingstack.sqlalchemy.model_base import ModelBase
+from billingstack.openstack.common import log
+from billingstack.sqlalchemy import model_base, session
+
+
+LOG = log.getLogger(__name__)
 
 
 class HelpersMixin(object):
+    def setup(self, config_group):
+        self.session = session.get_session(config_group)
+        self.engine = session.get_engine(config_group)
+
+    def setup_schema(self):
+        """ Semi-Private Method to create the database schema """
+        self.base.metadata.create_all(self.session.bind)
+
+    def teardown_schema(self):
+        """ Semi-Private Method to reset the database schema """
+        self.base.metadata.drop_all(self.session.bind)
+
     def _save(self, obj, save=True):
         if not save:
             return obj
@@ -100,7 +116,7 @@ class HelpersMixin(object):
         :param obj: ID or instance / ref of the object
         :param cls: The class to run self._get on if obj is not a ref
         """
-        if isinstance(obj, ModelBase):
+        if isinstance(obj, model_base.ModelBase):
             return obj
         elif isinstance(obj, basestring) and cls:
             return self._get(cls, obj)

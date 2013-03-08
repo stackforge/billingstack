@@ -17,9 +17,9 @@ from billingstack.openstack.common import log as logging
 from billingstack import exceptions
 from billingstack import utils as common_utils
 from billingstack.sqlalchemy import utils as db_utils, api
+from billingstack.sqlalchemy.session import SQLOPTS
 from billingstack.storage import base
 from billingstack.storage.impl_sqlalchemy import models
-from billingstack.storage.impl_sqlalchemy.session import get_session, SQLOPTS
 
 
 LOG = logging.getLogger(__name__)
@@ -42,16 +42,10 @@ class Connection(base.Connection, api.HelpersMixin):
     """
     SQLAlchemy connection
     """
+    base = models.BASE
+
     def __init__(self, config_group):
-        self.session = get_session(config_group)
-
-    def setup_schema(self):
-        """ Semi-Private Method to create the database schema """
-        models.BASE.metadata.create_all(self.session.bind)
-
-    def teardown_schema(self):
-        """ Semi-Private Method to reset the database schema """
-        models.BASE.metadata.drop_all(self.session.bind)
+        self.setup(config_group)
 
     def set_properties(self, obj, properties, cls=None, rel_attr='properties', purge=False):
         """
