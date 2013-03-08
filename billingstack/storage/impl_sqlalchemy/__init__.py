@@ -17,7 +17,7 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack import exceptions
 from billingstack import utils as common_utils
-from billingstack.storage.impl_sqlalchemy import utils as db_utils
+from billingstack.sqlalchemy import utils as db_utils
 from billingstack.storage import base
 from billingstack.storage.impl_sqlalchemy import models
 from billingstack.storage.impl_sqlalchemy.session import get_session, SQLOPTS

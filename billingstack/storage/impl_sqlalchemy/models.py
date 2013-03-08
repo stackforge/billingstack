@@ -22,68 +22,14 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 from billingstack import utils
 from billingstack.openstack.common import log as logging
-from billingstack.openstack.common import timeutils
-from billingstack.openstack.common.uuidutils import generate_uuid
 from billingstack.sqlalchemy.types import JSON, UUID
-from billingstack.sqlalchemy.model_base import ModelBase
+from billingstack.sqlalchemy.model_base import (ModelBase, BaseMixin,
+    PropertyMixin)
 
 LOG = logging.getLogger(__name__)
 
 
 BASE = declarative_base(cls=ModelBase)
-
-
-TYPES = {
-    "float": float,
-    "str": unicode,
-    "unicode": unicode,
-    "int": int,
-    "bool": bool
-}
-
-
-class PropertyMixin(object):
-    """
-    Helper mixin for Property classes.
-
-    Store the type of the value using type() or the pre-defined data_type
-    and cast it on value when returning the value.
-
-    Supported types are in the TYPES dict.
-    """
-    id = Column(UUID, default=generate_uuid, primary_key=True)
-    data_type = Column(Unicode(20), nullable=False, default=u'str')
-    name = Column(Unicode(60), index=True, nullable=False)
-    _value = Column('value', UnicodeText)
-
-    @hybrid_property
-    def value(self):
-        data_type = TYPES.get(self.data_type, str)
-        return data_type(self._value)
-
-    @value.setter
-    def value(self, value):
-        data_type = type(value).__name__
-        self.data_type = data_type
-        self._value = value
-
-
-class BaseMixin(object):
-    """
-    A mixin that provides id, and some dates.
-    """
-    id = Column(UUID, default=generate_uuid, primary_key=True)
-    created_at = Column(DateTime, default=timeutils.utcnow)
-    updated_at = Column(DateTime, onupdate=timeutils.utcnow)
-
-
-TYPES = {
-    "float": float,
-    "str": unicode,
-    "unicode": unicode,
-    "int": int,
-    "bool": bool
-}
 
 
 class Currency(BASE):

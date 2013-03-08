@@ -14,11 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from sqlalchemy import Column, DateTime, Unicode, UnicodeText
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import object_mapper
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declared_attr
 
 from billingstack import exceptions, utils
+from billingstack.sqlalchemy.types import UUID
+from billingstack.openstack.common.uuidutils import generate_uuid
+from billingstack.openstack.common import timeutils
 
 
 class ModelBase(object):
@@ -89,3 +94,47 @@ class ModelBase(object):
                       if not k[0] == '_'])
         local.update(joined)
         return local.iteritems()
+
+
+class BaseMixin(object):
+    """
+    A mixin that provides id, and some dates.
+    """
+    id = Column(UUID, default=generate_uuid, primary_key=True)
+    created_at = Column(DateTime, default=timeutils.utcnow)
+    updated_at = Column(DateTime, onupdate=timeutils.utcnow)
+
+
+TYPES = {
+    "float": float,
+    "str": unicode,
+    "unicode": unicode,
+    "int": int,
+    "bool": bool
+}
+
+
+class PropertyMixin(object):
+    """
+    Helper mixin for Property classes.
+
+    Store the type of the value using type() or the pre-defined data_type
+    and cast it on value when returning the value.
+
+    Supported types are in the TYPES dict.
+    """
+    id = Column(UUID, default=generate_uuid, primary_key=True)
+    data_type = Column(Unicode(20), nullable=False, default=u'str')
+    name = Column(Unicode(60), index=True, nullable=False)
+    _value = Column('value', UnicodeText)
+
+    @hybrid_property
+    def value(self):
+        data_type = TYPES.get(self.data_type, str)
+        return data_type(self._value)
+
+    @value.setter
+    def value(self, value):
+        data_type = type(value).__name__
+        self.data_type = data_type
+        self._value = value
