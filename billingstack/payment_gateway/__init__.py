@@ -34,3 +34,7 @@ def register_providers(context):
     conn = get_connection()
     em = ExtensionManager(Provider.__plugin_ns__)
     em.map(_register, context, conn)
+
+
+def get_provider(name):
+    return Provider.get_plugin(name)
