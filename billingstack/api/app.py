@@ -19,7 +19,6 @@
 from pecan import configuration
 from pecan import make_app
 
-from billingstack.api import auth
 from billingstack.api import config as api_config
 from billingstack.api import hooks
 
@@ -42,7 +41,7 @@ def setup_app(pecan_config=None, extra_hooks=None):
     if not pecan_config:
         pecan_config = get_pecan_config()
 
-    app_hooks.append(auth.AutherHook())
+    app_hooks.append(hooks.NoAuthHook())
 
     configuration.set_config(dict(pecan_config), overwrite=True)
 

@@ -1,9 +1,19 @@
 from pecan import hooks
-
 from oslo.config import cfg
+
 from billingstack import storage
 from billingstack.central.rpcapi import CentralAPI
 from billingstack.openstack.common import log
+from billingstack.openstack.common.context import RequestContext
+
+
+
+class NoAuthHook(hooks.PecanHook):
+    """
+    Simple auth - all requests will be is_admin=True
+    """
+    def before(self, state):
+        state.request.ctxt = RequestContext(is_admin=True)
 
 
 class ConfigHook(hooks.PecanHook):
@@ -16,7 +26,6 @@ class ConfigHook(hooks.PecanHook):
 
 
 class DBHook(hooks.PecanHook):
-
     def before(self, state):
         storage_engine = storage.get_engine(
             state.request.cfg['service:api'].storage_driver)
