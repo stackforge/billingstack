@@ -55,11 +55,45 @@ class AssertMixin(object):
             func(*args, **kw)
 
 
-class TestCase(unittest2.TestCase, AssertMixin):
+class BaseTestCase(unittest2.TestCase, AssertMixin):
+    """
+    A base test class.
+    """
+    def setUp(self):
+        super(BaseTestCase, self).setUp()
+        self.mox = mox.Mox()
+
+    def tearDown(self):
+        cfg.CONF.reset()
+        self.mox.UnsetStubs()
+        self.mox.VerifyAll()
+        super(BaseTestCase, self).tearDown()
+
+    # Config Methods
+    def config(self, **kwargs):
+        group = kwargs.pop('group', None)
+
+        for k, v in kwargs.iteritems():
+            cfg.CONF.set_override(k, v, group)
+
+    def get_fixture(self, name, fixture=0, values={}):
+        """
+        Get a fixture from self.samples and override values if necassary
+        """
+        _values = copy.copy(self.samples[name][fixture])
+        _values.update(values)
+        return _values
+
+    def get_admin_context(self):
+        return get_admin_context()
+
+    def get_context(self, **kw):
+        return RequestContext(**kw)
+
+
+class TestCase(BaseTestCase):
     def setUp(self):
         super(TestCase, self).setUp()
-
-        self.mox = mox.Mox()
 
         self.config(
             rpc_backend='billingstack.openstack.common.rpc.impl_fake',
@@ -82,20 +116,10 @@ class TestCase(unittest2.TestCase, AssertMixin):
         self.admin_ctxt = self.get_admin_context()
 
     def tearDown(self):
+        super(TestCase, self).tearDown()
         # NOTE: Currently disabled
         #policy.reset()
         storage.teardown_schema()
-        cfg.CONF.reset()
-        self.mox.UnsetStubs()
-        self.mox.VerifyAll()
-        super(TestCase, self).tearDown()
-
-    # Config Methods
-    def config(self, **kwargs):
-        group = kwargs.pop('group', None)
-
-        for k, v in kwargs.iteritems():
-            cfg.CONF.set_override(k, v, group)
 
     def get_storage_driver(self):
         connection = storage.get_connection()
@@ -106,20 +130,6 @@ class TestCase(unittest2.TestCase, AssertMixin):
 
     def get_api_service(self):
         return api_service.Service()
-
-    def get_admin_context(self):
-        return get_admin_context()
-
-    def get_context(self, **kw):
-        return RequestContext(**kw)
-
-    def get_fixture(self, name, fixture=0, values={}):
-        """
-        Get a fixture from self.samples and override values if necassary
-        """
-        _values = copy.copy(self.samples[name][fixture])
-        _values.update(values)
-        return _values
 
     def setSamples(self):
         _, self.pg_method = self.pg_method_add()
