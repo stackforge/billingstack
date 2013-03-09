@@ -42,9 +42,8 @@ class Connection(base.Connection, api.HelpersMixin):
     """
     SQLAlchemy connection
     """
-    base = models.BASE
-
     def __init__(self, config_group):
+        self.base = models.BASE
         self.setup(config_group)
 
     def set_properties(self, obj, properties, cls=None, rel_attr='properties', purge=False):
