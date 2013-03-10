@@ -4,12 +4,12 @@ import mox
 from oslo.config import cfg
 # NOTE: Currently disabled
 # from billingstack.openstack.common import policy
+from billingstack import exceptions
+from billingstack import samples
+from billingstack import storage
+from billingstack.central import service as central_service
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.context import RequestContext, get_admin_context
-from billingstack import samples
-from billingstack.central import service as central_service
-from billingstack import storage
-from billingstack import exceptions
 
 
 cfg.CONF.import_opt('storage_driver', 'billingstack.central',

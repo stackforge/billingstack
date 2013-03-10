@@ -15,7 +15,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-"""Base classes for API tests.
+"""
+Base classes for API tests.
 """
 
 import os
@@ -31,13 +32,7 @@ from billingstack.tests import base
 LOG = log.getLogger(__name__)
 
 
-class FunctionalTest(base.TestCase):
-    """
-    Used for functional tests of Pecan controllers where you need to
-    test your literal application and its integration with the
-    framework.
-    """
-
+class APITestMixin(object):
     PATH_PREFIX = ''
 
     path = ""
@@ -45,60 +40,6 @@ class FunctionalTest(base.TestCase):
     def item_path(self, *args):
         url = self.path + '/%s'
         return url % args
-
-    def setUp(self):
-        super(FunctionalTest, self).setUp()
-        self.central_service = self.get_central_service()
-        self.central_service.start()
-        self.setSamples()
-        self.app = self._make_app()
-
-    def _make_app(self, enable_acl=False):
-        # Determine where we are so we can set up paths in the config
-        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                '..',
-                                                '..',
-                                                )
-                                   )
-
-        self.config = {
-            'app': {
-                'root': 'billingstack.api.root.RootController',
-                'modules': ['billingstack.api'],
-                'static_root': '%s/public' % root_dir,
-                'template_path': '%s/billingstack/api/templates' % root_dir,
-                'enable_acl': enable_acl,
-            },
-
-            'logging': {
-                'loggers': {
-                    'root': {'level': 'INFO', 'handlers': ['console']},
-                    'wsme': {'level': 'INFO', 'handlers': ['console']},
-                    'billingstack': {'level': 'DEBUG',
-                                   'handlers': ['console'],
-                                   },
-                },
-                'handlers': {
-                    'console': {
-                        'level': 'DEBUG',
-                        'class': 'logging.StreamHandler',
-                        'formatter': 'simple'
-                    }
-                },
-                'formatters': {
-                    'simple': {
-                        'format': ('%(asctime)s %(levelname)-5.5s [%(name)s]'
-                                   '[%(threadName)s] %(message)s')
-                    }
-                },
-            },
-        }
-
-        return load_test_app(self.config)
-
-    def tearDown(self):
-        super(FunctionalTest, self).tearDown()
-        set_config({}, overwrite=True)
 
     def make_path(self, path):
         if not path.startswith('/'):
@@ -190,3 +131,59 @@ class FunctionalTest(base.TestCase):
         self.assertEqual(response.status_code, status_code)
 
         return response
+
+
+class FunctionalTest(base.TestCase, APITestMixin):
+    def setUp(self):
+        super(FunctionalTest, self).setUp()
+        self.central_service = self.get_central_service()
+        self.central_service.start()
+        self.setSamples()
+        self.app = self._make_app()
+
+    def tearDown(self):
+        super(FunctionalTest, self).tearDown()
+        set_config({}, overwrite=True)
+
+    def _make_app(self, enable_acl=False):
+        # Determine where we are so we can set up paths in the config
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                '..',
+                                                '..',
+                                                )
+                                   )
+
+        self.config = {
+            'app': {
+                'root': 'billingstack.api.root.RootController',
+                'modules': ['billingstack.api'],
+                'static_root': '%s/public' % root_dir,
+                'template_path': '%s/billingstack/api/templates' % root_dir,
+                'enable_acl': enable_acl,
+            },
+
+            'logging': {
+                'loggers': {
+                    'root': {'level': 'INFO', 'handlers': ['console']},
+                    'wsme': {'level': 'INFO', 'handlers': ['console']},
+                    'billingstack': {'level': 'DEBUG',
+                                   'handlers': ['console'],
+                                   },
+                },
+                'handlers': {
+                    'console': {
+                        'level': 'DEBUG',
+                        'class': 'logging.StreamHandler',
+                        'formatter': 'simple'
+                    }
+                },
+                'formatters': {
+                    'simple': {
+                        'format': ('%(asctime)s %(levelname)-5.5s [%(name)s]'
+                                   '[%(threadName)s] %(message)s')
+                    }
+                },
+            },
+        }
+
+        return load_test_app(self.config)
