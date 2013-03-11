@@ -18,21 +18,20 @@
 """
 Base classes for API tests.
 """
-
 import os
 
 from pecan import set_config
 from pecan.testing import load_test_app
 
-from billingstack.openstack.common import log
 from billingstack.openstack.common import jsonutils as json
-from billingstack.tests import base
+from billingstack.openstack.common import log
+from billingstack.tests.base import TestCase
 
 
 LOG = log.getLogger(__name__)
 
 
-class APITestMixin(object):
+class PecanTestMixin(object):
     PATH_PREFIX = ''
 
     path = ""
@@ -132,28 +131,34 @@ class APITestMixin(object):
 
         return response
 
+    def make_app(self, enable_acl=False):
+        # Determine where we are so we can set up paths in the config
+        return load_test_app(self.make_config(enable_acl=enable_acl))
 
-class FunctionalTest(base.TestCase, APITestMixin):
+
+class FunctionalTest(TestCase, PecanTestMixin):
+    """
+    billingstack.api base test
+    """
     def setUp(self):
         super(FunctionalTest, self).setUp()
         self.central_service = self.get_central_service()
         self.central_service.start()
         self.setSamples()
-        self.app = self._make_app()
+        self.app = self.make_app()
 
     def tearDown(self):
         super(FunctionalTest, self).tearDown()
         set_config({}, overwrite=True)
 
-    def _make_app(self, enable_acl=False):
-        # Determine where we are so we can set up paths in the config
+    def make_config(self, enable_acl=True):
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                 '..',
                                                 '..',
                                                 )
                                    )
 
-        self.config = {
+        return {
             'app': {
                 'root': 'billingstack.api.root.RootController',
                 'modules': ['billingstack.api'],
@@ -185,5 +190,3 @@ class FunctionalTest(base.TestCase, APITestMixin):
                 },
             },
         }
-
-        return load_test_app(self.config)
