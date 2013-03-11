@@ -48,9 +48,10 @@ setup(
     dependency_links=dependency_links,
     scripts=[
         'bin/billingstack-api',
+        'bin/billingstack-identity-api',
         'bin/billingstack-db-manage',
         'bin/billingstack-manage',
-        'bin/billingstack-central',
+        'bin/billingstack-central'
     ],
     cmdclass=common_setup.get_cmdclass(),
     entry_points=textwrap.dedent("""
@@ -63,6 +64,9 @@ setup(
         [billingstack.manage]
         pg-register = billingstack.manage.provider:ProvidersRegister
         pg-list = billingstack.manage.provider:ProvidersList
+
+        [billingstack.identity_plugin]
+        sqlalchemy = billingstack.identity.impl_sqlalchemy:SQLAlchemyPlugin
         """),
     classifiers=[
         'Development Status :: 3 - Alpha',
