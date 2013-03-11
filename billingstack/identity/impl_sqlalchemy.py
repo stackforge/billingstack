@@ -173,31 +173,43 @@ class SQLAlchemyPlugin(IdentityPlugin, api.HelpersMixin):
 
     def create_grant(self, context, user_id, account_id, role_id):
         self._get(Role, role_id)
+
         try:
             ref = self.get_metadata(user_id=user_id, account_id=account_id)
+            is_new = False
         except exceptions.NotFound:
             ref = {}
+            is_new = True
+
         roles = set(ref.get('roles', []))
         roles.add(role_id)
         ref['roles'] = list(roles)
-        if not isinstance(ref, Role):
+
+        if is_new:
             self.create_metadata(user_id, account_id, ref)
         else:
             self.update_metadata(user_id, account_id, ref)
 
     def revoke_grant(self, context, user_id, account_id, role_id):
         self._get(Role, role_id)
+
         try:
             ref = self.get_metadata(user_id=user_id, account_id=account_id)
+            is_new = False
         except exceptions.NotFound:
             ref = {}
+            is_new = True
+
         roles = set(ref.get('roles', []))
+
         try:
             roles.remove(role_id)
         except KeyError:
             raise exceptions.NotFound(role_id=role_id)
+
         ref['roles'] = list(roles)
-        if not isinstance(ref, Role):
+
+        if is_new:
             self.create_metadata(user_id, account_id, ref)
         else:
             self.update_metadata(user_id, account_id, ref)
