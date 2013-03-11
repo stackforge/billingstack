@@ -143,14 +143,19 @@ class FunctionalTest(TestCase, PecanTestMixin):
     """
     def setUp(self):
         super(FunctionalTest, self).setUp()
+
+        # NOTE: Needs to be started after the db schema is created
         self.central_service = self.get_central_service()
         self.central_service.start()
+
         self.setSamples()
+
         self.app = self.make_app()
 
     def tearDown(self):
-        set_config({}, overwrite=True)
         super(FunctionalTest, self).tearDown()
+        set_config({}, overwrite=True)
+
 
     def make_config(self, enable_acl=True):
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
