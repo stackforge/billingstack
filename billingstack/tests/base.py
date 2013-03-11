@@ -116,10 +116,11 @@ class TestCase(BaseTestCase):
         self.admin_ctxt = self.get_admin_context()
 
     def tearDown(self):
-        super(TestCase, self).tearDown()
         # NOTE: Currently disabled
         #policy.reset()
         storage.teardown_schema()
+        super(TestCase, self).tearDown()
+        
 
     def get_storage_driver(self):
         connection = storage.get_connection()

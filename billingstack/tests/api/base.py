@@ -132,7 +132,8 @@ class PecanTestMixin(object):
         return response
 
     def make_app(self, enable_acl=False):
-        # Determine where we are so we can set up paths in the config
+        # This is done like this because if you import load_test_app in 2 diff
+        # modules it will fail with a PECAN_CONFIG error.
         return load_test_app(self.make_config(enable_acl=enable_acl))
 
 
@@ -148,8 +149,8 @@ class FunctionalTest(TestCase, PecanTestMixin):
         self.app = self.make_app()
 
     def tearDown(self):
-        super(FunctionalTest, self).tearDown()
         set_config({}, overwrite=True)
+        super(FunctionalTest, self).tearDown()
 
     def make_config(self, enable_acl=True):
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),

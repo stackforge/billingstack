@@ -25,6 +25,6 @@ class SqlalchemyStorageTest(StorageDriverTestCase):
     __test__ = True
 
     def setUp(self):
-        super(SqlalchemyStorageTest, self).setUp()
         self.config(database_connection='sqlite://',
                     group='storage:sqlalchemy')
+        super(SqlalchemyStorageTest, self).setUp()
