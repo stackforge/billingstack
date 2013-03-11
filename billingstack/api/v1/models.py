@@ -81,17 +81,6 @@ class ContactInfo(Base):
     website = text
 
 
-class User(Base):
-    def __init__(self, **kw):
-        kw['contact_info'] = ContactInfo(**kw.get('contact_info', {}))
-        super(User, self).__init__(**kw)
-
-    username = text
-    password = text
-    merchant_id = text
-    contact_info = ContactInfo
-
-
 class Product(DescribedBase):
     measure = text
     type = text

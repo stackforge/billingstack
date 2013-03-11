@@ -24,7 +24,6 @@ from billingstack.openstack.common import log
 from billingstack.api.base import RestBase
 from billingstack.api.v1 import models
 
-
 LOG = log.getLogger(__name__)
 
 
@@ -68,58 +67,6 @@ class PGMethodsController(RestBase):
         rows = request.central_api.pg_method_list(request.ctxt)
 
         return [models.PGMethod.from_db(r) for r in rows]
-
-
-class UserController(RestBase):
-    """User controller"""
-    __id__ = 'user'
-
-    @wsme_pecan.wsexpose(models.User, unicode)
-    def get_all(self):
-        row = request.central_api.user_get(request.ctxt, self.id_)
-        return models.User.from_db(row)
-
-    @wsme_pecan.wsexpose(models.User, body=models.User)
-    def put(self, body):
-        row = request.central_api.user_update(
-            request.ctxt,
-            self.id_,
-            body.to_db())
-
-        return models.User.from_db(row)
-
-    @wsme_pecan.wsexpose()
-    def delete(self):
-        request.central_api.user_delete(request.ctxt, self.id_)
-
-
-class UsersController(RestBase):
-    """Users controller"""
-    __resource__ = UserController
-
-    @wsme_pecan.wsexpose([models.User], unicode)
-    def get_all(self):
-        criterion = {
-            'merchant_id': request.context['merchant_id']
-        }
-
-        if 'customer_id' in request.context:
-            criterion['customer_id'] = request.context['customer_id']
-
-        rows = request.central_api.user_list(
-            request.ctxt,
-            criterion=criterion)
-
-        return [models.User.from_db(r) for r in rows]
-
-    @wsme_pecan.wsexpose(models.User, body=models.User)
-    def post(self, body):
-        row = request.central_api.user_add(
-            request.ctxt,
-            request.context['merchant_id'],
-            body.to_db())
-
-        return models.User.from_db(row)
 
 
 # Plans
@@ -264,7 +211,6 @@ class CustomerController(RestBase):
     __id__ = 'customer'
     __resource__ = {
         "payment-methods": PaymentMethodsController,
-        "users": UsersController
     }
 
     @wsme_pecan.wsexpose(models.Customer, unicode)
@@ -314,7 +260,6 @@ class MerchantController(RestBase):
         "customers": CustomersController,
         "plans": PlansController,
         "products": ProductsController,
-        "users": UsersController
     }
 
     @wsme_pecan.wsexpose(models.Merchant)
@@ -368,4 +313,3 @@ class V1Controller(RestBase):
     languages = LanguagesController()
 
     merchants = MerchantsController()
-    users = UsersController()

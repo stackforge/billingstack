@@ -84,11 +84,6 @@ class StorageDriverTestCase(TestCase):
         return fixture, self.storage_conn.payment_method_add(
             ctxt, customer_id, provider_method_id, fixture, **kw)
 
-    def user_add(self, merchant_id, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('user', fixture, values)
-        ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.user_add(ctxt, merchant_id, fixture, **kw)
-
     def product_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('product', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
@@ -377,94 +372,6 @@ class StorageDriverTestCase(TestCase):
 
     def test_customer_delete_missing(self):
         self.assertMissing(self.storage_conn.customer_delete, self.admin_ctxt, UUID)
-
-    # User
-    def test_user_add(self):
-        fixture, data = self.user_add(self.merchant['id'])
-        del fixture['password']
-        assert data['contact_info'] == {}
-        self.assertData(fixture, data)
-
-    def test_user_add_with_contact_info(self):
-        contact_fixture = self.get_fixture('contact_info')
-        user_fixture, data = self.user_add(
-            self.merchant['id'],
-            values={
-                'contact_info': contact_fixture})
-        del user_fixture['password']
-        self.assertData(user_fixture, data)
-        self.assertData(contact_fixture, data['contact_info'])
-
-
-    def test_user_add_with_customer(self):
-        _, customer = self.customer_add(self.merchant['id'])
-        fixture, data = self.user_add(
-            self.merchant['id'],
-            values={
-                'customer_id': customer['id']})
-        del fixture['password']
-        self.assertData(fixture, data)
-
-    def test_user_list(self):
-        criterion = {
-            "merchant_id": self.merchant['id']
-        }
-
-        self.assertLen(0, self.storage_conn.user_list(
-            self.admin_ctxt, criterion=criterion))
-
-        self.user_add(self.merchant['id'])
-
-        rows = self.storage_conn.user_list(self.admin_ctxt, criterion=criterion)
-        self.assertLen(1, rows)
-
-    def test_user_list_customer(self):
-        self.assertLen(0, self.storage_conn.user_list(self.admin_ctxt))
-
-        # NOTE: Add 1 user for the Merchant and 1 with a Customer
-        _, merchant_user = self.user_add(self.merchant['id'])
-
-        _, customer = self.customer_add(self.merchant['id'])
-        _, customer_user = self.user_add(
-            self.merchant['id'],
-            values=dict(customer_id=customer['id']))
-
-        criterion = {
-            'merchant_id': self.merchant['id'],
-            'customer_id': customer['id']}
-
-        rows = self.storage_conn.user_list(self.admin_ctxt, criterion=criterion)
-        self.assertLen(1, rows)
-        self.assertData(customer_user, rows[0])
-
-    def test_user_get(self):
-        _, expected = self.user_add(self.merchant['id'])
-        actual = self.storage_conn.user_get(self.admin_ctxt, expected['id'])
-        self.assertData(expected, actual)
-
-    def test_user_get_missing(self):
-        self.assertMissing(self.storage_conn.user_get, self.admin_ctxt, UUID)
-
-    def test_user_update(self):
-        fixture, data = self.user_add(self.merchant['id'])
-
-        fixture['username'] = 'test'
-        updated = self.storage_conn.user_update(self.admin_ctxt, data['id'], fixture)
-
-        del fixture['password']
-
-        self.assertData(fixture, updated)
-
-    def test_user_update_missing(self):
-        self.assertMissing(self.storage_conn.user_update, self.admin_ctxt, UUID, {})
-
-    def test_user_delete(self):
-        _, data = self.user_add(self.merchant['id'])
-        self.storage_conn.user_delete(self.admin_ctxt, data['id'])
-        self.assertMissing(self.storage_conn.user_get, self.admin_ctxt, data['id'])
-
-    def test_user_delete_missing(self):
-        self.assertMissing(self.storage_conn.user_delete, self.admin_ctxt, UUID)
 
     # Products
     def test_product_add(self):

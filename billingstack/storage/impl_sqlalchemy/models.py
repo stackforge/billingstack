@@ -158,44 +158,6 @@ class CustomerInfo(ContactInfo):
     customer_id = Column(UUID, ForeignKey('customer.id'), nullable=False)
 
 
-user_customer = Table('user_customer', BASE.metadata,
-    Column('user_id', UUID, ForeignKey('user.id')),
-    Column('customer_id', UUID, ForeignKey('customer.id')))
-
-
-user_customer_role = Table('user_customer_roles', BASE.metadata,
-    Column('user_id', UUID, ForeignKey('user.id', ondelete='CASCADE')),
-    Column('customer_id', UUID, ForeignKey('customer.id', ondelete='CASCADE')),
-    Column('role', Unicode(40)))
-
-
-user_merchant_role = Table('user_merchant_roles', BASE.metadata,
-    Column('user_id', UUID, ForeignKey('user.id', ondelete='CASCADE')),
-    Column('merchant_id', UUID, ForeignKey('merchant.id', ondelete='CASCADE')),
-    Column('role', Unicode(40)))
-
-
-class User(BASE, BaseMixin):
-    """
-    A User that can login.
-    """
-    username = Column(Unicode(20), nullable=False)
-    password = Column(Unicode(255), nullable=False)
-
-    # NOTE: Should be uuid?
-    api_key = Column(Unicode(255))
-    api_secret = Column(Unicode(255))
-
-    customers = relationship('Customer', backref='users', secondary=user_customer)
-
-    contact_info = relationship('ContactInfo', backref='user', uselist=False,
-                                lazy='joined')
-    contact_info_id = Column(UUID, ForeignKey('contact_info.id'))
-
-    merchant = relationship('Merchant', backref='users')
-    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'))
-
-
 class Merchant(BASE, BaseMixin):
     """
     A Merchant is like a Account in Recurly
