@@ -91,6 +91,10 @@ class HelpersMixin(object):
         :param values: The values to update the model instance with
         """
         obj = self._get(cls, id_)
+        if 'id' in values and id_ != values['id']:
+            msg = 'Not allowed to change id'
+            errors = {'id': id_}
+            raise exceptions.InvalidObject(msg, errors=errors)
         obj.update(values)
         try:
             obj.save(self.session)
