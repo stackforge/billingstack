@@ -16,11 +16,15 @@ class HelpersMixin(object):
 
     def setup_schema(self):
         """ Semi-Private Method to create the database schema """
-        self.base.metadata.create_all(self.session.bind)
+        LOG.debug('Setting up schema')
+        base = self.base()
+        base.metadata.create_all(self.session.bind)
 
     def teardown_schema(self):
         """ Semi-Private Method to reset the database schema """
-        self.base.metadata.drop_all(self.session.bind)
+        LOG.debug('Tearing down schema')
+        base = self.base()
+        base.metadata.drop_all(self.session.bind)
 
     def _save(self, obj, save=True):
         if not save:
