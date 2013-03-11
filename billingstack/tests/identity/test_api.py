@@ -21,6 +21,9 @@ ROLE = {
 
 
 class IdentityAPITest(BaseTestCase, PecanTestMixin):
+    """
+    billingstack.api base test
+    """
     PATH_PREFIX = '/v1'
 
     def setUp(self):
@@ -29,20 +32,26 @@ class IdentityAPITest(BaseTestCase, PecanTestMixin):
         self.samples = get_samples()
 
         self.config(
+            storage_driver='sqlalchemy',
+            group='service:identity_api'
+        )
+        
+        self.config(
             database_connection='sqlite://',
             group='identity:sqlalchemy')
+
         self.plugin = IdentityPlugin.get_plugin(invoke_on_load=True)
         self.plugin.setup_schema()
-
+        
         self.app = self.make_app()
 
     def tearDown(self):
+        self.plugin.teardown_schema()
         super(IdentityAPITest, self).tearDown()
-        #self.plugin.teardown_schema()
         set_config({}, overwrite=True)
 
-    def make_config(self, enable_acl=False):
-        # Determine where we are so we can set up paths in the config
+
+    def make_config(self, enable_acl=True):
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                 '..',
                                                 '..',
@@ -176,7 +185,7 @@ class IdentityAPITest(BaseTestCase, PecanTestMixin):
         self.assertLen(0, resp.json)
 
     def test_create_user(self):
-        values = self.get_fixture('users')
+        values = self.get_fixture('user')
 
         self.post('users', values)
 
@@ -229,9 +238,9 @@ class IdentityAPITest(BaseTestCase, PecanTestMixin):
 
         url = 'accounts/%s/users/%s/roles/%s' % (
             account['id'], user['id'], role['id'])
+
         self.put(url, {})
 
-    # Grants
     def test_revoke_grant(self):
         account_data = self.get_fixture('merchant')
         account_data['type'] = 'merchant'
