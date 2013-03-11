@@ -38,10 +38,10 @@ SQLOPTS = [
     cfg.StrOpt('database_connection',
                default='sqlite:///$state_path/billingstack.sqlite',
                help='The database driver to use'),
-    cfg.IntOpt('connection_debug', default=100,
+    cfg.IntOpt('connection_debug', default=0,
                help='Verbosity of SQL debugging information. 0=None,'
                ' 100=Everything'),
-    cfg.BoolOpt('connection_trace', default=True,
+    cfg.BoolOpt('connection_trace', default=False,
                 help='Add python stack traces to SQL as comment strings'),
     cfg.BoolOpt('sqlite_synchronous', default=True,
                 help='If passed, use synchronous mode for sqlite'),
