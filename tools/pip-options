@@ -2,3 +2,7 @@
 alembic
 SQLAlchemy>=0.7.8,<=0.7.9
 kombu
+
+# Identity
+python-memcached
+passlib
