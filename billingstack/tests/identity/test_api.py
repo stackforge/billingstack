@@ -35,14 +35,14 @@ class IdentityAPITest(BaseTestCase, PecanTestMixin):
             storage_driver='sqlalchemy',
             group='service:identity_api'
         )
-        
+
         self.config(
             database_connection='sqlite://',
             group='identity:sqlalchemy')
 
         self.plugin = IdentityPlugin.get_plugin(invoke_on_load=True)
         self.plugin.setup_schema()
-        
+
         self.app = self.make_app()
 
     def tearDown(self):
@@ -259,3 +259,11 @@ class IdentityAPITest(BaseTestCase, PecanTestMixin):
         self.put(url, {})
 
         self.delete(url)
+
+    def test_login(self):
+        user_data = self.get_fixture('user')
+        user = self.post('users', user_data).json
+
+        resp = self.post('tokens', user_data)
+
+        assert 'token' in resp.json
