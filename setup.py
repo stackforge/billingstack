@@ -67,6 +67,9 @@ setup(
 
         [billingstack.identity_plugin]
         sqlalchemy = billingstack.identity.impl_sqlalchemy:SQLAlchemyPlugin
+
+        [billingstack.token_plugin]
+        memcache = billingstack.identity.token_memcache:MemcachePlugin
         """),
     classifiers=[
         'Development Status :: 3 - Alpha',

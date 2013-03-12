@@ -5,8 +5,10 @@ import string
 
 from billingstack import exceptions
 
-cfg.CONF.register_opt(
-    cfg.IntOpt('crypt_strength', default=40000))
+
+cfg.CONF.register_opts([
+    cfg.IntOpt('crypt_strength', default=40000)],
+    group='service:identity_api')
 
 
 MAX_PASSWORD_LENGTH = 4096

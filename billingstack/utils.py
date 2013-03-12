@@ -1,9 +1,11 @@
 import os
 import pycountry
 import re
+import time
+
+from oslo.config import cfg
 
 from billingstack import exceptions
-from oslo.config import cfg
 from billingstack.openstack.common import log
 
 
@@ -121,3 +123,12 @@ def get_columns(data):
     map(lambda item: map(_seen, item.keys()), data)
     return list(columns)
 
+
+def unixtime(dt_obj):
+    """Format datetime object as unix timestamp
+
+    :param dt_obj: datetime.datetime object
+    :returns: float
+
+    """
+    return time.mktime(dt_obj.utctimetuple())
