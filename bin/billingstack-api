@@ -26,7 +26,6 @@ from oslo.config import cfg
 
 from billingstack.api import app
 from billingstack import service
-from billingstack.openstack.common import log as logging
 
 
 if __name__ == '__main__':
@@ -38,7 +37,8 @@ if __name__ == '__main__':
     root = app.setup_app()
 
     # Create the WSGI server and start it
-    host, port = cfg.CONF['service:api'].api_listen, int(cfg.CONF['service:api'].api_port)
+    host = cfg.CONF['service:api'].api_listen
+    port = int(cfg.CONF['service:api'].api_port)
     srv = simple_server.make_server(host, port, root)
 
     print 'Starting server in PID %s' % os.getpid()
