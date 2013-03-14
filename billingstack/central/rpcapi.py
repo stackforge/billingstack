@@ -3,9 +3,8 @@ from oslo.config import cfg
 from billingstack.openstack.common.rpc import proxy
 
 rpcapi_opts = [
-    cfg.StrOpt('central_topic',
-        default='central',
-        help='the topic central nodes listen on')
+    cfg.StrOpt('central_topic', default='central',
+               help='the topic central nodes listen on')
 ]
 
 cfg.CONF.register_opts(rpcapi_opts)
@@ -24,7 +23,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('currency_add', values=values))
 
     def currency_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('currency_list', criterion=criterion))
+        return self.call(ctxt, self.make_msg('currency_list',
+                         criterion=criterion))
 
     def currency_get(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('currency_get',
@@ -43,14 +43,15 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('language_add', values=values))
 
     def language_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('language_list', criterion=criterion))
+        return self.call(ctxt, self.make_msg('language_list',
+                         criterion=criterion))
 
     def language_get(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('language_get', id_=id_))
 
     def language_update(self, ctxt, id_, values):
         return self.call(ctxt, self.make_msg('language_update',
-                         language_id, values))
+                         id_, values))
 
     def language_delete(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('language_delete', id_=id_))
@@ -87,13 +88,14 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('pg_method_list', id_=id_))
 
     # PGC
-    def pg_config_add(self, ctxt,  merchant_id, provider_id, values):
+    def pg_config_add(self, ctxt, merchant_id, provider_id, values):
         return self.call(ctxt, self.make_msg('pg_config_add',
                          merchant_id=merchant_id, provider_id=provider_id,
                          values=values))
 
     def pg_config_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('pg_config_list', criterion=criterion))
+        return self.call(ctxt, self.make_msg('pg_config_list',
+                         criterion=criterion))
 
     def pg_config_get(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('pg_config_get', id_=id_))
@@ -130,7 +132,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('merchant_add', values=values))
 
     def merchant_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('merchant_list', criterion=criterion))
+        return self.call(ctxt, self.make_msg('merchant_list',
+                         criterion=criterion))
 
     def merchant_get(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('merchant_get', id_=id_))
@@ -149,7 +152,8 @@ class CentralAPI(proxy.RpcProxy):
                          merchant_id=merchant_id, values=values))
 
     def customer_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('customer_list', criterion=criterion))
+        return self.call(ctxt, self.make_msg('customer_list',
+                         criterion=criterion))
 
     def customer_get(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('customer_get', id_=id_))
@@ -185,7 +189,8 @@ class CentralAPI(proxy.RpcProxy):
                          merchant_id=merchant_id, values=values))
 
     def product_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('product_list', criterion=criterion))
+        return self.call(ctxt, self.make_msg('product_list',
+                         criterion=criterion))
 
     def product_get(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('product_get', id_=id_))
@@ -202,7 +207,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('plan_item_add', values=values))
 
     def plan_item_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('plan_item_list', criterion=criterion))
+        return self.call(ctxt, self.make_msg('plan_item_list',
+                         criterion=criterion))
 
     def plan_item_get(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('plan_item_get', id_=id_))

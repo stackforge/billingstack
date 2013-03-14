@@ -18,7 +18,8 @@ class IdentityPlugin(Plugin):
                    **kw):
         return super(IdentityPlugin, self).get_plugin(name, **kw)
 
-    def authenticate(self, context, user_id=None, password=None, account_id=None):
+    def authenticate(self, context, user_id=None, password=None,
+                     account_id=None):
         """
         Authenticate a User
 

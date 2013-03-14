@@ -92,4 +92,3 @@ class ModelBase(Base):
         Return a class of this object from values in the from_db
         """
         return cls(**values)
-

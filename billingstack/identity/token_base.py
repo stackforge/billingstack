@@ -1,9 +1,7 @@
-import copy
 import datetime
 
 from oslo.config import cfg
 
-from billingstack import utils
 from billingstack.identity import cms
 from billingstack.openstack.common import timeutils
 from billingstack.plugin import Plugin
@@ -80,5 +78,3 @@ class TokenPlugin(Plugin):
         List out revoked Tokens.
         """
         raise NotImplementedError
-
-

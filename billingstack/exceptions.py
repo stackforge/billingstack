@@ -51,4 +51,3 @@ class Duplicate(Base):
 
 class NotFound(Base):
     pass
-

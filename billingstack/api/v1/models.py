@@ -1,4 +1,4 @@
-from wsme.types import text, Unset, DictType
+from wsme.types import text, DictType
 
 
 from billingstack.api.base import ModelBase, property_type
@@ -35,6 +35,7 @@ class Currency(Base):
     id = text
     name = text
     title = text
+
 
 class Language(Base):
     id = text
@@ -115,7 +116,8 @@ class Merchant(Account):
 
 class Customer(Account):
     def __init__(self, **kw):
-        kw['contact_info'] = [ContactInfo(**i) for i in kw.get('contact_info', {})]
+        infos = kw.get('contact_info', {})
+        kw['contact_info'] = [ContactInfo(**i) for i in infos]
         super(Customer, self).__init__(**kw)
 
     merchant_id = text

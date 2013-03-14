@@ -11,20 +11,17 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import re
-
 from sqlalchemy import Column, Table, ForeignKey, UniqueConstraint
-from sqlalchemy import Integer, Float, Enum, Boolean
-from sqlalchemy import DateTime, Unicode, UnicodeText
+from sqlalchemy import Integer, Float
+from sqlalchemy import DateTime, Unicode
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 from billingstack import utils
 from billingstack.openstack.common import log as logging
 from billingstack.sqlalchemy.types import JSON, UUID
-from billingstack.sqlalchemy.model_base import (ModelBase, BaseMixin,
-    PropertyMixin)
+from billingstack.sqlalchemy.model_base import (
+    ModelBase, BaseMixin, PropertyMixin)
 
 LOG = logging.getLogger(__name__)
 
@@ -48,7 +45,8 @@ class Language(BASE):
     title = Column(Unicode(100), nullable=False)
 
 
-pg_provider_methods = Table('pg_provider_methods', BASE.metadata,
+pg_provider_methods = Table(
+    'pg_provider_methods', BASE.metadata,
     Column('provider_id', UUID, ForeignKey('pg_provider.id')),
     Column('method_id', UUID, ForeignKey('pg_method.id')))
 
@@ -172,10 +170,12 @@ class Merchant(BASE, BaseMixin):
     products = relationship('Product', backref='merchant')
 
     currency = relationship('Currency', uselist=False, backref='merchants')
-    currency_name = Column(Unicode(10), ForeignKey('currency.name'), nullable=False)
+    currency_name = Column(Unicode(10), ForeignKey('currency.name'),
+                           nullable=False)
 
     language = relationship('Language', uselist=False, backref='merchants')
-    language_name = Column(Unicode(10), ForeignKey('language.name'), nullable=False)
+    language_name = Column(Unicode(10), ForeignKey('language.name'),
+                           nullable=False)
 
 
 class PGAccountConfig(BASE, BaseMixin):
@@ -278,10 +278,12 @@ class Invoice(BASE, BaseMixin):
     line_items = relationship('InvoiceLine', backref='invoice_lines')
 
     state = relationship('InvoiceState', backref='invoices')
-    state_id = Column(Unicode(60), ForeignKey('invoice_state.name'), nullable=False)
+    state_id = Column(Unicode(60), ForeignKey('invoice_state.name'),
+                      nullable=False)
 
     currency = relationship('Currency', backref='invoices')
-    currency_name = Column(Unicode(10), ForeignKey('currency.name'), nullable=False)
+    currency_name = Column(Unicode(10), ForeignKey('currency.name'),
+                           nullable=False)
 
     merchant = relationship('Merchant', backref='invoices')
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
@@ -313,7 +315,7 @@ class Pricing(BASE, BaseMixin):
     plan_item_id = Column(UUID, ForeignKey('plan_item.id', ondelete='CASCADE',
                                            onupdate='CASCADE'))
     product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE',
-                                           onupdate='CASCADE'))
+                                         onupdate='CASCADE'))
 
 
 class Plan(BASE, BaseMixin):
@@ -419,9 +421,9 @@ class Subscription(BASE, BaseMixin):
 
     payment_method = relationship('PaymentMethod', backref='subscriptions')
     payment_method_id = Column(UUID, ForeignKey('payment_method.id',
-                                             ondelete='CASCADE',
-                                             onupdate='CASCADE'),
-                           nullable=False)
+                                                ondelete='CASCADE',
+                                                onupdate='CASCADE'),
+                               nullable=False)
 
 
 class Usage(BASE, BaseMixin):

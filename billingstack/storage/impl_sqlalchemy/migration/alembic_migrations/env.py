@@ -23,7 +23,6 @@ from alembic import context
 from sqlalchemy import create_engine, pool
 
 from billingstack.storage.impl_sqlalchemy.models import ModelBase
-from billingstack.openstack.common import importutils
 
 
 # this is the Alembic Config object, which provides
@@ -51,7 +50,8 @@ def run_migrations_offline():
     script output.
 
     """
-    context.configure(url=billingstack_config['storage:sqlalchemy'].database_connection)
+    context.configure(url=billingstack_config['storage:sqlalchemy']
+                      .database_connection)
 
     with context.begin_transaction():
         context.run_migrations(options=build_options())

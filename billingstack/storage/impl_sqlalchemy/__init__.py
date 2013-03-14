@@ -48,7 +48,8 @@ class Connection(base.Connection, api.HelpersMixin):
     def base(self):
         return models.BASE
 
-    def set_properties(self, obj, properties, cls=None, rel_attr='properties', purge=False):
+    def set_properties(self, obj, properties, cls=None, rel_attr='properties',
+                       purge=False):
         """
         Set's a dict with key values on a relation on the row
 
@@ -242,8 +243,8 @@ class Connection(base.Connection, api.HelpersMixin):
             try:
                 all_methods[method_key].providers.append(provider)
             except KeyError:
-                msg = 'Provider %s tried to associate to non-existing method %s' \
-                    % (provider.name, method_key)
+                msg = 'Provider %s tried to associate to non-existing'\
+                      'method %s' % (provider.name, method_key)
                 LOG.error(msg)
                 raise exceptions.ConfigurationError(msg)
 
@@ -387,7 +388,8 @@ class Connection(base.Connection, api.HelpersMixin):
     def _product(self, row):
         product = dict(row)
 
-        product['properties'] = self._kv_rows(row.properties, func=lambda i: i['value'])
+        product['properties'] = self._kv_rows(row.properties,
+                                              func=lambda i: i['value'])
         return product
 
     def product_add(self, ctxt, merchant_id, values):
@@ -479,7 +481,8 @@ class Connection(base.Connection, api.HelpersMixin):
     def _plan(self, row):
         plan = dict(row)
 
-        plan['properties'] = self._kv_rows(row.properties, func=lambda i: i['value'])
+        plan['properties'] = self._kv_rows(row.properties,
+                                           func=lambda i: i['value'])
         plan['plan_items'] = map(dict, row.plan_items) if row.plan_items\
             else []
         return plan

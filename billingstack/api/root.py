@@ -16,13 +16,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from pecan import expose, redirect
-from webob.exc import status_map
-
+from pecan import expose
 from . import v1
 
-class RootController(object):
 
+class RootController(object):
     v1 = v1.V1Controller()
 
     @expose(generic=True, template='index.html')

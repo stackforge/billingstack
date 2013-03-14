@@ -155,7 +155,8 @@ class HelpersMixin(object):
 
     def _kv_rows(self, rows, key='name', func=lambda i: i):
         """
-        Return a Key, Value dict where the "key" will be the key and the row as value
+        Return a Key, Value dict where the "key" will be the key and the row
+        as value
         """
         data = {}
         for row in rows:
@@ -165,4 +166,3 @@ class HelpersMixin(object):
                 data_key = row[key]
             data[data_key] = func(row)
         return data
-

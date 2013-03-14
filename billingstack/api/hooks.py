@@ -3,9 +3,7 @@ from oslo.config import cfg
 
 from billingstack import storage
 from billingstack.central.rpcapi import CentralAPI
-from billingstack.openstack.common import log
 from billingstack.openstack.common.context import RequestContext
-
 
 
 class NoAuthHook(hooks.PecanHook):

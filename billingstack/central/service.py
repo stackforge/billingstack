@@ -1,13 +1,8 @@
 import functools
-import re
 from oslo.config import cfg
 from billingstack.openstack.common import log as logging
-from billingstack.openstack.common import rpc
 from billingstack.openstack.common.rpc import service as rpc_service
-from stevedore.named import NamedExtensionManager
-from billingstack import exceptions
 from billingstack import storage
-from billingstack import utils
 
 
 cfg.CONF.import_opt('host', 'billingstack.netconf')

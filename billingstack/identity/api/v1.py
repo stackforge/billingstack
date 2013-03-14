@@ -1,5 +1,4 @@
-from oslo.config import cfg
-from pecan import hooks, request, expose, rest
+from pecan import request, expose, rest
 import wsmeext.pecan as wsme_pecan
 from wsme.types import text, wsattr
 
@@ -115,7 +114,8 @@ class AccountController(RestBase):
     @expose()
     def _lookup(self, *remainder):
         if remainder[0] == 'users' and remainder[2] == 'roles':
-            return AccountRolesController(self.id_, remainder[1], remainder[3]), ()
+            return AccountRolesController(self.id_, remainder[1],
+                                          remainder[3]), ()
         return super(AccountController, self)._lookup(remainder)
 
     @wsme_pecan.wsexpose(Account)
@@ -213,4 +213,4 @@ class V1Controller(RestBase):
 
 
 class RootController(RestBase):
-	v1 = V1Controller()
+    v1 = V1Controller()

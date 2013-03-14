@@ -17,7 +17,6 @@
 # @author: Mark McClain, DreamHost
 # Copied: Quantum
 import os
-import sys
 
 from alembic import command as alembic_command
 from alembic import config as alembic_config
@@ -115,8 +114,9 @@ def main():
     config = alembic_config.Config(
         os.path.join(os.path.dirname(__file__), 'alembic.ini')
     )
-    config.set_main_option('script_location',
-                           'billingstack.storage.impl_sqlalchemy.migration:alembic_migrations')
+    config.set_main_option(
+        'script_location',
+        'billingstack.storage.impl_sqlalchemy.migration:alembic_migrations')
     # attach the Quantum conf to the Alembic conf
     config.billingstack_config = CONF
 

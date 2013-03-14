@@ -19,7 +19,7 @@ class ProvidersList(DatabaseCommand, ListCommand):
         data = self.conn.pg_provider_list(context)
 
         for p in data:
-            p['methods'] = ", ".join(
-                [":".join([m[k] for k in ['type', 'name']])\
-                    for m in p['methods']])
+            keys = ['type', 'name']
+            methods = [":".join([m[k] for k in keys]) for m in p['methods']]
+            p['methods'] = ", ".join(methods)
         return data

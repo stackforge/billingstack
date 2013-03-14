@@ -22,10 +22,15 @@ from billingstack.storage import get_connection
 LOG = log.getLogger(__name__)
 
 
-cfg.CONF.import_opt('storage_driver', 'billingstack.central',
-                    group='service:central')
-cfg.CONF.import_opt('database_connection', 'billingstack.storage.impl_sqlalchemy',
-                    group='storage:sqlalchemy')
+cfg.CONF.import_opt(
+    'storage_driver',
+    'billingstack.central',
+    group='service:central')
+
+cfg.CONF.import_opt(
+    'database_connection',
+    'billingstack.storage.impl_sqlalchemy',
+    group='storage:sqlalchemy')
 
 
 class DatabaseCommand(Command):

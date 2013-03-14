@@ -3,8 +3,10 @@ import memcache
 
 from oslo.config import cfg
 
+from billingstack import exceptions
+from billingstack.openstack.common.gettextutils import _
 from billingstack.identity.token_base import TokenPlugin
-from billingstack.identity.token_base import default_expire_time, unique_id 
+from billingstack.identity.token_base import default_expire_time, unique_id
 from billingstack.openstack.common import jsonutils
 from billingstack import utils
 
