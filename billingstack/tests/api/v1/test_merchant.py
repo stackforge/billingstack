@@ -30,31 +30,31 @@ class TestMerchant(FunctionalTest):
         expected = Merchant.from_db(fixture).as_dict()
         return expected
 
-    def test_merchant_add(self):
+    def test_create_merchant(self):
         expected = self.fixture()
 
         resp = self.post('merchants', expected)
 
         self.assertData(expected, resp.json)
 
-    def test_merchant_list(self):
+    def test_list_merchant(self):
         resp = self.get('merchants')
         self.assertLen(1, resp.json)
 
-    def test_merchant_get(self):
+    def test_get_merchant(self):
         expected = Merchant.from_db(self.merchant).as_dict()
 
         resp = self.get('merchants/' + self.merchant['id'])
 
         self.assertData(expected, resp.json)
 
-    def test_merchant_update(self):
+    def test_update_merchant(self):
         expected = Merchant.from_db(self.merchant).as_dict()
 
         resp = self.put('merchants/' + self.merchant['id'], expected)
 
         self.assertData(expected, resp.json)
 
-    def test_merchant_delete(self):
+    def test_delete_merchant(self):
         self.delete('merchants/' + self.merchant['id'])
-        self.assertLen(0, self.central_service.merchant_list(self.admin_ctxt))
+        self.assertLen(0, self.central_service.list_merchant(self.admin_ctxt))

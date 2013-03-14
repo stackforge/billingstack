@@ -49,7 +49,7 @@ class Provider(Plugin):
         return get_connection()
 
     @classmethod
-    def account_add(self, values):
+    def create_account(self, values):
         """
         Create a new Account
 
@@ -57,7 +57,7 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def account_get(self, id_):
+    def get_account(self, id_):
         """
         List Accounts
 
@@ -65,13 +65,13 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def account_list(self):
+    def list_account(self):
         """
         List Accounts
         """
         raise NotImplementedError
 
-    def account_delete(self, id_):
+    def delete_account(self, id_):
         """
         Delete Account
 
@@ -79,7 +79,7 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def payment_method_add(self, account_id, values):
+    def create_payment_method(self, account_id, values):
         """
         Create a new Credit Card or similar
 
@@ -88,7 +88,7 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def payment_method_get(self, id_):
+    def get_payment_method(self, id_):
         """
         Get a PaymentMethod
 
@@ -96,7 +96,7 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def payment_method_list(self, account_id):
+    def list_payment_method(self, account_id):
         """
         List PaymentMethods
 
@@ -104,7 +104,7 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    def payment_method_delete(self, id_):
+    def delete_payment_method(self, id_):
         """
         Delete a PaymentMethod
         """

@@ -78,7 +78,7 @@ class Connection(base.Connection, api.HelpersMixin):
                     row[rel_attr].remove(existing[key])
 
     # Currency
-    def currency_add(self, ctxt, values):
+    def create_currency(self, ctxt, values):
         """
         Add a supported currency to the database
         """
@@ -87,23 +87,23 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def currency_list(self, ctxt, **kw):
+    def list_currency(self, ctxt, **kw):
         rows = self._list(models.Currency, **kw)
         return map(dict, rows)
 
-    def currency_get(self, ctxt, id_):
+    def get_currency(self, ctxt, id_):
         row = self._get(models.Currency, id_)
         return dict(row)
 
-    def currency_update(self, ctxt, id_, values):
+    def update_currency(self, ctxt, id_, values):
         row = self._update(models.Currency, id_, values)
         return dict(row)
 
-    def currency_delete(self, ctxt, id_):
+    def delete_currency(self, ctxt, id_):
         self._delete(models.Currency, id_)
 
     # Language
-    def language_add(self, ctxt, values):
+    def create_language(self, ctxt, values):
         """
         Add a supported language to the database
         """
@@ -112,23 +112,23 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def language_list(self, ctxt, **kw):
+    def list_language(self, ctxt, **kw):
         rows = self._list(models.Language, **kw)
         return map(dict, rows)
 
-    def language_get(self, ctxt, id_):
+    def get_language(self, ctxt, id_):
         row = self._get(models.Language, id_)
         return dict(row)
 
-    def language_update(self, ctxt, id_, values):
+    def update_language(self, ctxt, id_, values):
         row = self._update(models.Language, id_, values)
         return dict(row)
 
-    def language_delete(self, ctxt, id_):
+    def delete_language(self, ctxt, id_):
         self._delete(models.Language, id_)
 
     # ContactInfo
-    def contact_info_add(self, ctxt, obj, values, cls=None,
+    def create_contact_info(self, ctxt, obj, values, cls=None,
                          rel_attr='contact_info'):
         """
         :param entity: The object to add the contact_info to
@@ -155,13 +155,13 @@ class Connection(base.Connection, api.HelpersMixin):
         else:
             return rel_row
 
-    def contact_info_get(self, ctxt, id_):
+    def get_contact_info(self, ctxt, id_):
         self._get(models.ContactInfo, id_)
 
-    def contact_info_update(self, ctxt, id_, values):
+    def update_contact_info(self, ctxt, id_, values):
         return self._update(models.ContactInfo, id_, values)
 
-    def contact_info_delete(self, ctxt, id_):
+    def delete_contact_info(self, ctxt, id_):
         self._delete(models.ContactInfo, id_)
 
     # Payment Gateway Providers
@@ -184,14 +184,14 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(provider)
         return self._dict(provider, extra=['methods'])
 
-    def pg_provider_list(self, ctxt, **kw):
+    def list_pg_provider(self, ctxt, **kw):
         """
         List available PG Providers
         """
         rows = self._list(models.PGProvider, **kw)
         return [self._dict(r, extra=['methods']) for r in rows]
 
-    def pg_provider_get(self, ctxt, pgp_id):
+    def get_pg_provider(self, ctxt, pgp_id):
         row = self._get(models.PGProvider, pgp_id)
         return self._dict(row, extra=['methods'])
 
@@ -213,7 +213,7 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         Helper method for setting the Methods for a Provider
         """
-        rows = self.pg_method_list(ctxt, criterion={"owner_id": None})
+        rows = self.list_pg_method(ctxt, criterion={"owner_id": None})
         system_methods = self._kv_rows(rows, key=models.PGMethod.make_key)
 
         existing = self._get_provider_methods(provider)
@@ -249,26 +249,26 @@ class Connection(base.Connection, api.HelpersMixin):
                 raise exceptions.ConfigurationError(msg)
 
     # PGMethods
-    def pg_method_add(self, ctxt, values):
+    def create_pg_method(self, ctxt, values):
         row = models.PGMethod(**values)
         self._save(row)
         return dict(row)
 
-    def pg_method_list(self, ctxt, **kw):
+    def list_pg_method(self, ctxt, **kw):
         return self._list(models.PGMethod, **kw)
 
-    def pg_method_get(self, ctxt, id_):
+    def get_pg_method(self, ctxt, id_):
         return self._get(models.PGMethod, id_)
 
-    def pg_method_update(self, ctxt, id_, values):
+    def update_pg_method(self, ctxt, id_, values):
         row = self._update(models.PGMethod, id_, values)
         return dict(row)
 
-    def pg_method_delete(self, ctxt, id_):
+    def delete_pg_method(self, ctxt, id_):
         return self._delete(models.PGMethod, id_)
 
     # Payment Gateway Configuration
-    def pg_config_add(self, ctxt, merchant_id, provider_id, values):
+    def create_pg_config(self, ctxt, merchant_id, provider_id, values):
         merchant = self._get_id_or_name(models.Merchant, merchant_id)
         provider = self._get_id_or_name(models.PGProvider, provider_id)
 
@@ -279,23 +279,23 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def pg_config_list(self, ctxt, **kw):
+    def list_pg_config(self, ctxt, **kw):
         rows = self._list(models.PGAccountConfig, **kw)
         return map(dict, rows)
 
-    def pg_config_get(self, ctxt, id_):
+    def get_pg_config(self, ctxt, id_):
         row = self._get(models.PGAccountConfig, id_)
         return dict(row)
 
-    def pg_config_update(self, ctxt, id_, values):
+    def update_pg_config(self, ctxt, id_, values):
         row = self._update(models.PGAccountConfig, id_, values)
         return dict(row)
 
-    def pg_config_delete(self, ctxt, id_):
+    def delete_pg_config(self, ctxt, id_):
         self._delete(models.PGAccountConfig, id_)
 
     # PaymentMethod
-    def payment_method_add(self, ctxt, customer_id, pg_method_id, values):
+    def create_payment_method(self, ctxt, customer_id, pg_method_id, values):
         """
         Configure a PaymentMethod like a CreditCard
         """
@@ -309,41 +309,41 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return self._dict(row, extra=['provider_method'])
 
-    def payment_method_list(self, ctxt, **kw):
+    def list_payment_method(self, ctxt, **kw):
         rows = self._list(models.PaymentMethod, **kw)
         return [self._dict(row, extra=['provider_method']) for row in rows]
 
-    def payment_method_get(self, ctxt, id_, **kw):
+    def get_payment_method(self, ctxt, id_, **kw):
         row = self._get_id_or_name(models.PaymentMethod, id_)
         return self._dict(row, extra=['provider_method'])
 
-    def payment_method_update(self, ctxt, id_, values):
+    def update_payment_method(self, ctxt, id_, values):
         row = self._update(models.PaymentMethod, id_, values)
         return self._dict(row, extra=['provider_method'])
 
-    def payment_method_delete(self, ctxt, id_):
+    def delete_payment_method(self, ctxt, id_):
         self._delete(models.PaymentMethod, id_)
 
     # Merchant
-    def merchant_add(self, ctxt, values):
+    def create_merchant(self, ctxt, values):
         row = models.Merchant(**values)
 
         self._save(row)
         return dict(row)
 
-    def merchant_list(self, ctxt, **kw):
+    def list_merchant(self, ctxt, **kw):
         rows = self._list(models.Merchant, **kw)
         return map(dict, rows)
 
-    def merchant_get(self, ctxt, id_):
+    def get_merchant(self, ctxt, id_):
         row = self._get(models.Merchant, id_)
         return dict(row)
 
-    def merchant_update(self, ctxt, id_, values):
+    def update_merchant(self, ctxt, id_, values):
         row = self._update(models.Merchant, id_, values)
         return dict(row)
 
-    def merchant_delete(self, ctxt, id_):
+    def delete_merchant(self, ctxt, id_):
         self._delete(models.Merchant, id_)
 
     # Customer
@@ -355,7 +355,7 @@ class Connection(base.Connection, api.HelpersMixin):
             else {}
         return data
 
-    def customer_add(self, ctxt, merchant_id, values):
+    def create_customer(self, ctxt, merchant_id, values):
         merchant = self._get(models.Merchant, merchant_id)
 
         contact_info = values.pop('contact_info', None)
@@ -363,25 +363,25 @@ class Connection(base.Connection, api.HelpersMixin):
         merchant.customers.append(customer)
 
         if contact_info:
-            info_row = self.contact_info_add(ctxt, customer, contact_info)
+            info_row = self.create_contact_info(ctxt, customer, contact_info)
             customer.default_info = info_row
 
         self._save(customer)
         return self._customer(customer)
 
-    def customer_list(self, ctxt, **kw):
+    def list_customer(self, ctxt, **kw):
         rows = self._list(models.Customer, **kw)
         return map(dict, rows)
 
-    def customer_get(self, ctxt, id_):
+    def get_customer(self, ctxt, id_):
         row = self._get(models.Customer, id_)
         return self._customer(row)
 
-    def customer_update(self, ctxt, id_, values):
+    def update_customer(self, ctxt, id_, values):
         row = self._update(models.Customer, id_, values)
         return self._customer(row)
 
-    def customer_delete(self, ctxt, id_):
+    def delete_customer(self, ctxt, id_):
         return self._delete(models.Customer, id_)
 
     # Products
@@ -392,7 +392,7 @@ class Connection(base.Connection, api.HelpersMixin):
                                               func=lambda i: i['value'])
         return product
 
-    def product_add(self, ctxt, merchant_id, values):
+    def create_product(self, ctxt, merchant_id, values):
         """
         Add a new Product
 
@@ -411,7 +411,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(product)
         return self._product(product)
 
-    def product_list(self, ctxt, **kw):
+    def list_product(self, ctxt, **kw):
         """
         List Products
 
@@ -420,7 +420,7 @@ class Connection(base.Connection, api.HelpersMixin):
         rows = self._list(models.Product, **kw)
         return map(self._product, rows)
 
-    def product_get(self, ctxt, id_):
+    def get_product(self, ctxt, id_):
         """
         Get a Product
 
@@ -429,7 +429,7 @@ class Connection(base.Connection, api.HelpersMixin):
         row = self._get(models.Product, id_)
         return self._product(row)
 
-    def product_update(self, ctxt, id_, values):
+    def update_product(self, ctxt, id_, values):
         """
         Update a Product
 
@@ -446,7 +446,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return self._product(row)
 
-    def product_delete(self, ctxt, id_):
+    def delete_product(self, ctxt, id_):
         """
         Delete a Product
 
@@ -455,26 +455,26 @@ class Connection(base.Connection, api.HelpersMixin):
         self._delete(models.Product, id_)
 
     # PlanItem
-    def plan_item_add(self, ctxt, values, save=True):
+    def create_plan_item(self, ctxt, values, save=True):
         ref = models.PlanItem()
-        return self._plan_item_update(ref, values, save=save)
+        return self._update_plan_item(ref, values, save=save)
 
-    def plan_item_update(self, ctxt, item, values, save=True):
-        return self._plan_item_update(item, values, save=save)
+    def update_plan_item(self, ctxt, item, values, save=True):
+        return self._update_plan_item(item, values, save=save)
 
-    def _plan_item_update(self, item, values, save=True):
+    def _update_plan_item(self, item, values, save=True):
         row = self._get_row(item, models.PlanItem)
         row.update(values)
         return self._save(row, save=save)
 
-    def plan_item_list(self, ctxt, **kw):
+    def list_plan_item(self, ctxt, **kw):
         return self._list(models.PlanItem, **kw)
 
-    def plan_item_get(self, ctxt, id_):
+    def get_plan_item(self, ctxt, id_):
         row = self._get(models.PlanItem, id_)
         return dict(row)
 
-    def plan_item_delete(self, ctxt, id_):
+    def delete_plan_item(self, ctxt, id_):
         self._delete(models.PlanItem, id_)
 
     # Plan
@@ -487,7 +487,7 @@ class Connection(base.Connection, api.HelpersMixin):
             else []
         return plan
 
-    def plan_add(self, ctxt, merchant_id, values):
+    def create_plan(self, ctxt, merchant_id, values):
         """
         Add a new Plan
 
@@ -505,13 +505,13 @@ class Connection(base.Connection, api.HelpersMixin):
         self.set_properties(plan, properties)
 
         for i in items:
-            item_row = self.plan_item_add(ctxt, i, save=False)
+            item_row = self.create_plan_item(ctxt, i, save=False)
             plan.plan_items.append(item_row)
 
         self._save(plan)
         return self._plan(plan)
 
-    def plan_list(self, ctxt, **kw):
+    def list_plan(self, ctxt, **kw):
         """
         List Plan
 
@@ -520,7 +520,7 @@ class Connection(base.Connection, api.HelpersMixin):
         rows = self._list(models.Plan, **kw)
         return map(self._plan, rows)
 
-    def plan_get(self, ctxt, id_):
+    def get_plan(self, ctxt, id_):
         """
         Get a Plan
 
@@ -529,7 +529,7 @@ class Connection(base.Connection, api.HelpersMixin):
         row = self._get(models.Plan, id_)
         return self._plan(row)
 
-    def plan_update(self, ctxt, id_, values):
+    def update_plan(self, ctxt, id_, values):
         """
         Update a Plan
 
@@ -546,7 +546,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return self._plan(row)
 
-    def plan_delete(self, ctxt, id_):
+    def delete_plan(self, ctxt, id_):
         """
         Delete a Plan
 

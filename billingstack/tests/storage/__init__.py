@@ -34,15 +34,15 @@ class StorageDriverTestCase(TestCase):
         self.storage_conn = self.get_storage_driver()
         self.setSamples()
 
-    def language_add(self, fixture=0, values={}, **kw):
+    def create_language(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('language', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.language_add(ctxt, fixture, **kw)
+        return fixture, self.storage_conn.create_language(ctxt, fixture, **kw)
 
-    def currency_add(self, fixture=0, values={}, **kw):
+    def create_currency(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('currency', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.currency_add(ctxt, fixture, **kw)
+        return fixture, self.storage_conn.create_currency(ctxt, fixture, **kw)
 
     def pg_provider_register(self, fixture=0, values={}, methods=[], **kw):
         methods = [self.get_fixture('pg_method')] or methods
@@ -54,56 +54,56 @@ class StorageDriverTestCase(TestCase):
         fixture['methods'] = methods
         return fixture, data
 
-    def pg_method_add(self, fixture=0, values={}, **kw):
+    def create_pg_method(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('pg_method')
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.pg_method_add(ctxt, fixture)
+        return fixture, self.storage_conn.create_pg_method(ctxt, fixture)
 
-    def merchant_add(self, fixture=0, values={}, **kw):
+    def create_merchant(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('merchant', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
 
         self._account_defaults(fixture)
 
-        return fixture, self.storage_conn.merchant_add(ctxt, fixture, **kw)
+        return fixture, self.storage_conn.create_merchant(ctxt, fixture, **kw)
 
-    def pg_config_add(self, provider_id, fixture=0, values={}, **kw):
+    def create_pg_config(self, provider_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('pg_config', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.pg_config_add(ctxt, self.merchant['id'], provider_id, fixture, **kw)
+        return fixture, self.storage_conn.create_pg_config(ctxt, self.merchant['id'], provider_id, fixture, **kw)
 
-    def customer_add(self, merchant_id, fixture=0, values={}, **kw):
+    def create_customer(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         self._account_defaults(fixture)
-        return fixture, self.storage_conn.customer_add(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.storage_conn.create_customer(ctxt, merchant_id, fixture, **kw)
 
-    def payment_method_add(self, customer_id, provider_method_id, fixture=0, values={}, **kw):
+    def create_payment_method(self, customer_id, provider_method_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('payment_method', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.payment_method_add(
+        return fixture, self.storage_conn.create_payment_method(
             ctxt, customer_id, provider_method_id, fixture, **kw)
 
-    def product_add(self, merchant_id, fixture=0, values={}, **kw):
+    def create_product(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('product', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.product_add(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.storage_conn.create_product(ctxt, merchant_id, fixture, **kw)
 
-    def plan_add(self, merchant_id, fixture=0, values={}, **kw):
+    def create_plan(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('plan', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.plan_add(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.storage_conn.create_plan(ctxt, merchant_id, fixture, **kw)
 
     # Currencies
-    def test_currency_add(self):
-        self.assertDuplicate(self.currency_add)
+    def test_create_currency(self):
+        self.assertDuplicate(self.create_currency)
 
     # Languages
-    def test_language_add(self):
-        self.assertDuplicate(self.language_add)
+    def test_create_language(self):
+        self.assertDuplicate(self.create_language)
 
     def test_set_properties(self):
-        fixture, data = self.product_add(self.merchant['id'])
+        fixture, data = self.create_product(self.merchant['id'])
 
         metadata = {"random": True}
         self.storage_conn.set_properties(data['id'], metadata, cls=models.Product)
@@ -111,7 +111,7 @@ class StorageDriverTestCase(TestCase):
         metadata.update({'foo': 1, 'bar': 2})
         self.storage_conn.set_properties(data['id'], metadata, cls=models.Product)
 
-        actual = self.storage_conn.product_get(self.admin_ctxt, data['id'])
+        actual = self.storage_conn.get_product(self.admin_ctxt, data['id'])
         self.assertLen(4, actual['properties'])
 
     # Payment Gateways
@@ -125,10 +125,10 @@ class StorageDriverTestCase(TestCase):
     def test_pg_provider_register_different_methods(self):
         # Add a Global method
         method1 = {'type': 'creditcard', 'name': 'mastercard'}
-        self.storage_conn.pg_method_add(self.admin_ctxt, method1)
+        self.storage_conn.create_pg_method(self.admin_ctxt, method1)
 
         method2 = {'type': 'creditcard', 'name': 'amex'}
-        self.storage_conn.pg_method_add(self.admin_ctxt, method2)
+        self.storage_conn.create_pg_method(self.admin_ctxt, method2)
 
         method3 = {'type': 'creditcard', 'name': 'visa', 'owned': 1}
 
@@ -147,7 +147,7 @@ class StorageDriverTestCase(TestCase):
             'type': 'creditcard',
             'name': 'mastercard',
             'title': "random"}
-        self.storage_conn.pg_method_add(self.admin_ctxt, system_method)
+        self.storage_conn.create_pg_method(self.admin_ctxt, system_method)
 
         provider = self.storage_conn.pg_provider_register(
             self.admin_ctxt,
@@ -176,13 +176,13 @@ class StorageDriverTestCase(TestCase):
         self.assertLen(1, provider['methods'])
         self.assertData(system_method, provider['methods'][0])
 
-    def test_pg_provider_get(self):
+    def test_get_pg_provider(self):
         _, expected = self.pg_provider_register()
-        actual = self.storage_conn.pg_provider_get(self.admin_ctxt, expected['id'])
+        actual = self.storage_conn.get_pg_provider(self.admin_ctxt, expected['id'])
         self.assertData(expected, actual)
 
-    def test_pg_provider_get_missing(self):
-        self.assertMissing(self.storage_conn.pg_provider_get, self.admin_ctxt, UUID)
+    def test_get_pg_provider_missing(self):
+        self.assertMissing(self.storage_conn.get_pg_provider, self.admin_ctxt, UUID)
 
     def test_pg_provider_deregister(self):
         _, data = self.pg_provider_register()
@@ -193,237 +193,237 @@ class StorageDriverTestCase(TestCase):
         self.assertMissing(self.storage_conn.pg_provider_deregister, self.admin_ctxt, UUID)
 
     # Payment Gateway Configuration
-    def test_pg_config_add(self):
+    def test_create_pg_config(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.pg_config_add(provider['id'])
+        fixture, data = self.create_pg_config(provider['id'])
         self.assertData(fixture, data)
 
-    def test_pg_config_get(self):
+    def test_get_pg_config(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.pg_config_add(provider['id'])
+        fixture, data = self.create_pg_config(provider['id'])
 
-    def test_pg_config_get_missing(self):
-        self.assertMissing(self.storage_conn.pg_config_get, self.admin_ctxt, UUID)
+    def test_get_pg_config_missing(self):
+        self.assertMissing(self.storage_conn.get_pg_config, self.admin_ctxt, UUID)
 
-    def test_pg_config_update(self):
+    def test_update_pg_config(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.pg_config_add(provider['id'])
+        fixture, data = self.create_pg_config(provider['id'])
 
         fixture['configuration'] = {"api": 1}
-        updated = self.storage_conn.pg_config_update(self.admin_ctxt, data['id'], fixture)
+        updated = self.storage_conn.update_pg_config(self.admin_ctxt, data['id'], fixture)
 
         self.assertData(fixture, updated)
 
-    def test_pg_config_update_missing(self):
+    def test_update_pg_config_missing(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.pg_config_add(provider['id'])
+        fixture, data = self.create_pg_config(provider['id'])
 
-        self.assertMissing(self.storage_conn.pg_config_update, self.admin_ctxt, UUID, {})
+        self.assertMissing(self.storage_conn.update_pg_config, self.admin_ctxt, UUID, {})
 
-    def test_pg_config_delete(self):
+    def test_delete_pg_config(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.pg_config_add(provider['id'])
+        fixture, data = self.create_pg_config(provider['id'])
 
-        self.storage_conn.pg_config_delete(self.admin_ctxt,data['id'])
-        self.assertMissing(self.storage_conn.pg_config_get, self.admin_ctxt, data['id'])
+        self.storage_conn.delete_pg_config(self.admin_ctxt,data['id'])
+        self.assertMissing(self.storage_conn.get_pg_config, self.admin_ctxt, data['id'])
 
-    def test_pg_config_delete_missing(self):
-        self.assertMissing(self.storage_conn.pg_config_delete, self.admin_ctxt, UUID)
+    def test_delete_pg_config_missing(self):
+        self.assertMissing(self.storage_conn.delete_pg_config, self.admin_ctxt, UUID)
 
     # PaymentMethod
-    def test_payment_method_add(self):
+    def test_create_payment_method(self):
         _, provider = self.pg_provider_register()
         m_id = provider['methods'][0]['id']
-        _, customer = self.customer_add(self.merchant['id'])
+        _, customer = self.create_customer(self.merchant['id'])
 
-        fixture, data = self.payment_method_add(customer['id'], m_id)
+        fixture, data = self.create_payment_method(customer['id'], m_id)
         self.assertData(fixture, data)
 
-    def test_payment_method_get(self):
+    def test_get_payment_method(self):
         _, provider = self.pg_provider_register()
         m_id = provider['methods'][0]['id']
-        _, customer = self.customer_add(self.merchant['id'])
+        _, customer = self.create_customer(self.merchant['id'])
 
-        _, expected = self.payment_method_add(customer['id'], m_id)
-        actual = self.storage_conn.payment_method_get(self.admin_ctxt, expected['id'])
+        _, expected = self.create_payment_method(customer['id'], m_id)
+        actual = self.storage_conn.get_payment_method(self.admin_ctxt, expected['id'])
         self.assertData(expected, actual)
 
     # TODO(ekarlso): Make this test more extensive?
-    def test_payment_method_list(self):
+    def test_list_payment_method(self):
         # Setup a PGP with it's sample methods
         _, provider = self.pg_provider_register()
         m_id = provider['methods'][0]['id']
 
         # Add two Customers with some methods
-        _, customer1 = self.customer_add(self.merchant['id'])
-        self.payment_method_add(customer1['id'], m_id)
-        rows = self.storage_conn.payment_method_list(
+        _, customer1 = self.create_customer(self.merchant['id'])
+        self.create_payment_method(customer1['id'], m_id)
+        rows = self.storage_conn.list_payment_method(
             self.admin_ctxt,
             criterion={'customer_id': customer1['id']})
         self.assertLen(1, rows)
 
-        _, customer2 = self.customer_add(self.merchant['id'])
-        self.payment_method_add(customer2['id'], m_id)
-        self.payment_method_add(customer2['id'], m_id)
+        _, customer2 = self.create_customer(self.merchant['id'])
+        self.create_payment_method(customer2['id'], m_id)
+        self.create_payment_method(customer2['id'], m_id)
 
-        rows = self.storage_conn.payment_method_list(
+        rows = self.storage_conn.list_payment_method(
             self.admin_ctxt,
             criterion={'customer_id': customer2['id']})
         self.assertLen(2, rows)
 
-    def test_payment_method_get_missing(self):
-        self.assertMissing(self.storage_conn.payment_method_get, self.admin_ctxt, UUID)
+    def test_get_payment_method_missing(self):
+        self.assertMissing(self.storage_conn.get_payment_method, self.admin_ctxt, UUID)
 
-    def test_payment_method_update(self):
+    def test_update_payment_method(self):
         _, provider = self.pg_provider_register()
         m_id = provider['methods'][0]['id']
-        _, customer = self.customer_add(self.merchant['id'])
+        _, customer = self.create_customer(self.merchant['id'])
 
-        fixture, data = self.payment_method_add(customer['id'], m_id)
+        fixture, data = self.create_payment_method(customer['id'], m_id)
 
         fixture['identifier'] = 1
-        updated = self.storage_conn.payment_method_update(self.admin_ctxt, data['id'], fixture)
+        updated = self.storage_conn.update_payment_method(self.admin_ctxt, data['id'], fixture)
 
         self.assertData(fixture, updated)
 
-    def test_payment_method_update_missing(self):
-        self.assertMissing(self.storage_conn.payment_method_update, self.admin_ctxt, UUID, {})
+    def test_update_payment_method_missing(self):
+        self.assertMissing(self.storage_conn.update_payment_method, self.admin_ctxt, UUID, {})
 
-    def test_payment_method_delete(self):
+    def test_delete_payment_method(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.pg_config_add(provider['id'])
+        fixture, data = self.create_pg_config(provider['id'])
 
-        self.storage_conn.pg_config_delete(self.admin_ctxt, data['id'])
-        self.assertMissing(self.storage_conn.payment_method_delete, self.admin_ctxt, data['id'])
+        self.storage_conn.delete_pg_config(self.admin_ctxt, data['id'])
+        self.assertMissing(self.storage_conn.delete_payment_method, self.admin_ctxt, data['id'])
 
-    def test_payment_method_delete_missing(self):
-        self.assertMissing(self.storage_conn.payment_method_delete, self.admin_ctxt, UUID)
+    def test_delete_payment_method_missing(self):
+        self.assertMissing(self.storage_conn.delete_payment_method, self.admin_ctxt, UUID)
 
     # Merchant
-    def test_merchant_add(self):
-        fixture, data = self.merchant_add()
+    def test_create_merchant(self):
+        fixture, data = self.create_merchant()
         self.assertData(fixture, data)
 
-    def test_merchant_get(self):
-        _, expected = self.merchant_add()
-        actual = self.storage_conn.merchant_get(self.admin_ctxt, expected['id'])
+    def test_get_merchant(self):
+        _, expected = self.create_merchant()
+        actual = self.storage_conn.get_merchant(self.admin_ctxt, expected['id'])
         self.assertData(expected, actual)
 
-    def test_merchant_get_missing(self):
-        self.assertMissing(self.storage_conn.merchant_get, self.admin_ctxt, UUID)
+    def test_get_merchant_missing(self):
+        self.assertMissing(self.storage_conn.get_merchant, self.admin_ctxt, UUID)
 
-    def test_merchant_update(self):
-        fixture, data = self.merchant_add()
+    def test_update_merchant(self):
+        fixture, data = self.create_merchant()
 
         fixture['name'] = 'test'
-        updated = self.storage_conn.merchant_update(self.admin_ctxt, data['id'], fixture)
+        updated = self.storage_conn.update_merchant(self.admin_ctxt, data['id'], fixture)
 
         self.assertData(fixture, updated)
 
-    def test_merchant_update_missing(self):
-        self.assertMissing(self.storage_conn.merchant_update, self.admin_ctxt, UUID, {})
+    def test_update_merchant_missing(self):
+        self.assertMissing(self.storage_conn.update_merchant, self.admin_ctxt, UUID, {})
 
-    def test_merchant_delete(self):
-        self.storage_conn.merchant_delete(self.admin_ctxt, self.merchant['id'])
-        self.assertMissing(self.storage_conn.merchant_get, self.admin_ctxt, self.merchant['id'])
+    def test_delete_merchant(self):
+        self.storage_conn.delete_merchant(self.admin_ctxt, self.merchant['id'])
+        self.assertMissing(self.storage_conn.get_merchant, self.admin_ctxt, self.merchant['id'])
 
-    def test_merchant_delete_missing(self):
-        self.assertMissing(self.storage_conn.merchant_delete, self.admin_ctxt, UUID)
+    def test_delete_merchant_missing(self):
+        self.assertMissing(self.storage_conn.delete_merchant, self.admin_ctxt, UUID)
 
     # Customer
-    def test_customer_add(self):
-        fixture, data = self.customer_add(self.merchant['id'])
+    def test_create_customer(self):
+        fixture, data = self.create_customer(self.merchant['id'])
         assert data['default_info'] == {}
         assert data['contact_info'] == []
         self.assertData(fixture, data)
 
-    def test_customer_add_with_contact_info(self):
+    def test_create_customer_with_contact_info(self):
         contact_fixture = self.get_fixture('contact_info')
-        customer_fixture, data = self.customer_add(
+        customer_fixture, data = self.create_customer(
             self.merchant['id'],
             values={'contact_info': contact_fixture})
         self.assertData(customer_fixture, data)
         self.assertData(contact_fixture, data['default_info'])
         self.assertData(contact_fixture, data['contact_info'][0])
 
-    def test_customer_get(self):
-        _, expected = self.customer_add(self.merchant['id'])
-        actual = self.storage_conn.customer_get(self.admin_ctxt, expected['id'])
+    def test_get_customer(self):
+        _, expected = self.create_customer(self.merchant['id'])
+        actual = self.storage_conn.get_customer(self.admin_ctxt, expected['id'])
         self.assertData(expected, actual)
 
-    def test_customer_get_missing(self):
-        self.assertMissing(self.storage_conn.customer_get, self.admin_ctxt, UUID)
+    def test_get_customer_missing(self):
+        self.assertMissing(self.storage_conn.get_customer, self.admin_ctxt, UUID)
 
-    def test_customer_update(self):
-        fixture, data = self.customer_add(self.merchant['id'])
+    def test_update_customer(self):
+        fixture, data = self.create_customer(self.merchant['id'])
 
         fixture['name'] = 'test'
-        updated = self.storage_conn.customer_update(self.admin_ctxt, data['id'], fixture)
+        updated = self.storage_conn.update_customer(self.admin_ctxt, data['id'], fixture)
 
         self.assertData(fixture, updated)
 
-    def test_customer_update_missing(self):
-        self.assertMissing(self.storage_conn.customer_update, self.admin_ctxt, UUID, {})
+    def test_update_customer_missing(self):
+        self.assertMissing(self.storage_conn.update_customer, self.admin_ctxt, UUID, {})
 
-    def test_customer_delete(self):
-        _, data = self.customer_add(self.merchant['id'])
-        self.storage_conn.customer_delete(self.admin_ctxt, data['id'])
-        self.assertMissing(self.storage_conn.customer_get, self.admin_ctxt, data['id'])
+    def test_delete_customer(self):
+        _, data = self.create_customer(self.merchant['id'])
+        self.storage_conn.delete_customer(self.admin_ctxt, data['id'])
+        self.assertMissing(self.storage_conn.get_customer, self.admin_ctxt, data['id'])
 
-    def test_customer_delete_missing(self):
-        self.assertMissing(self.storage_conn.customer_delete, self.admin_ctxt, UUID)
+    def test_delete_customer_missing(self):
+        self.assertMissing(self.storage_conn.delete_customer, self.admin_ctxt, UUID)
 
     # Products
-    def test_product_add(self):
-        f, data = self.product_add(self.merchant['id'])
+    def test_create_product(self):
+        f, data = self.create_product(self.merchant['id'])
         self.assertData(f, data)
 
-    def test_product_get(self):
-        f, expected = self.product_add(self.merchant['id'])
-        actual = self.storage_conn.product_get(self.admin_ctxt, expected['id'])
+    def test_get_product(self):
+        f, expected = self.create_product(self.merchant['id'])
+        actual = self.storage_conn.get_product(self.admin_ctxt, expected['id'])
         self.assertData(expected, actual)
 
-    def test_product_get_missing(self):
-        self.assertMissing(self.storage_conn.product_get, self.admin_ctxt, UUID)
+    def test_get_product_missing(self):
+        self.assertMissing(self.storage_conn.get_product, self.admin_ctxt, UUID)
 
-    def test_product_update(self):
-        fixture, data = self.product_add(self.merchant['id'])
+    def test_update_product(self):
+        fixture, data = self.create_product(self.merchant['id'])
 
         fixture['name'] = 'test'
-        updated = self.storage_conn.product_update(self.admin_ctxt, data['id'], fixture)
+        updated = self.storage_conn.update_product(self.admin_ctxt, data['id'], fixture)
 
         self.assertData(fixture, updated)
 
-    def test_product_update_missing(self):
-        self.assertMissing(self.storage_conn.product_update, self.admin_ctxt, UUID, {})
+    def test_update_product_missing(self):
+        self.assertMissing(self.storage_conn.update_product, self.admin_ctxt, UUID, {})
 
-    def test_product_delete(self):
-        fixture, data = self.product_add(self.merchant['id'])
-        self.storage_conn.product_delete(self.admin_ctxt, data['id'])
-        self.assertMissing(self.storage_conn.product_get, self.admin_ctxt, data['id'])
+    def test_delete_product(self):
+        fixture, data = self.create_product(self.merchant['id'])
+        self.storage_conn.delete_product(self.admin_ctxt, data['id'])
+        self.assertMissing(self.storage_conn.get_product, self.admin_ctxt, data['id'])
 
-    def test_product_delete_missing(self):
-        self.assertMissing(self.storage_conn.product_delete, self.admin_ctxt, UUID)
+    def test_delete_product_missing(self):
+        self.assertMissing(self.storage_conn.delete_product, self.admin_ctxt, UUID)
 
     # Plan
-    def test_plan_add_with_items(self):
-        _, p1 = self.product_add(self.merchant['id'])
-        _, p2 = self.product_add(self.merchant['id'])
+    def test_create_plan_with_items(self):
+        _, p1 = self.create_product(self.merchant['id'])
+        _, p2 = self.create_product(self.merchant['id'])
 
         values = {
             'plan_items': [{'product_id': p1['id']}, {'product_id': p2['id']}]
         }
 
-        fixture, data = self.plan_add(self.merchant['id'], values=values)
+        fixture, data = self.create_plan(self.merchant['id'], values=values)
         self.assertData(fixture, data)
 
-    def test_plan_add_without_items(self):
-        fixture, data = self.plan_add(self.merchant['id'])
+    def test_create_plan_without_items(self):
+        fixture, data = self.create_plan(self.merchant['id'])
         self.assertData(fixture, data)
 
-    def test_plan_get(self):
-        fixture, data = self.plan_add(self.merchant['id'])
-        actual = self.storage_conn.plan_get(self.admin_ctxt, data['id'])
+    def test_get_plan(self):
+        fixture, data = self.create_plan(self.merchant['id'])
+        actual = self.storage_conn.get_plan(self.admin_ctxt, data['id'])
 
         # FIXME(ekarlso): This should test the actual items also? But atm there's an
         # error that if the value is int when getting added it's string when returned...
@@ -431,24 +431,24 @@ class StorageDriverTestCase(TestCase):
         self.assertEqual(data['title'], actual['title'])
         self.assertEqual(data['description'], actual['description'])
 
-    def test_plan_get_missing(self):
-        self.assertMissing(self.storage_conn.plan_get, self.admin_ctxt, UUID)
+    def test_get_plan_missing(self):
+        self.assertMissing(self.storage_conn.get_plan, self.admin_ctxt, UUID)
 
-    def test_plan_update(self):
-        fixture, data = self.plan_add(self.merchant['id'])
+    def test_update_plan(self):
+        fixture, data = self.create_plan(self.merchant['id'])
 
         fixture['name'] = 'test'
-        updated = self.storage_conn.plan_update(self.admin_ctxt, data['id'], fixture)
+        updated = self.storage_conn.update_plan(self.admin_ctxt, data['id'], fixture)
 
         self.assertData(fixture, updated)
 
-    def test_plan_update_missing(self):
-        self.assertMissing(self.storage_conn.plan_update, self.admin_ctxt, UUID, {})
+    def test_update_plan_missing(self):
+        self.assertMissing(self.storage_conn.update_plan, self.admin_ctxt, UUID, {})
 
-    def test_plan_delete(self):
-        fixture, data = self.plan_add(self.merchant['id'])
-        self.storage_conn.plan_delete(self.admin_ctxt, data['id'])
-        self.assertMissing(self.storage_conn.plan_get, self.admin_ctxt, data['id'])
+    def test_delete_plan(self):
+        fixture, data = self.create_plan(self.merchant['id'])
+        self.storage_conn.delete_plan(self.admin_ctxt, data['id'])
+        self.assertMissing(self.storage_conn.get_plan, self.admin_ctxt, data['id'])
 
-    def test_plan_delete_missing(self):
-        self.assertMissing(self.storage_conn.plan_delete, self.admin_ctxt, UUID)
+    def test_delete_plan_missing(self):
+        self.assertMissing(self.storage_conn.delete_plan, self.admin_ctxt, UUID)

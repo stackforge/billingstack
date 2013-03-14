@@ -120,7 +120,7 @@ class TestCase(BaseTestCase):
         #policy.reset()
         storage.teardown_schema()
         super(TestCase, self).tearDown()
-        
+
 
     def get_storage_driver(self):
         connection = storage.get_connection()
@@ -133,20 +133,20 @@ class TestCase(BaseTestCase):
         return api_service.Service()
 
     def setSamples(self):
-        _, self.pg_method = self.pg_method_add()
-        _, self.currency = self.currency_add()
-        _, self.language = self.language_add()
-        _, self.merchant = self.merchant_add()
+        _, self.pg_method = self.create_pg_method()
+        _, self.currency = self.create_currency()
+        _, self.language = self.create_language()
+        _, self.merchant = self.create_merchant()
 
-    def language_add(self, fixture=0, values={}, **kw):
+    def create_language(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('language', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.language_add(ctxt, fixture, **kw)
+        return fixture, self.central_service.create_language(ctxt, fixture, **kw)
 
-    def currency_add(self, fixture=0, values={}, **kw):
+    def create_currency(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('currency', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.currency_add(ctxt, fixture, **kw)
+        return fixture, self.central_service.create_currency(ctxt, fixture, **kw)
 
     def pg_provider_register(self, fixture=0, values={}, methods=[], **kw):
         methods = [self.get_fixture('pg_method')] or methods
@@ -158,10 +158,10 @@ class TestCase(BaseTestCase):
         fixture['methods'] = methods
         return fixture, data
 
-    def pg_method_add(self, fixture=0, values={}, **kw):
+    def create_pg_method(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('pg_method')
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.pg_method_add(ctxt, fixture)
+        return fixture, self.central_service.create_pg_method(ctxt, fixture)
 
     def _account_defaults(self, values):
         # NOTE: Do defaults
@@ -171,29 +171,29 @@ class TestCase(BaseTestCase):
         if not 'language_name' in values:
             values['language_name'] = self.language['name']
 
-    def merchant_add(self, fixture=0, values={}, **kw):
+    def create_merchant(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('merchant', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
 
         self._account_defaults(fixture)
 
-        return fixture, self.central_service.merchant_add(ctxt, fixture, **kw)
+        return fixture, self.central_service.create_merchant(ctxt, fixture, **kw)
 
-    def pg_config_add(self, provider_id, fixture=0, values={}, **kw):
+    def create_pg_config(self, provider_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('pg_config', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.pg_config_add(ctxt, self.merchant['id'], provider_id, fixture, **kw)
+        return fixture, self.central_service.create_pg_config(ctxt, self.merchant['id'], provider_id, fixture, **kw)
 
-    def customer_add(self, merchant_id, fixture=0, values={}, **kw):
+    def create_customer(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         self._account_defaults(fixture)
-        return fixture, self.central_service.customer_add(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.central_service.create_customer(ctxt, merchant_id, fixture, **kw)
 
-    def payment_method_add(self, customer_id, provider_method_id, fixture=0, values={}, **kw):
+    def create_payment_method(self, customer_id, provider_method_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('payment_method', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.payment_method_add(
+        return fixture, self.central_service.create_payment_method(
             ctxt, customer_id, provider_method_id, fixture, **kw)
 
     def user_add(self, merchant_id, fixture=0, values={}, **kw):
@@ -201,12 +201,12 @@ class TestCase(BaseTestCase):
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.central_service.user_add(ctxt, merchant_id, fixture, **kw)
 
-    def product_add(self, merchant_id, fixture=0, values={}, **kw):
+    def create_product(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('product', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.product_add(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.central_service.create_product(ctxt, merchant_id, fixture, **kw)
 
-    def plan_add(self, merchant_id, fixture=0, values={}, **kw):
+    def create_plan(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('plan', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.plan_add(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.central_service.create_plan(ctxt, merchant_id, fixture, **kw)

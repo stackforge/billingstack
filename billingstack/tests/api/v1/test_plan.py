@@ -24,7 +24,7 @@ class TestPlan(FunctionalTest):
     __test__ = True
     path = "merchants/%s/plans"
 
-    def test_plan_add(self):
+    def test_create_plan(self):
         fixture = self.get_fixture('plan')
 
         url = self.path % self.merchant['id']
@@ -33,24 +33,24 @@ class TestPlan(FunctionalTest):
 
         self.assertData(fixture, resp.json)
 
-    def test_plan_list(self):
-        self.plan_add(self.merchant['id'])
+    def test_list_plan(self):
+        self.create_plan(self.merchant['id'])
 
         url = self.path % self.merchant['id']
         resp = self.get(url)
 
         self.assertLen(1, resp.json)
 
-    def test_plan_get(self):
-        _, plan = self.plan_add(self.merchant['id'])
+    def test_get_plan(self):
+        _, plan = self.create_plan(self.merchant['id'])
 
         url = self.item_path(self.merchant['id'], plan['id'])
         resp = self.get(url)
 
         self.assertData(resp.json, plan)
 
-    def test_plan_update(self):
-        _, plan = self.plan_add(self.merchant['id'])
+    def test_update_plan(self):
+        _, plan = self.create_plan(self.merchant['id'])
         plan['name'] = 'test'
 
         url = self.item_path(self.merchant['id'], plan['id'])
@@ -58,10 +58,10 @@ class TestPlan(FunctionalTest):
 
         self.assertData(resp.json, plan)
 
-    def test_plan_delete(self):
-        _, plan = self.plan_add(self.merchant['id'])
+    def test_delete_plan(self):
+        _, plan = self.create_plan(self.merchant['id'])
 
         url = self.item_path(self.merchant['id'], plan['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.plan_list(self.admin_ctxt))
+        self.assertLen(0, self.central_service.list_plan(self.admin_ctxt))

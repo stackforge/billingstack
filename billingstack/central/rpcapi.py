@@ -19,151 +19,151 @@ class CentralAPI(proxy.RpcProxy):
             default_version=self.BASE_RPC_VERSION)
 
     # Currency
-    def currency_add(self, ctxt, values):
-        return self.call(ctxt, self.make_msg('currency_add', values=values))
+    def create_currency(self, ctxt, values):
+        return self.call(ctxt, self.make_msg('create_currency', values=values))
 
-    def currency_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('currency_list',
+    def list_currency(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_currency',
                          criterion=criterion))
 
-    def currency_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('currency_get',
+    def get_currency(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_currency',
                          id_=id_))
 
-    def currency_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('currency_update',
+    def update_currency(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_currency',
                          id_=id_, values=values))
 
-    def currency_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('currency_delete',
+    def delete_currency(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_currency',
                          id_=id_))
 
     # Language
-    def language_add(self, ctxt, values):
-        return self.call(ctxt, self.make_msg('language_add', values=values))
+    def create_language(self, ctxt, values):
+        return self.call(ctxt, self.make_msg('create_language', values=values))
 
-    def language_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('language_list',
+    def list_language(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_language',
                          criterion=criterion))
 
-    def language_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('language_get', id_=id_))
+    def get_language(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_language', id_=id_))
 
-    def language_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('language_update',
+    def update_language(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_language',
                          id_, values))
 
-    def language_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('language_delete', id_=id_))
+    def delete_language(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_language', id_=id_))
 
     # Contact Info
-    def contact_info_add(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('contact_info_add', id_=id_,
+    def create_contact_info(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('create_contact_info', id_=id_,
                          values=values))
 
-    def contact_info_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('contact_info_get', id_))
+    def get_contact_info(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_contact_info', id_))
 
-    def contact_info_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('contact_info_update', id_=id_,
+    def update_contact_info(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_contact_info', id_=id_,
                          values=values))
 
-    def contact_info_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('contact_info_delete', id_=id_))
+    def delete_contact_info(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_contact_info', id_=id_))
 
     # PGP
-    def pg_provider_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('pg_provider_list',
+    def list_pg_provider(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_pg_provider',
                          criterion=criterion))
 
-    def pg_provider_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('pg_provider_get', id_=id_))
+    def get_pg_provider(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_pg_provider', id_=id_))
 
     # PGM
-    def pg_method_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('pg_method_list',
+    def list_pg_method(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_pg_method',
                          criterion=criterion))
 
-    def pg_method_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('pg_method_list', id_=id_))
+    def get_pg_method(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('list_pg_method', id_=id_))
 
     # PGC
-    def pg_config_add(self, ctxt, merchant_id, provider_id, values):
-        return self.call(ctxt, self.make_msg('pg_config_add',
+    def create_pg_config(self, ctxt, merchant_id, provider_id, values):
+        return self.call(ctxt, self.make_msg('create_pg_config',
                          merchant_id=merchant_id, provider_id=provider_id,
                          values=values))
 
-    def pg_config_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('pg_config_list',
+    def list_pg_config(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_pg_config',
                          criterion=criterion))
 
-    def pg_config_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('pg_config_get', id_=id_))
+    def get_pg_config(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_pg_config', id_=id_))
 
-    def pg_config_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('pg_config_update', id_=id_,
+    def update_pg_config(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_pg_config', id_=id_,
                          values=values))
 
-    def pg_config_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('pg_config_delete', id_=id_))
+    def delete_pg_config(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_pg_config', id_=id_))
 
     # PaymentMethod
-    def payment_method_add(self, ctxt, customer_id, pg_method_id, values):
-        return self.call(ctxt, self.make_msg('payment_method_add',
+    def create_payment_method(self, ctxt, customer_id, pg_method_id, values):
+        return self.call(ctxt, self.make_msg('create_payment_method',
                          customer_id=customer_id, pg_method_id=pg_method_id,
                          values=values))
 
-    def payment_method_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('payment_method_list',
+    def list_payment_method(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_payment_method',
                          criterion=criterion))
 
-    def payment_method_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('payment_method_get', id_=id_))
+    def get_payment_method(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_payment_method', id_=id_))
 
-    def payment_method_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('payment_method_update', id_=id_,
+    def update_payment_method(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_payment_method', id_=id_,
                          values=values))
 
-    def payment_method_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('payment_method_delete', id_=id_))
+    def delete_payment_method(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_payment_method', id_=id_))
 
     # Merchant
-    def merchant_add(self, ctxt, values):
-        return self.call(ctxt, self.make_msg('merchant_add', values=values))
+    def create_merchant(self, ctxt, values):
+        return self.call(ctxt, self.make_msg('create_merchant', values=values))
 
-    def merchant_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('merchant_list',
+    def list_merchant(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_merchant',
                          criterion=criterion))
 
-    def merchant_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('merchant_get', id_=id_))
+    def get_merchant(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_merchant', id_=id_))
 
-    def merchant_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('merchant_update',
+    def update_merchant(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_merchant',
                          id_=id_, values=values))
 
-    def merchant_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('merchant_delete',
+    def delete_merchant(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_merchant',
                          id_=id_))
 
     # Customer
-    def customer_add(self, ctxt, merchant_id, values):
-        return self.call(ctxt, self.make_msg('customer_add',
+    def create_customer(self, ctxt, merchant_id, values):
+        return self.call(ctxt, self.make_msg('create_customer',
                          merchant_id=merchant_id, values=values))
 
-    def customer_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('customer_list',
+    def list_customer(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_customer',
                          criterion=criterion))
 
-    def customer_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('customer_get', id_=id_))
+    def get_customer(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_customer', id_=id_))
 
-    def customer_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('customer_update',
+    def update_customer(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_customer',
                          id_=id_, values=values))
 
-    def customer_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('customer_delete', id_=id_))
+    def delete_customer(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_customer', id_=id_))
 
     # User
     def user_add(self, ctxt, merchant_id, values):
@@ -184,56 +184,56 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('user_delete', id_=id_))
 
     # Products
-    def product_add(self, ctxt, merchant_id, values):
-        return self.call(ctxt, self.make_msg('product_add',
+    def create_product(self, ctxt, merchant_id, values):
+        return self.call(ctxt, self.make_msg('create_product',
                          merchant_id=merchant_id, values=values))
 
-    def product_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('product_list',
+    def list_product(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_product',
                          criterion=criterion))
 
-    def product_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('product_get', id_=id_))
+    def get_product(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_product', id_=id_))
 
-    def product_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('product_update', id_=id_,
+    def update_product(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_product', id_=id_,
                          values=values))
 
-    def product_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('product_delete', id_=id_))
+    def delete_product(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_product', id_=id_))
 
     # PlanItems
-    def plan_item_add(self, ctxt, values):
-        return self.call(ctxt, self.make_msg('plan_item_add', values=values))
+    def create_plan_item(self, ctxt, values):
+        return self.call(ctxt, self.make_msg('create_plan_item', values=values))
 
-    def plan_item_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('plan_item_list',
+    def list_plan_item(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_plan_item',
                          criterion=criterion))
 
-    def plan_item_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('plan_item_get', id_=id_))
+    def get_plan_item(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_plan_item', id_=id_))
 
-    def plan_item_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('plan_item_update', id_=id_,
+    def update_plan_item(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_plan_item', id_=id_,
                          values=values))
 
-    def plan_item_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('plan_item_delete', id_=id_))
+    def delete_plan_item(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_plan_item', id_=id_))
 
     # Plans
-    def plan_add(self, ctxt, merchant_id, values):
-        return self.call(ctxt, self.make_msg('plan_add',
+    def create_plan(self, ctxt, merchant_id, values):
+        return self.call(ctxt, self.make_msg('create_plan',
                          merchant_id=merchant_id, values=values))
 
-    def plan_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('plan_list', criterion=criterion))
+    def list_plan(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_plan', criterion=criterion))
 
-    def plan_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('plan_get', id_=id_))
+    def get_plan(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_plan', id_=id_))
 
-    def plan_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('plan_update', id_=id_,
+    def update_plan(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_plan', id_=id_,
                          values=values))
 
-    def plan_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('plan_delete', id_=id_))
+    def delete_plan(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_plan', id_=id_))

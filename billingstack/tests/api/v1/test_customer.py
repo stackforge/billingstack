@@ -31,7 +31,7 @@ class TestCustomer(FunctionalTest):
         expected = Customer.from_db(fixture).as_dict()
         return expected
 
-    def test_customer_add(self):
+    def test_create_customer(self):
         expected = self.fixture()
 
         url = self.path % self.merchant['id']
@@ -40,19 +40,19 @@ class TestCustomer(FunctionalTest):
 
         self.assertData(expected, resp.json)
 
-    def test_customer_list(self):
+    def test_list_customer(self):
         url = self.path % self.merchant['id']
 
         resp = self.get(url)
         self.assertLen(0, resp.json)
 
-        self.customer_add(self.merchant['id'])
+        self.create_customer(self.merchant['id'])
 
         resp = self.get(url)
         self.assertLen(1, resp.json)
 
-    def test_customer_get(self):
-        _, customer = self.customer_add(self.merchant['id'])
+    def test_get_customer(self):
+        _, customer = self.create_customer(self.merchant['id'])
 
         expected = Customer.from_db(customer).as_dict()
 
@@ -61,8 +61,8 @@ class TestCustomer(FunctionalTest):
 
         self.assertData(expected, resp.json)
 
-    def test_customer_update(self):
-        _, customer = self.customer_add(self.merchant['id'])
+    def test_update_customer(self):
+        _, customer = self.create_customer(self.merchant['id'])
 
         expected = Customer.from_db(customer).as_dict()
 
@@ -73,10 +73,10 @@ class TestCustomer(FunctionalTest):
 
         self.assertData(resp.json, customer)
 
-    def test_customer_delete(self):
-        _, customer = self.customer_add(self.merchant['id'])
+    def test_delete_customer(self):
+        _, customer = self.create_customer(self.merchant['id'])
 
         url = self.item_path(self.merchant['id'], customer['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.customer_list(self.admin_ctxt))
+        self.assertLen(0, self.central_service.list_customer(self.admin_ctxt))

@@ -32,7 +32,7 @@ class Service(rpc_service.Service):
         # Get a storage connection
         self.central_api = CentralAPI()
 
-    def pg_provider_get(self, ctxt, pg_info):
+    def get_pg_provider(self, ctxt, pg_info):
         """
         Work out a PGC config either from pg_info or via ctxt fetching it from central.
         Return the appropriate PGP for this info.
@@ -41,7 +41,7 @@ class Service(rpc_service.Service):
         :param pg_info: Payment Gateway Config...
         """
 
-    def account_add(self, ctxt, values, pg_config=None):
+    def create_account(self, ctxt, values, pg_config=None):
         """
         Create an Account on the underlying provider
 

@@ -28,7 +28,7 @@ class TestProduct(FunctionalTest):
     __test__ = True
     path = "merchants/%s/products"
 
-    def test_product_add(self):
+    def test_create_product(self):
         fixture = self.get_fixture('product')
 
         url = self.path % self.merchant['id']
@@ -36,24 +36,24 @@ class TestProduct(FunctionalTest):
 
         self.assertData(fixture, resp.json)
 
-    def test_product_list(self):
-        self.product_add(self.merchant['id'])
+    def test_list_product(self):
+        self.create_product(self.merchant['id'])
 
         url = self.path % self.merchant['id']
         resp = self.get(url)
 
         self.assertLen(1, resp.json)
 
-    def test_product_get(self):
-        _, product = self.product_add(self.merchant['id'])
+    def test_get_product(self):
+        _, product = self.create_product(self.merchant['id'])
 
         url = self.item_path(self.merchant['id'], product['id'])
         resp = self.get(url)
 
         self.assertData(resp.json, product)
 
-    def test_product_update(self):
-        _, product = self.product_add(self.merchant['id'])
+    def test_update_product(self):
+        _, product = self.create_product(self.merchant['id'])
         product['name'] = 'test'
 
         url = self.item_path(self.merchant['id'], product['id'])
@@ -61,10 +61,10 @@ class TestProduct(FunctionalTest):
 
         self.assertData(resp.json, product)
 
-    def test_product_delete(self):
-        _, product = self.product_add(self.merchant['id'])
+    def test_delete_product(self):
+        _, product = self.create_product(self.merchant['id'])
 
         url = self.item_path(self.merchant['id'], product['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.product_list(self.admin_ctxt))
+        self.assertLen(0, self.central_service.list_product(self.admin_ctxt))
