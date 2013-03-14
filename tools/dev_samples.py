@@ -4,20 +4,19 @@ import sys
 
 from oslo.config import cfg
 
-from billingstack.openstack.common import log as logging
-
 from billingstack import service
 from billingstack.samples import get_samples
 from billingstack.storage import get_connection
 from billingstack.openstack.common.context import get_admin_context
-from billingstack.storage.impl_sqlalchemy import models
 
 
 cfg.CONF.import_opt('storage_driver', 'billingstack.central',
                     group='service:central')
 
-cfg.CONF.import_opt('database_connection', 'billingstack.storage.impl_sqlalchemy',
-                    group='storage:sqlalchemy')
+cfg.CONF.import_opt(
+    'database_connection',
+    'billingstack.storage.impl_sqlalchemy',
+    group='storage:sqlalchemy')
 
 
 SAMPLES = get_samples()
@@ -58,24 +57,24 @@ if __name__ == '__main__':
     customer = conn.customer_add(
         ctxt, merchant['id'], get_fixture('customer', values=country_data))
 
-    contact_info = get_fixture('contact_info')
+    #contact_info = get_fixture('contact_info')
 
-    merchant_user = get_fixture('user')
-    merchant_user['username'] = 'demo_merchant'
-    merchant_user['contact_info'] = contact_info
+    #merchant_user = get_fixture('user')
+    #merchant_user['username'] = 'demo_merchant'
+    #merchant_user['contact_info'] = contact_info
 
-    merchant_user = conn.user_add(
-        ctxt, merchant['id'], merchant_user)
+    #merchant_user = conn.user_add(
+        #ctxt, merchant['id'], merchant_user)
 
-    customer_user = get_fixture('user')
-    customer_user['username'] = 'demo_customer'
-    customer_user['contact_info'] = contact_info
-    customer_user['customer_id'] = customer['id']
+    #customer_user = get_fixture('user')
+    #customer_user['username'] = 'demo_customer'
+    #customer_user['contact_info'] = contact_info
+    #customer_user['customer_id'] = customer['id']
 
-    customer_user = conn.user_add(
-        ctxt,
-        merchant['id'],
-        customer_user)
+    #customer_user = conn.user_add(
+    #    ctxt,
+    #    merchant['id'],
+    #    customer_user)
 
     products = {}
     for p in samples['product']:
@@ -87,8 +86,7 @@ if __name__ == '__main__':
             {'product_id': products['vcpus']},
             {'product_id': products['root_disk_size']},
             {'product_id': products['network.incoming.bytes']},
-            {'product_id': products['network.outgoing.bytes']}
-            ]}
+            {'product_id': products['network.outgoing.bytes']}]}
 
     plan = get_fixture('plan', values=values)
 
