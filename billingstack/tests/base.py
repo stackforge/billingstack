@@ -121,7 +121,6 @@ class TestCase(BaseTestCase):
         storage.teardown_schema()
         super(TestCase, self).tearDown()
 
-
     def get_storage_driver(self):
         connection = storage.get_connection()
         return connection
@@ -147,6 +146,11 @@ class TestCase(BaseTestCase):
         fixture = self.get_fixture('currency', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.central_service.create_currency(ctxt, fixture, **kw)
+
+    def create_invoice_state(self, fixture=0, values={}, **kw):
+        fixture = self.get_fixture('invoice_state', fixture, values)
+        ctxt = kw.pop('context', self.admin_ctxt)
+        return fixture, self.central_service.create_invoice_state(ctxt, fixture, **kw)
 
     def pg_provider_register(self, fixture=0, values={}, methods=[], **kw):
         methods = [self.get_fixture('pg_method')] or methods

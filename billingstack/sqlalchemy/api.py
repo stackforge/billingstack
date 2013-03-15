@@ -1,9 +1,8 @@
-from sqlalchemy import or_
 from sqlalchemy.orm import exc
 
 from billingstack import exceptions
 from billingstack.openstack.common import log
-from billingstack.sqlalchemy import model_base, session
+from billingstack.sqlalchemy import model_base, session, utils
 
 
 LOG = log.getLogger(__name__)
@@ -29,6 +28,7 @@ class HelpersMixin(object):
     def _save(self, obj, save=True):
         if not save:
             return obj
+
         try:
             obj.save(self.session)
         except exceptions.Duplicate:
@@ -58,6 +58,14 @@ class HelpersMixin(object):
         else:
             return result
 
+    def _filter_id(self, cls, identifier, by_name):
+        if hasattr(cls, 'id') and utils.is_valid_id(identifier):
+            return cls.id == identifier
+        elif hasattr(cls, 'name') and by_name:
+            return cls.name == identifier
+        else:
+            raise exceptions.NotFound('No criterias matched')
+
     def _get(self, cls, identifier, by_name=False):
         """
         Get an instance of a Model matching ID
@@ -66,12 +74,9 @@ class HelpersMixin(object):
         :param identifier: The ID to get
         :param by_name: Search by name as well as ID
         """
-        filters = [cls.id == identifier]
-        if by_name:
-            filters.append(cls.name == identifier)
+        id_filter = self._filter_id(cls, identifier, by_name)
 
-        query = self.session.query(cls)\
-            .filter(or_(*filters))
+        query = self.session.query(cls).filter(id_filter)
 
         try:
             obj = query.one()
@@ -86,7 +91,7 @@ class HelpersMixin(object):
         kw['by_name'] = True
         return self._get(*args, **kw)
 
-    def _update(self, cls, id_, values):
+    def _update(self, cls, id_, values, by_name=False):
         """
         Update an instance of a Model matching an ID with values
 
@@ -94,7 +99,7 @@ class HelpersMixin(object):
         :param id_: The ID to update
         :param values: The values to update the model instance with
         """
-        obj = self._get(cls, id_)
+        obj = self._get_id_or_name(cls, id_, by_name=by_name)
         if 'id' in values and id_ != values['id']:
             msg = 'Not allowed to change id'
             errors = {'id': id_}
@@ -106,14 +111,14 @@ class HelpersMixin(object):
             raise
         return obj
 
-    def _delete(self, cls, id_):
+    def _delete(self, cls, id_, by_name=False):
         """
         Delete an instance of a Model matching an ID
 
         :param cls: The model to try to delete
         :param id_: The ID to delete
         """
-        obj = self._get(cls, id_)
+        obj = self._get(cls, id_, by_name=by_name)
         obj.delete(self.session)
 
     def _get_row(self, obj, cls=None, **kw):

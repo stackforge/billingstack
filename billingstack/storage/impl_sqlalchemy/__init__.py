@@ -92,17 +92,17 @@ class Connection(base.Connection, api.HelpersMixin):
         return map(dict, rows)
 
     def get_currency(self, ctxt, id_):
-        row = self._get(models.Currency, id_)
+        row = self._get_id_or_name(models.Currency, id_)
         return dict(row)
 
     def update_currency(self, ctxt, id_, values):
-        row = self._update(models.Currency, id_, values)
+        row = self._update(models.Currency, id_, values, by_name=True)
         return dict(row)
 
     def delete_currency(self, ctxt, id_):
-        self._delete(models.Currency, id_)
+        self._delete(models.Currency, id_, by_name=True)
 
-    # Language
+        # Language
     def create_language(self, ctxt, values):
         """
         Add a supported language to the database
@@ -117,19 +117,43 @@ class Connection(base.Connection, api.HelpersMixin):
         return map(dict, rows)
 
     def get_language(self, ctxt, id_):
-        row = self._get(models.Language, id_)
+        row = self._get_id_or_name(models.Language, id_)
         return dict(row)
 
     def update_language(self, ctxt, id_, values):
-        row = self._update(models.Language, id_, values)
+        row = self._update(models.Language, id_, values, by_name=True)
         return dict(row)
 
     def delete_language(self, ctxt, id_):
-        self._delete(models.Language, id_)
+        self._delete(models.Language, id_, by_name=True)
+
+    # Invoice States
+    def create_invoice_state(self, ctxt, values):
+        """
+        Add a supported invoice_state to the database
+        """
+        row = models.InvoiceState(**values)
+        self._save(row)
+        return dict(row)
+
+    def list_invoice_state(self, ctxt, **kw):
+        rows = self._list(models.InvoiceState, **kw)
+        return map(dict, rows)
+
+    def get_invoice_state(self, ctxt, id_):
+        row = self._get_id_or_name(models.InvoiceState, id_)
+        return dict(row)
+
+    def update_invoice_state(self, ctxt, id_, values):
+        row = self._update(models.InvoiceState, id_, values, by_name=True)
+        return dict(row)
+
+    def delete_invoice_state(self, ctxt, id_):
+        self._delete(models.InvoiceState, id_, by_name=True)
 
     # ContactInfo
     def create_contact_info(self, ctxt, obj, values, cls=None,
-                         rel_attr='contact_info'):
+                            rel_attr='contact_info'):
         """
         :param entity: The object to add the contact_info to
         :param values: The values to add

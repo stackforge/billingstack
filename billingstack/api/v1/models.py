@@ -31,16 +31,16 @@ def change_suffixes(data, keys, shorten=True, suffix='_name'):
             data[new] = data.pop(old)
 
 
-class Currency(Base):
-    id = text
-    name = text
-    title = text
+class Currency(DescribedBase):
+    pass
 
 
-class Language(Base):
-    id = text
-    name = text
-    title = text
+class Language(DescribedBase):
+    pass
+
+
+class InvoiceState(DescribedBase):
+    pass
 
 
 class PaymentMethod(Base):

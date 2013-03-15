@@ -27,8 +27,29 @@ from billingstack.api.v1 import models
 LOG = log.getLogger(__name__)
 
 
+class CurrencyController(RestBase):
+    @wsme_pecan.wsexpose(models.Currency)
+    def get_all(self):
+        row = request.central_api.get_currency(request.ctxt,
+                                               self.id_)
+        return models.Currency.from_db(row)
+
+    @wsme_pecan.wsexpose(models.Currency, body=models.Currency)
+    def put(self, body):
+        row = request.central_api.update_currency(
+            request.ctxt,
+            self.id_,
+            body.to_db())
+        return models.Currency.from_db(row)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.delete_currency(request.ctxt, self.id_)
+
+
 class CurrenciesController(RestBase):
     """Currsencies controller"""
+    __resource__ = CurrencyController
 
     @wsme_pecan.wsexpose([models.Currency])
     def get_all(self):
@@ -36,15 +57,52 @@ class CurrenciesController(RestBase):
 
         return [models.Currency.from_db(r) for r in rows]
 
+    @wsme_pecan.wsexpose(models.Currency, body=models.Currency)
+    def post(self, body):
+        row = request.central_api.create_currency(
+            request.ctxt,
+            body.to_db())
+
+        return models.Currency.from_db(row)
+
+
+class LanguageController(RestBase):
+    @wsme_pecan.wsexpose(models.Language)
+    def get_all(self):
+        row = request.central_api.get_language(request.ctxt,
+                                               self.id_)
+        return models.Language.from_db(row)
+
+    @wsme_pecan.wsexpose(models.Language, body=models.Language)
+    def put(self, body):
+        row = request.central_api.update_language(
+            request.ctxt,
+            self.id_,
+            body.to_db())
+        return models.Language.from_db(row)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.delete_language(request.ctxt, self.id_)
+
 
 class LanguagesController(RestBase):
     """Languages controller"""
+    __resource__ = LanguageController
 
     @wsme_pecan.wsexpose([models.Language])
     def get_all(self):
         rows = request.central_api.list_language(request.ctxt)
 
         return [models.Language.from_db(r) for r in rows]
+
+    @wsme_pecan.wsexpose(models.Language, body=models.Language)
+    def post(self, body):
+        row = request.central_api.create_language(
+            request.ctxt,
+            body.to_db())
+
+        return models.Language.from_db(row)
 
 
 class PGProvidersController(RestBase):
@@ -67,6 +125,47 @@ class PGMethodsController(RestBase):
         rows = request.central_api.list_pg_method(request.ctxt)
 
         return [models.PGMethod.from_db(r) for r in rows]
+
+
+class InvoiceStateController(RestBase):
+    @wsme_pecan.wsexpose(models.InvoiceState)
+    def get_all(self):
+        row = request.central_api.get_invoice_state(request.ctxt,
+                                                    self.id_)
+        return models.InvoiceState.from_db(row)
+
+    @wsme_pecan.wsexpose(models.InvoiceState, body=models.InvoiceState)
+    def put(self, body):
+        row = request.central_api.update_invoice_state(
+            request.ctxt,
+            self.id_,
+            body.to_db())
+        return models.InvoiceState.from_db(row)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.delete_invoice_state(request.ctxt, self.id_)
+
+
+class InvoiceStatecontroller(RestBase):
+    """
+    PaymentGatewayProviders
+    """
+    __resource__ = InvoiceStateController
+
+    @wsme_pecan.wsexpose([models.InvoiceState])
+    def get_all(self):
+        rows = request.central_api.list_invoice_state(request.ctxt)
+
+        return [models.InvoiceState.from_db(r) for r in rows]
+
+    @wsme_pecan.wsexpose(models.InvoiceState, body=models.InvoiceState)
+    def post(self, body):
+        row = request.central_api.create_invoice_state(
+            request.ctxt,
+            body.to_db())
+
+        return models.InvoiceState.from_db(row)
 
 
 # Plans
@@ -305,6 +404,7 @@ class V1Controller(RestBase):
     """Version 1 API controller."""
 
     __resource__ = {
+        'invoice-states': InvoiceStatecontroller,
         'payment-gateway-providers': PGProvidersController,
         'payment-gateway-methods': PGMethodsController
     }

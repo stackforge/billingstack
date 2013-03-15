@@ -258,6 +258,8 @@ class InvoiceState(BASE):
         Completed, Failed
     """
     name = Column(Unicode(60), nullable=False, primary_key=True)
+    title = Column(Unicode(100), nullable=False)
+    description = Column(Unicode(255))
 
 
 class Invoice(BASE, BaseMixin):

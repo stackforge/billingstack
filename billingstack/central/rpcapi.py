@@ -51,10 +51,29 @@ class CentralAPI(proxy.RpcProxy):
 
     def update_language(self, ctxt, id_, values):
         return self.call(ctxt, self.make_msg('update_language',
-                         id_, values))
+                         id_=id_, values=values))
 
     def delete_language(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('delete_language', id_=id_))
+
+    # Invoice States
+    def create_invoice_state(self, ctxt, values):
+        return self.call(ctxt, self.make_msg('create_invoice_state',
+                         values=values))
+
+    def list_invoice_state(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_invoice_state',
+                         criterion=criterion))
+
+    def get_invoice_state(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_invoice_state', id_=id_))
+
+    def update_invoice_state(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_invoice_state',
+                         id_=id_, values=values))
+
+    def delete_invoice_state(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_invoice_state', id_=id_))
 
     # Contact Info
     def create_contact_info(self, ctxt, id_, values):
@@ -204,7 +223,8 @@ class CentralAPI(proxy.RpcProxy):
 
     # PlanItems
     def create_plan_item(self, ctxt, values):
-        return self.call(ctxt, self.make_msg('create_plan_item', values=values))
+        return self.call(ctxt, self.make_msg('create_plan_item',
+                         values=values))
 
     def list_plan_item(self, ctxt, criterion=None):
         return self.call(ctxt, self.make_msg('list_plan_item',
