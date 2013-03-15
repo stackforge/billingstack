@@ -22,8 +22,10 @@ Glossary
 
 .. glossary::
     pgp
-        PaymentGatewayProvider
+        PaymentGatewayProvider - A plugin for PaymentGateways
     pgm
-        PaymentGatewayMethod
+        PaymentGatewayMethod - A supported payment method by the PGP
     api
         Web API
+    central
+        The Central service that does CRUD operations and more in BS.

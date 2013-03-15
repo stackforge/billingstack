@@ -14,6 +14,7 @@ Contents:
    architecture
    api
    glossary
+   install/index
 
 
 Indices and tables
