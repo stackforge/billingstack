@@ -1,75 +1,23 @@
-
-alembic
-anyjson>=0.2.4
-argparse
-Babel>=0.9.6
-cfg.CONF.import_opt('database_connection', 'billingstack.storage.impl_sqlalchemy',
-cfg.CONF.import_opt('storage_driver', 'billingstack.api',
-    conn = get_connection()
-    conn.setup_schema()
-    conn.teardown_schema()
-        contact_info=contact_info,
-    contact_info = get_fixture('contact_info')
-    country_data = {
-coverage
-    currencies = {}
-        currencies[c['letter']] = conn.currency_add(c)
-        "currency_id": currencies['nok']['id'],
-    customer = conn.customer_add(
-        customer_id=customer['id'])
-        customer_user,
-    customer_user = conn.user_add(
-    customer_user = get_fixture('user')
-    customer_user['username'] = 'demo_customer'
-def get_fixture(name, fixture=0, values={}):
-docutils==0.9.1 # for bug 1091333, remove after sphinx >1.1.3 is released.
--e hg+https://bitbucket.org/cdevienne/wsme/#egg=wsme
+WebOb>=1.2
 eventlet
-    for c in samples['currency']:
-    for l in samples['language']:
-from billingstack import service
-from billingstack.openstack.common import cfg
-from billingstack.openstack.common import log as logging
-from billingstack.samples import get_samples
-from billingstack.storage.impl_sqlalchemy import models
-from billingstack.storage import get_connection
-    f = SAMPLES[name][fixture].copy()
-    f.update(values)
-        get_fixture('merchant', values=country_data))
-                    group='service:api')
-                    group='storage:sqlalchemy')
-if __name__ == '__main__':
-import sys
+#pecan
+-e git://github.com/ryanpetrello/pecan.git@next#egg=pecan
+stevedore
+argparse
+-e hg+https://bitbucket.org/cdevienne/wsme/#egg=wsme
+anyjson>=0.2.4
+pycountry
 iso8601
-        "language_id": languages['nor']['id']}
-    languages = {}
-        languages[l['letter']] = conn.language_add(l)
-    LOG.info("Re-Syncing database")
-LOG = logging.getLogger(__name__)
-    merchant = conn.merchant_add(
-        merchant['id'],
-        merchant['id'], get_fixture('customer', values=country_data))
-        merchant['id'], merchant_user, contact_info=contact_info)
-    merchant_user = conn.user_add(
-    merchant_user = get_fixture('user')
-    merchant_user['username'] = 'demo_merchant'
+cliff
+http://tarballs.openstack.org/oslo-config/oslo-config-2013.1b4.tar.gz#egg=oslo-config
+unittest2
+nose
+openstack.nose_plugin
+nosehtmloutput
+coverage
 mock
 mox
-nose
-nosehtmloutput
-openstack.nose_plugin
-# Optional Stuff that is used by default
-pecan
-        print "ADDING", c
-pycountry
-    return f
-    samples = get_samples()
-SAMPLES = get_samples()
-    service.prepare_service(sys.argv)
+Babel>=0.9.6
 sphinx
 sphinxcontrib-httpdomain
-SQLAlchemy>=0.7.8,<=0.7.9
-stevedore
-unittest2
-#!/usr/bin/env python
-WebOb>=1.2
+docutils==0.9.1 # for bug 1091333, remove after sphinx >1.1.3 is released.
