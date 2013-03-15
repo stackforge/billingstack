@@ -1,182 +1,182 @@
 [
-  {
-    "name": "instance",
-    "type": "gauge",
-    "measure": "unit",
-    "description": "Duration of instance",
-    "properties": {
-      "resource": "instance_id"
-    }
-  },
-  {
-    "name": "memory",
-    "type": "gauge",
-    "measure": "mb",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "Volume of RAM in MB"
-  },
-  {
-    "name": "vcpus",
-    "type": "gauge",
-    "measure": "vcpu",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "Number of VCPUs"
-  },
-  {
-    "name": "root_disk_size",
-    "type": "gauge",
-    "measure": "gb",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "Size of root disk in GB"
-  },
-  {
-    "name": "ephemeral_disk_size",
-    "type": "gauge",
-    "measure": "gb",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "Size of ephemeral disk in GB"
-  },
-  {
-    "name": "disk.read.requests",
-    "type": "cumulative",
-    "measure": "unit",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "Number of disk read requests"
-  },
-  {
-    "name": "disk.read.bytes",
-    "type": "cumulative",
-    "measure": "bytes",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "Volume of disk read in bytes"
-  },
-  {
-    "name": "disk.write.requests",
-    "type": "cumulative",
-    "measure": "unit",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "Number of disk write requests"
-  },
-  {
-    "name": "disk.write.bytes",
-    "type": "cumulative",
-    "measure": "bytes",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "Volume of disk write in bytes"
-  },
-  {
-    "name": "cpu",
-    "type": "cumulative",
-    "measure": "unit",
-    "properties": {
-      "resource": "seconds"
-    },
-    "description": "CPU time used"
-  },
-  {
-    "name": "network.incoming.bytes",
-    "type": "cumulative",
-    "measure": "bytes",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "number of incoming bytes on the network"
-  },
-  {
-    "name": "network.outgoing.bytes",
-    "type": "cumulative",
-    "measure": "bytes",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "number of outgoing bytes on the network"
-  },
-  {
-    "name": "network.incoming.packets",
-    "type": "cumulative",
-    "measure": "packets",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "number of incoming packets"
-  },
-  {
-    "name": "network.outgoing.packets",
-    "type": "cumulative",
-    "measure": "packets",
-    "properties": {
-      "resource": "instance_id"
-    },
-    "description": "number of outgoing packets"
-  },
-  {
-    "name": "image",
-    "type": "gauge",
-    "measure": "unit",
-    "properties": {
-      "resource": "image_id"
-    },
-    "description": "Image polling -> it (still) exists"
-  },
-  {
-    "name": "image_size",
-    "type": "gauge",
-    "measure": "bytes",
-    "properties": {
-      "resource": "image_id"
-    },
-    "description": "Uploaded image size"
-  },
-  {
-    "name": "image_download",
-    "type": "gauge",
-    "measure": "bytes",
-    "properties": {
-      "resource": "image_id"
-    },
-    "description": "Image is downloaded"
-  },
-  {
-    "name": "image_serve",
-    "type": "gauge",
-    "measure": "bytes",
-    "properties": {
-      "resource": "image_id"
-    },
-    "description": "Image is served out"
-  },
-  {
-    "name": "volume",
-    "type": "gauge",
-    "measure": "unit",
-    "properties": {
-      "resource": "measure_id"
-    },
-    "description": "Duration of volume"
-  },
-  {
-    "name": "volume_size",
-    "type": "gauge",
-    "measure": "gb",
-    "properties": {
-      "resource": "measure_id"
-    },
-    "description": "Size of measure"
-  }
+   {
+      "name" : "instance",
+      "description" : "Duration of instance",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "unit",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "memory",
+      "description" : "Volume of RAM in MB",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "mb",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "vcpus",
+      "description" : "Number of VCPUs",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "vcpu",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "root_disk_size",
+      "description" : "Size of root disk in GB",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "gb",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "ephemeral_disk_size",
+      "description" : "Size of ephemeral disk in GB",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "gb",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "disk.read.requests",
+      "description" : "Number of disk read requests",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "unit",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "disk.read.bytes",
+      "description" : "Volume of disk read in bytes",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "bytes",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "disk.write.requests",
+      "description" : "Number of disk write requests",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "unit",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "disk.write.bytes",
+      "description" : "Volume of disk write in bytes",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "bytes",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "cpu",
+      "description" : "CPU time used",
+      "properties" : {
+         "resource" : "seconds",
+         "measure" : "unit",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "network.incoming.bytes",
+      "description" : "number of incoming bytes on the network",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "bytes",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "network.outgoing.bytes",
+      "description" : "number of outgoing bytes on the network",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "bytes",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "network.incoming.packets",
+      "description" : "number of incoming packets",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "packets",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "network.outgoing.packets",
+      "description" : "number of outgoing packets",
+      "properties" : {
+         "resource" : "instance_id",
+         "measure" : "packets",
+         "type" : "cumulative"
+      }
+   },
+   {
+      "name" : "image",
+      "description" : "Image polling -> it (still) exists",
+      "properties" : {
+         "resource" : "image_id",
+         "measure" : "unit",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "image_size",
+      "description" : "Uploaded image size",
+      "properties" : {
+         "resource" : "image_id",
+         "measure" : "bytes",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "image_download",
+      "description" : "Image is downloaded",
+      "properties" : {
+         "resource" : "image_id",
+         "measure" : "bytes",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "image_serve",
+      "description" : "Image is served out",
+      "properties" : {
+         "resource" : "image_id",
+         "measure" : "bytes",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "volume",
+      "description" : "Duration of volume",
+      "properties" : {
+         "resource" : "measure_id",
+         "measure" : "unit",
+         "type" : "gauge"
+      }
+   },
+   {
+      "name" : "volume_size",
+      "description" : "Size of measure",
+      "properties" : {
+         "resource" : "measure_id",
+         "measure" : "gb",
+         "type" : "gauge"
+      }
+   }
 ]

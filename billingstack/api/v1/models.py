@@ -80,9 +80,6 @@ class Plan(DescribedBase):
 
 
 class Product(DescribedBase):
-    measure = text
-    type = text
-
     properties = DictType(key_type=text, value_type=property_type)
 
 

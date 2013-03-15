@@ -371,10 +371,6 @@ class Product(BASE, BaseMixin):
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    measure = Column(Unicode(255))
-    source = Column(Unicode(255))
-    type = Column(Unicode(255))
-
     price = relationship('Pricing', backref='product', uselist=False)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
