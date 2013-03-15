@@ -38,23 +38,23 @@ if __name__ == '__main__':
 
     currencies = {}
     for c in samples['currency']:
-        currencies[c['name']] = conn.currency_add(ctxt, c)
+        currencies[c['name']] = conn.create_currency(ctxt, c)
 
     languages = {}
     for l in samples['language']:
-        languages[l['name']] = conn.language_add(ctxt, l)
+        languages[l['name']] = conn.create_language(ctxt, l)
 
     for method in samples['pg_method']:
-        conn.pg_method_add(ctxt, method)
+        conn.create_pg_method(ctxt, method)
 
     country_data = {
         "currency_name": currencies['nok']['name'],
         "language_name": languages['nor']['name']}
 
-    merchant = conn.merchant_add(
+    merchant = conn.create_merchant(
         ctxt, get_fixture('merchant', values=country_data))
 
-    customer = conn.customer_add(
+    customer = conn.create_customer(
         ctxt, merchant['id'], get_fixture('customer', values=country_data))
 
     #contact_info = get_fixture('contact_info')
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     products = {}
     for p in samples['product']:
-        products[p['name']] = conn.product_add(ctxt, merchant['id'], p)
+        products[p['name']] = conn.create_product(ctxt, merchant['id'], p)
 
     values = {
         'plan_items': [
@@ -90,4 +90,4 @@ if __name__ == '__main__':
 
     plan = get_fixture('plan', values=values)
 
-    conn.plan_add(ctxt, merchant['id'], get_fixture('plan'))
+    conn.create_plan(ctxt, merchant['id'], get_fixture('plan'))
