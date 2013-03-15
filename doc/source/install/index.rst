@@ -1,5 +1,5 @@
 ..
-      Copyright 2013 New Dream Network, LLC (DreamHost)
+      Copyright 2013 Endre Karlson <endre.karlson@gmail.com>
 
       Licensed under the Apache License, Version 2.0 (the "License"); you may
       not use this file except in compliance with the License. You may obtain
@@ -15,9 +15,9 @@
 
 .. _install:
 
-=======================
- Installing Ceilometer
-=======================
+========================
+ Installing Billingstack
+========================
 
 .. toctree::
    :maxdepth: 2
