@@ -197,7 +197,13 @@ class PlansController(RestBase):
 
     @wsme_pecan.wsexpose([models.Plan])
     def get_all(self):
-        rows = request.central_api.list_plan(request.ctxt)
+        criterion = {
+            'merchant_id': request.context['merchant_id']
+        }
+
+        rows = request.central_api.list_plan(
+            request.ctxt,
+            criterion=criterion)
 
         return [models.Plan.from_db(r) for r in rows]
 
@@ -211,6 +217,148 @@ class PlansController(RestBase):
         return models.Plan.from_db(row)
 
 
+# Products
+class ProductController(RestBase):
+    __id__ = 'product'
+
+    @wsme_pecan.wsexpose(models.Product)
+    def get_all(self):
+        row = request.central_api.get_product(request.ctxt, self.id_)
+
+        return models.Product.from_db(row)
+
+    @wsme_pecan.wsexpose(models.Product, body=models.Product)
+    def put(self, body):
+        row = request.central_api.update_product(
+            request.ctxt,
+            self.id_,
+            body.to_db())
+
+        return models.Product.from_db(row)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.delete_product(request.ctxt, self.id_)
+
+
+class ProductsController(RestBase):
+    __resource__ = ProductController
+
+    @wsme_pecan.wsexpose([models.Product])
+    def get_all(self):
+        rows = request.central_api.list_product(request.ctxt)
+
+        return [models.Product.from_db(r) for r in rows]
+
+    @wsme_pecan.wsexpose(models.Product, body=models.Product)
+    def post(self, body):
+        row = request.central_api.create_product(
+            request.ctxt,
+            request.context['merchant_id'],
+            body.to_db())
+
+        return models.Product.from_db(row)
+
+
+# Invoice
+class InvoiceController(RestBase):
+    __id__ = 'invoice'
+
+    @wsme_pecan.wsexpose(models.Invoice)
+    def get_all(self):
+        row = request.central_api.get_invoice(request.ctxt, self.id_)
+
+        return models.Invoice.from_db(row)
+
+    @wsme_pecan.wsexpose(models.Invoice, body=models.Invoice)
+    def put(self, body):
+        row = request.central_api.update_invoice(
+            request.ctxt,
+            self.id_,
+            body.to_db())
+
+        return models.Invoice.from_db(row)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.delete_invoice(request.ctxt, self.id_)
+
+
+class InvoicesController(RestBase):
+    __resource__ = InvoiceController
+
+    @wsme_pecan.wsexpose([models.Invoice])
+    def get_all(self):
+        criterion = {
+            'merchant_id': request.context['merchant_id']
+        }
+
+        rows = request.central_api.list_invoice(
+            request.ctxt,
+            criterion=criterion)
+
+        return [models.Invoice.from_db(r) for r in rows]
+
+    @wsme_pecan.wsexpose(models.Invoice, body=models.Invoice)
+    def post(self, body):
+        row = request.central_api.create_invoice(
+            request.ctxt,
+            request.context['merchant_id'],
+            body.to_db())
+
+        return models.Invoice.from_db(row)
+
+
+# Subscription
+class SubscriptionController(RestBase):
+    __id__ = 'subscription'
+
+    @wsme_pecan.wsexpose(models.Subscription)
+    def get_all(self):
+        row = request.central_api.get_subscription(request.ctxt, self.id_)
+
+        return models.Invoice.from_db(row)
+
+    @wsme_pecan.wsexpose(models.Subscription, body=models.Subscription)
+    def put(self, body):
+        row = request.central_api.update_subscription(
+            request.ctxt,
+            self.id_,
+            body.to_db())
+
+        return models.Subscription.from_db(row)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.delete_subscription(request.ctxt, self.id_)
+
+
+class SubscriptionsController(RestBase):
+    __resource__ = SubscriptionController
+
+    @wsme_pecan.wsexpose([models.Subscription])
+    def get_all(self):
+        criterion = {
+            'customer_id': request.context['customer_id']
+        }
+
+        rows = request.central_api.list_subscription(
+            request.ctxt,
+            criterion=criterion)
+
+        return [models.Subscription.from_db(r) for r in rows]
+
+    @wsme_pecan.wsexpose(models.Subscription, body=models.Subscription)
+    def post(self, body):
+        row = request.central_api.create_subscription(
+            request.ctxt,
+            request.context['merchant_id'],
+            body.to_db())
+
+        return models.Subscription.from_db(row)
+
+
+# PaymentMethod
 class PaymentMethodController(RestBase):
     """PaymentMethod controller"""
     __id__ = 'payment_method'
@@ -261,55 +409,13 @@ class PaymentMethodsController(RestBase):
         return models.PaymentMethod.from_db(row)
 
 
-# Products
-class ProductController(RestBase):
-    __id__ = 'product'
-
-    @wsme_pecan.wsexpose(models.Product)
-    def get_all(self):
-        row = request.central_api.get_product(request.ctxt, self.id_)
-
-        return models.Product.from_db(row)
-
-    @wsme_pecan.wsexpose(models.Product, body=models.Product)
-    def put(self, body):
-        row = request.central_api.update_product(
-            request.ctxt,
-            self.id_,
-            body.to_db())
-
-        return models.Product.from_db(row)
-
-    @wsme_pecan.wsexpose()
-    def delete(self):
-        request.central_api.delete_product(request.ctxt, self.id_)
-
-
-class ProductsController(RestBase):
-    __resource__ = ProductController
-
-    @wsme_pecan.wsexpose([models.Product])
-    def get_all(self):
-        rows = request.central_api.list_product(request.ctxt)
-
-        return [models.Product.from_db(r) for r in rows]
-
-    @wsme_pecan.wsexpose(models.Product, body=models.Product)
-    def post(self, body):
-        row = request.central_api.create_product(
-            request.ctxt,
-            request.context['merchant_id'],
-            body.to_db())
-
-        return models.Product.from_db(row)
-
-
 # Customers
 class CustomerController(RestBase):
     """Customer controller"""
     __id__ = 'customer'
     __resource__ = {
         "payment-methods": PaymentMethodsController,
+        "subscriptions": SubscriptionsController
     }
 
     @wsme_pecan.wsexpose(models.Customer, unicode)
@@ -357,8 +463,9 @@ class MerchantController(RestBase):
     __id__ = 'merchant'
     __resource__ = {
         "customers": CustomersController,
+        "invoices": InvoicesController,
         "plans": PlansController,
-        "products": ProductsController,
+        "products": ProductsController
     }
 
     @wsme_pecan.wsexpose(models.Merchant)

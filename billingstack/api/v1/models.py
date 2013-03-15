@@ -43,14 +43,6 @@ class InvoiceState(DescribedBase):
     pass
 
 
-class PaymentMethod(Base):
-    name = text
-    identifier = text
-    expires = text
-
-    properties = DictType(key_type=text, value_type=property_type)
-
-
 class PGMethod(DescribedBase):
     type = text
 
@@ -82,6 +74,11 @@ class ContactInfo(Base):
     website = text
 
 
+
+class Plan(DescribedBase):
+    properties = DictType(key_type=text, value_type=property_type)
+
+
 class Product(DescribedBase):
     measure = text
     type = text
@@ -89,7 +86,29 @@ class Product(DescribedBase):
     properties = DictType(key_type=text, value_type=property_type)
 
 
-class Plan(DescribedBase):
+class Invoice(Base):
+    identifier = text
+    sub_total = float
+    tax_percentage = float
+    tax_total = float
+    total = float
+
+
+class Subscription(Base):
+    billing_day = int
+    resource_id = text
+    resource_type = text
+
+    plan_id = text
+    customer_id = text
+    payment_method_id = text
+
+
+class PaymentMethod(Base):
+    name = text
+    identifier = text
+    expires = text
+
     properties = DictType(key_type=text, value_type=property_type)
 
 

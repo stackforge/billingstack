@@ -184,42 +184,23 @@ class CentralAPI(proxy.RpcProxy):
     def delete_customer(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('delete_customer', id_=id_))
 
-    # User
-    def user_add(self, ctxt, merchant_id, values):
-        return self.call(ctxt, self.make_msg('user_add',
+    # Plans
+    def create_plan(self, ctxt, merchant_id, values):
+        return self.call(ctxt, self.make_msg('create_plan',
                          merchant_id=merchant_id, values=values))
 
-    def user_list(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('user_list', criterion=criterion))
+    def list_plan(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_plan', criterion=criterion))
 
-    def user_get(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('user_get', id_=id_))
+    def get_plan(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_plan', id_=id_))
 
-    def user_update(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('user_update', id_=id_,
+    def update_plan(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_plan', id_=id_,
                          values=values))
 
-    def user_delete(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('user_delete', id_=id_))
-
-    # Products
-    def create_product(self, ctxt, merchant_id, values):
-        return self.call(ctxt, self.make_msg('create_product',
-                         merchant_id=merchant_id, values=values))
-
-    def list_product(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_product',
-                         criterion=criterion))
-
-    def get_product(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('get_product', id_=id_))
-
-    def update_product(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_product', id_=id_,
-                         values=values))
-
-    def delete_product(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('delete_product', id_=id_))
+    def delete_plan(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_plan', id_=id_))
 
     # PlanItems
     def create_plan_item(self, ctxt, values):
@@ -240,20 +221,59 @@ class CentralAPI(proxy.RpcProxy):
     def delete_plan_item(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('delete_plan_item', id_=id_))
 
-    # Plans
-    def create_plan(self, ctxt, merchant_id, values):
-        return self.call(ctxt, self.make_msg('create_plan',
+    # Products
+    def create_product(self, ctxt, merchant_id, values):
+        return self.call(ctxt, self.make_msg('create_product',
                          merchant_id=merchant_id, values=values))
 
-    def list_plan(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_plan', criterion=criterion))
+    def list_product(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_product',
+                         criterion=criterion))
 
-    def get_plan(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('get_plan', id_=id_))
+    def get_product(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_product', id_=id_))
 
-    def update_plan(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_plan', id_=id_,
+    def update_product(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_product', id_=id_,
                          values=values))
 
-    def delete_plan(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('delete_plan', id_=id_))
+    def delete_product(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_product', id_=id_))
+
+    # Invoices
+    def create_invoice(self, ctxt, merchant_id, values):
+        return self.call(ctxt, self.make_msg('create_invoice',
+                         merchant_id=merchant_id, values=values))
+
+    def list_invoice(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_invoice',
+                         criterion=criterion))
+
+    def get_invoice(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_invoice', id_=id_))
+
+    def update_invoice(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_invoicet', id_=id_,
+                         values=values))
+
+    def delete_invoice(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_invoice', id_=id_))
+
+    # Subscriptions
+    def create_subscription(self, ctxt, merchant_id, values):
+        return self.call(ctxt, self.make_msg('create_subscription',
+                         merchant_id=merchant_id, values=values))
+
+    def list_subscription(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_subscription',
+                         criterion=criterion))
+
+    def get_subscription(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_subscription', id_=id_))
+
+    def update_subscription(self, ctxt, id_, values):
+        return self.call(ctxt, self.make_msg('update_subscriptiont', id_=id_,
+                         values=values))
+
+    def delete_subscription(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_subscription', id_=id_))

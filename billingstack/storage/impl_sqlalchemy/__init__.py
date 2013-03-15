@@ -408,99 +408,6 @@ class Connection(base.Connection, api.HelpersMixin):
     def delete_customer(self, ctxt, id_):
         return self._delete(models.Customer, id_)
 
-    # Products
-    def _product(self, row):
-        product = dict(row)
-
-        product['properties'] = self._kv_rows(row.properties,
-                                              func=lambda i: i['value'])
-        return product
-
-    def create_product(self, ctxt, merchant_id, values):
-        """
-        Add a new Product
-
-        :param merchant_id: The Merchant
-        :param values: Values describing the new Product
-        """
-        merchant = self._get(models.Merchant, merchant_id)
-
-        properties = values.pop('properties', {})
-
-        product = models.Product(**values)
-        product.merchant = merchant
-
-        self.set_properties(product, properties)
-
-        self._save(product)
-        return self._product(product)
-
-    def list_product(self, ctxt, **kw):
-        """
-        List Products
-
-        :param merchant_id: The Merchant to list it for
-        """
-        rows = self._list(models.Product, **kw)
-        return map(self._product, rows)
-
-    def get_product(self, ctxt, id_):
-        """
-        Get a Product
-
-        :param id_: The Product ID
-        """
-        row = self._get(models.Product, id_)
-        return self._product(row)
-
-    def update_product(self, ctxt, id_, values):
-        """
-        Update a Product
-
-        :param id_: The Product ID
-        :param values: Values to update with
-        """
-        properties = values.pop('properties', {})
-
-        row = self._get(models.Product, id_)
-        row.update(values)
-
-        self.set_properties(row, properties)
-
-        self._save(row)
-        return self._product(row)
-
-    def delete_product(self, ctxt, id_):
-        """
-        Delete a Product
-
-        :param id_: Product ID
-        """
-        self._delete(models.Product, id_)
-
-    # PlanItem
-    def create_plan_item(self, ctxt, values, save=True):
-        ref = models.PlanItem()
-        return self._update_plan_item(ref, values, save=save)
-
-    def update_plan_item(self, ctxt, item, values, save=True):
-        return self._update_plan_item(item, values, save=save)
-
-    def _update_plan_item(self, item, values, save=True):
-        row = self._get_row(item, models.PlanItem)
-        row.update(values)
-        return self._save(row, save=save)
-
-    def list_plan_item(self, ctxt, **kw):
-        return self._list(models.PlanItem, **kw)
-
-    def get_plan_item(self, ctxt, id_):
-        row = self._get(models.PlanItem, id_)
-        return dict(row)
-
-    def delete_plan_item(self, ctxt, id_):
-        self._delete(models.PlanItem, id_)
-
     # Plan
     def _plan(self, row):
         plan = dict(row)
@@ -577,3 +484,212 @@ class Connection(base.Connection, api.HelpersMixin):
         :param id_: Plan ID
         """
         self._delete(models.Plan, id_)
+
+    # PlanItem
+    def create_plan_item(self, ctxt, values, save=True):
+        ref = models.PlanItem()
+        return self._update_plan_item(ref, values, save=save)
+
+    def update_plan_item(self, ctxt, item, values, save=True):
+        return self._update_plan_item(item, values, save=save)
+
+    def _update_plan_item(self, item, values, save=True):
+        row = self._get_row(item, models.PlanItem)
+        row.update(values)
+        return self._save(row, save=save)
+
+    def list_plan_item(self, ctxt, **kw):
+        return self._list(models.PlanItem, **kw)
+
+    def get_plan_item(self, ctxt, id_):
+        row = self._get(models.PlanItem, id_)
+        return dict(row)
+
+    def delete_plan_item(self, ctxt, id_):
+        self._delete(models.PlanItem, id_)
+
+    # Products
+    def _product(self, row):
+        product = dict(row)
+
+        product['properties'] = self._kv_rows(row.properties,
+                                              func=lambda i: i['value'])
+        return product
+
+    def create_product(self, ctxt, merchant_id, values):
+        """
+        Add a new Product
+
+        :param merchant_id: The Merchant
+        :param values: Values describing the new Product
+        """
+        merchant = self._get(models.Merchant, merchant_id)
+
+        properties = values.pop('properties', {})
+
+        product = models.Product(**values)
+        product.merchant = merchant
+
+        self.set_properties(product, properties)
+
+        self._save(product)
+        return self._product(product)
+
+    def list_product(self, ctxt, **kw):
+        """
+        List Products
+
+        :param merchant_id: The Merchant to list it for
+        """
+        rows = self._list(models.Product, **kw)
+        return map(self._product, rows)
+
+    def get_product(self, ctxt, id_):
+        """
+        Get a Product
+
+        :param id_: The Product ID
+        """
+        row = self._get(models.Product, id_)
+        return self._product(row)
+
+    def update_product(self, ctxt, id_, values):
+        """
+        Update a Product
+
+        :param id_: The Product ID
+        :param values: Values to update with
+        """
+        properties = values.pop('properties', {})
+
+        row = self._get(models.Product, id_)
+        row.update(values)
+
+        self.set_properties(row, properties)
+
+        self._save(row)
+        return self._product(row)
+
+    def delete_product(self, ctxt, id_):
+        """
+        Delete a Product
+
+        :param id_: Product ID
+        """
+        self._delete(models.Product, id_)
+
+    # Invoices
+    def _invoice(self, row):
+        invoice = dict(row)
+        return invoice
+
+    def create_invoice(self, ctxt, merchant_id, values):
+        """
+        Add a new Invoice
+
+        :param merchant_id: The Merchant
+        :param values: Values describing the new Invoice
+        """
+        merchant = self._get(models.Merchant, merchant_id)
+
+        invoice = models.Invoice(**values)
+        invoice.merchant = merchant
+
+        self._save(invoice)
+        return self._invoice(invoice)
+
+    def list_invoice(self, ctxt, **kw):
+        """
+        List Invoices
+        """
+        rows = self._list(models.Invoice, **kw)
+        return map(self._invoice, rows)
+
+    def get_invoice(self, ctxt, id_):
+        """
+        Get a Invoice
+
+        :param id_: The Invoice ID
+        """
+        row = self._get(models.Invoice, id_)
+        return self.invoice(row)
+
+    def update_invoice(self, ctxt, id_, values):
+        """
+        Update a Invoice
+
+        :param id_: The Invoice ID
+        :param values: Values to update with
+        """
+        row = self._get(models.Invoice, id_)
+        row.update(values)
+
+        self._save(row)
+        return self._invoice(row)
+
+    def delete_invoice(self, ctxt, id_):
+        """
+        Delete a Invoice
+
+        :param id_: Invoice ID
+        """
+        self._delete(models.Invoice, id_)
+
+    # Subscriptions
+    def _subscription(self, row):
+        subscription = dict(row)
+        return subscription
+
+    def create_subscription(self, ctxt, customer_id, values):
+        """
+        Add a new Subscription
+
+        :param merchant_id: The Merchant
+        :param values: Values describing the new Subscription
+        """
+        customer = self._get(models.Customer, customer_id)
+
+        subscription = models.Subscription(**values)
+        subscription.customer = customer
+
+        self._save(subscription)
+        return self._subscription(subscription)
+
+    def list_subscription(self, ctxt, **kw):
+        """
+        List Subscriptions
+
+        :param merchant_id: The Merchant to list it for
+        """
+        rows = self._list(models.Subscription, **kw)
+        return map(self._subscription, rows)
+
+    def get_subscription(self, ctxt, id_):
+        """
+        Get a Subscription
+
+        :param id_: The Subscription ID
+        """
+        row = self._get(models.Subscription, id_)
+        return self._subscription(row)
+
+    def update_subscription(self, ctxt, id_, values):
+        """
+        Update a Subscription
+
+        :param id_: The Subscription ID
+        :param values: Values to update with
+        """
+        row = self._get(models.Subscription, id_)
+        row.update(values)
+
+        self._save(row)
+        return self._subscription(row)
+
+    def delete_subscription(self, ctxt, id_):
+        """
+        Delete a Subscription
+
+        :param id_: Subscription ID
+        """
+        self._delete(models.Subscription, id_)
