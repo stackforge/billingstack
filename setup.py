@@ -49,7 +49,6 @@ setup(
     scripts=[
         'bin/billingstack-api',
         'bin/billingstack-identity-api',
-        'bin/billingstack-db-manage',
         'bin/billingstack-manage',
         'bin/billingstack-central'
     ],
