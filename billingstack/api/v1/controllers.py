@@ -390,7 +390,7 @@ class PGConfigsController(RestBase):
     @wsme_pecan.wsexpose([models.PGConfig], unicode)
     def get_all(self):
         criterion = {
-            'customer_id': request.context['customer_id']
+            'merchant_id': request.context['merchant_id']
         }
 
         rows = request.central_api.list_pg_config(
