@@ -1,6 +1,6 @@
 [
    {
       "name": "Braintree Config",
-      "configuration" : "braintree"
+      "properties" : {}
    }
 ]

@@ -164,7 +164,7 @@ class Merchant(BASE, BaseMixin):
     title = Column(Unicode(60))
 
     customers = relationship('Customer', backref='merchant')
-    payment_gateways = relationship('PGAccountConfig', backref='merchant')
+    payment_gateways = relationship('PGConfig', backref='merchant')
 
     plans = relationship('Plan', backref='merchant')
     products = relationship('Product', backref='merchant')
@@ -178,14 +178,16 @@ class Merchant(BASE, BaseMixin):
                            nullable=False)
 
 
-class PGAccountConfig(BASE, BaseMixin):
+class PGConfig(BASE, BaseMixin):
     """
     A Merchant's configuration of a PaymentGateway like api keys, url and more
     """
-    __tablename__ = 'pg_account_config'
+    __tablename__ = 'pg_config'
+
     name = Column(Unicode(100), nullable=False)
     title = Column(Unicode(100))
-    configuration = Column(JSON)
+
+    properties = Column(JSON)
 
     # Link to the Merchant
     merchant_id = Column(UUID, ForeignKey('merchant.id'), nullable=False)

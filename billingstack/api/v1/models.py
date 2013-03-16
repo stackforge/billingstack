@@ -74,7 +74,6 @@ class ContactInfo(Base):
     website = text
 
 
-
 class Plan(DescribedBase):
     properties = DictType(key_type=text, value_type=property_type)
 
@@ -99,6 +98,13 @@ class Subscription(Base):
     plan_id = text
     customer_id = text
     payment_method_id = text
+
+
+class PGConfig(Base):
+    name = text
+    title = text
+
+    properties = DictType(key_type=text, value_type=property_type)
 
 
 class PaymentMethod(Base):

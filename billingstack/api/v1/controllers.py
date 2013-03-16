@@ -358,6 +358,57 @@ class SubscriptionsController(RestBase):
         return models.Subscription.from_db(row)
 
 
+# PaymentGatewayConfig
+class PGConfigController(RestBase):
+    """PGConfig controller"""
+    __id__ = 'pg_config'
+
+    @wsme_pecan.wsexpose(models.PGConfig, unicode)
+    def get_all(self):
+        row = request.central_api.get_pg_config(request.ctxt, self.id_)
+
+        return models.PGConfig.from_db(row)
+
+    @wsme_pecan.wsexpose(models.PGConfig, body=models.PGConfig)
+    def put(self, body):
+        row = request.central_api.update_pg_config(
+            request.ctxt,
+            self.id_,
+            body.to_db())
+
+        return models.PGConfig.from_db(row)
+
+    @wsme_pecan.wsexpose()
+    def delete(self):
+        request.central_api.delete_pg_config(request.ctxt, self.id_)
+
+
+class PGConfigsController(RestBase):
+    """PaymentMethods controller"""
+    __resource__ = PGConfigController
+
+    @wsme_pecan.wsexpose([models.PGConfig], unicode)
+    def get_all(self):
+        criterion = {
+            'customer_id': request.context['customer_id']
+        }
+
+        rows = request.central_api.list_pg_config(
+            request.ctxt,
+            criterion=criterion)
+
+        return [models.PGConfig.from_db(r) for r in rows]
+
+    @wsme_pecan.wsexpose(models.PGConfig, body=models.PGConfig)
+    def post(self, body):
+        row = request.central_api.create_pg_config(
+            request.ctxt,
+            request.context['customer_id'],
+            body.to_db())
+
+        return models.PGConfig.from_db(row)
+
+
 # PaymentMethod
 class PaymentMethodController(RestBase):
     """PaymentMethod controller"""

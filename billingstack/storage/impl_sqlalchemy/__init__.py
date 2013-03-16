@@ -296,7 +296,7 @@ class Connection(base.Connection, api.HelpersMixin):
         merchant = self._get_id_or_name(models.Merchant, merchant_id)
         provider = self._get_id_or_name(models.PGProvider, provider_id)
 
-        row = models.PGAccountConfig(**values)
+        row = models.PGConfig(**values)
         row.merchant = merchant
         row.provider = provider
 
@@ -304,19 +304,19 @@ class Connection(base.Connection, api.HelpersMixin):
         return dict(row)
 
     def list_pg_config(self, ctxt, **kw):
-        rows = self._list(models.PGAccountConfig, **kw)
+        rows = self._list(models.PGConfig, **kw)
         return map(dict, rows)
 
     def get_pg_config(self, ctxt, id_):
-        row = self._get(models.PGAccountConfig, id_)
+        row = self._get(models.PGConfig, id_)
         return dict(row)
 
     def update_pg_config(self, ctxt, id_, values):
-        row = self._update(models.PGAccountConfig, id_, values)
+        row = self._update(models.PGConfig, id_, values)
         return dict(row)
 
     def delete_pg_config(self, ctxt, id_):
-        self._delete(models.PGAccountConfig, id_)
+        self._delete(models.PGConfig, id_)
 
     # PaymentMethod
     def create_payment_method(self, ctxt, customer_id, pg_method_id, values):

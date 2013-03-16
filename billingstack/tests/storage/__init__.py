@@ -112,7 +112,7 @@ class StorageDriverTestCase(TestCase):
         self.storage_conn.set_properties(data['id'], metadata, cls=models.Product)
 
         actual = self.storage_conn.get_product(self.admin_ctxt, data['id'])
-        self.assertLen(4, actual['properties'])
+        self.assertLen(6, actual['properties'])
 
     # Payment Gateways
     def test_pg_provider_register(self):
@@ -209,7 +209,7 @@ class StorageDriverTestCase(TestCase):
         _, provider = self.pg_provider_register()
         fixture, data = self.create_pg_config(provider['id'])
 
-        fixture['configuration'] = {"api": 1}
+        fixture['properties'] = {"api": 1}
         updated = self.storage_conn.update_pg_config(self.admin_ctxt, data['id'], fixture)
 
         self.assertData(fixture, updated)
