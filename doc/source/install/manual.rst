@@ -44,8 +44,6 @@ Common Steps
 .. note::
    This is to not interfere with system packages etc.
 
-
-
    $ virtualenv --no-site-packages .venv
    $ . .venv/bin/activate
 
@@ -78,12 +76,11 @@ Installing Central
 
    $ vi etc/billingstack.conf
 
-   Refer to :doc:`configuration` details on configuring the service.
+   Refer to the configuration file for  details on configuring the service.
 
 3. Create the DB for :term:`central`::
 
    $ python tools/resync_billingstack.py
-
 
 4. Now you might want to load sample data for the time being::
 
@@ -136,7 +133,7 @@ Installing the API
 
    $ vi billingstack.conf
 
-   Refer to :doc:`configuration` details on configuring the service.
+   Refer to the configuration file for  details on configuring the service.
 
 3. Start the API service::
 
