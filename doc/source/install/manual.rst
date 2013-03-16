@@ -43,7 +43,8 @@ Common Steps
 
 .. note::
    This is to not interfere with system packages etc.
-   ::
+
+
 
    $ virtualenv --no-site-packages .venv
    $ . .venv/bin/activate
