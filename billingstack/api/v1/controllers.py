@@ -515,6 +515,7 @@ class MerchantController(RestBase):
     __resource__ = {
         "customers": CustomersController,
         "invoices": InvoicesController,
+        "payment-gateways": PGConfigsController,
         "plans": PlansController,
         "products": ProductsController
     }
