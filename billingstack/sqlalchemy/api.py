@@ -1,3 +1,5 @@
+import operator
+
 from sqlalchemy.orm import exc
 
 from billingstack import exceptions
@@ -6,6 +8,85 @@ from billingstack.sqlalchemy import model_base, session, utils
 
 
 LOG = log.getLogger(__name__)
+
+
+class Filterer(object):
+    """
+    Helper to apply filters...
+    """
+    std_op = [
+        (('eq', '==', '='), operator.eq),
+        (('ne', '!='), operator.ne),
+        (('ge', '>='), operator.ge),
+        (('le', '<='), operator.le),
+        (('gt', '>'), operator.gt),
+        (('le', '<'), operator.lt)
+    ]
+
+    def __init__(self, model, query, criterion):
+        self.model = model
+        self.query = query
+
+        if isinstance(criterion, dict):
+            criterion = self.from_dict(criterion)
+
+        self.criterion = criterion
+
+    def from_dict(self, criterion):
+        """
+        Transform a dict with key values to a filter compliant list of dicts.
+
+        :param criterion: The criterion dict.
+        """
+        data = []
+        for key, value in criterion.items():
+            c = {
+                'field': key,
+                'value': value,
+                'op': 'eq'
+            }
+            data.append(c)
+        return data
+
+    def get_op(self, op_key):
+        """
+        Get the operator.
+
+        :param op_key: The operator key as string.
+        """
+        for op_keys, op in self.std_op:
+            if op_key in op_keys:
+                return op
+
+    def apply_criteria(self):
+        """
+        Apply the actual criterion in this filterer and return a query with
+        filters applied.
+        """
+        query = self.query
+
+        for c in self.criterion:
+            # NOTE: Try to get the column
+            try:
+                col = getattr(self.model, c['field'])
+            except AttributeError:
+                msg = '%s is not a valid field to query by' % c['field']
+                raise exceptions.InvalidQueryField(msg)
+
+            # NOTE: Handle a special operator
+            std_op = self.get_op(c['op'])
+            if hasattr(self, c['op']):
+                getattr(self, c['op'])(c)
+            elif std_op:
+                query = query.filter(std_op(col, c['value']))
+            elif c['op'] in ('%', 'like'):
+                query = query.filter(col.like(c['value']))
+            elif c['op'] in ('!%', 'nlike'):
+                query = query.filter(col.notlike(c['value']))
+            else:
+                msg = 'Invalid operator in criteria \'%s\'' % c
+                raise exceptions.InvalidOperator(msg)
+            return query
 
 
 class HelpersMixin(object):
@@ -36,7 +117,10 @@ class HelpersMixin(object):
 
     def _list(self, cls=None, query=None, criterion=None):
         """
-        A generic list method
+        A generic list/search helper method.
+
+        Example criterion:
+            [{'field': 'id', 'op': 'eq', 'value': 'someid'}]
 
         :param cls: The model to try to delete
         :param criterion: Criterion to match objects with
@@ -47,7 +131,8 @@ class HelpersMixin(object):
         query = query or self.session.query(cls)
 
         if criterion:
-            query = query.filter_by(**criterion)
+            filterer = Filterer(cls, query, criterion)
+            query = filterer.apply_criteria()
 
         try:
             result = query.all()

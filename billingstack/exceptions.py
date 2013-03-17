@@ -45,6 +45,13 @@ class InvalidSortKey(Base):
     pass
 
 
+class InvalidQueryField(Base):
+    pass
+
+
+class InvalidOperator(Base):
+    pass
+
 class Duplicate(Base):
     pass
 

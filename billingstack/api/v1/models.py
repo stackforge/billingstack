@@ -2,6 +2,9 @@ from wsme.types import text, DictType
 
 
 from billingstack.api.base import ModelBase, property_type
+from billingstack.openstack.common import log
+
+LOG = log.getLogger(__name__)
 
 
 class Base(ModelBase):

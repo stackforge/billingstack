@@ -21,7 +21,7 @@ from pecan import request
 import wsmeext.pecan as wsme_pecan
 
 from billingstack.openstack.common import log
-from billingstack.api.base import RestBase
+from billingstack.api.base import RestBase, Query
 from billingstack.api.v1 import models
 
 LOG = log.getLogger(__name__)
@@ -195,15 +195,11 @@ class PlanController(RestBase):
 class PlansController(RestBase):
     __resource__ = PlanController
 
-    @wsme_pecan.wsexpose([models.Plan])
-    def get_all(self):
-        criterion = {
-            'merchant_id': request.context['merchant_id']
-        }
-
+    @wsme_pecan.wsexpose([models.Plan], [Query])
+    def get_all(self, q=[]):
         rows = request.central_api.list_plan(
             request.ctxt,
-            criterion=criterion)
+            criterion=[o.as_dict() for o in q])
 
         return [models.Plan.from_db(r) for r in rows]
 
@@ -244,9 +240,11 @@ class ProductController(RestBase):
 class ProductsController(RestBase):
     __resource__ = ProductController
 
-    @wsme_pecan.wsexpose([models.Product])
-    def get_all(self):
-        rows = request.central_api.list_product(request.ctxt)
+    @wsme_pecan.wsexpose([models.Product], [Query])
+    def get_all(self, q=[]):
+        rows = request.central_api.list_product(
+            request.ctxt,
+            criterion=[o.as_dict() for o in q])
 
         return [models.Product.from_db(r) for r in rows]
 
@@ -287,15 +285,11 @@ class InvoiceController(RestBase):
 class InvoicesController(RestBase):
     __resource__ = InvoiceController
 
-    @wsme_pecan.wsexpose([models.Invoice])
-    def get_all(self):
-        criterion = {
-            'merchant_id': request.context['merchant_id']
-        }
-
+    @wsme_pecan.wsexpose([models.Invoice], [Query])
+    def get_all(self, q=[]):
         rows = request.central_api.list_invoice(
             request.ctxt,
-            criterion=criterion)
+            criterion=[o.as_dict() for o in q])
 
         return [models.Invoice.from_db(r) for r in rows]
 
@@ -336,15 +330,11 @@ class SubscriptionController(RestBase):
 class SubscriptionsController(RestBase):
     __resource__ = SubscriptionController
 
-    @wsme_pecan.wsexpose([models.Subscription])
-    def get_all(self):
-        criterion = {
-            'customer_id': request.context['customer_id']
-        }
-
+    @wsme_pecan.wsexpose([models.Subscription], [Query])
+    def get_all(self, q=[]):
         rows = request.central_api.list_subscription(
             request.ctxt,
-            criterion=criterion)
+            criterion=[o.as_dict() for o in q])
 
         return [models.Subscription.from_db(r) for r in rows]
 
@@ -387,15 +377,11 @@ class PGConfigsController(RestBase):
     """PaymentMethods controller"""
     __resource__ = PGConfigController
 
-    @wsme_pecan.wsexpose([models.PGConfig], unicode)
-    def get_all(self):
-        criterion = {
-            'merchant_id': request.context['merchant_id']
-        }
-
+    @wsme_pecan.wsexpose([models.PGConfig], [Query])
+    def get_all(self, q=[]):
         rows = request.central_api.list_pg_config(
             request.ctxt,
-            criterion=criterion)
+            criterion=[o.as_dict() for o in q])
 
         return [models.PGConfig.from_db(r) for r in rows]
 
@@ -438,15 +424,11 @@ class PaymentMethodsController(RestBase):
     """PaymentMethods controller"""
     __resource__ = PaymentMethodController
 
-    @wsme_pecan.wsexpose([models.PaymentMethod], unicode)
-    def get_all(self):
-        criterion = {
-            'customer_id': request.context['customer_id']
-        }
-
+    @wsme_pecan.wsexpose([models.PaymentMethod], [Query])
+    def get_all(self, q=[]):
         rows = request.central_api.list_payment_method(
             request.ctxt,
-            criterion=criterion)
+            criterion=[o.as_dict() for o in q])
 
         return [models.PaymentMethod.from_db(r) for r in rows]
 
@@ -465,8 +447,7 @@ class CustomerController(RestBase):
     """Customer controller"""
     __id__ = 'customer'
     __resource__ = {
-        "payment-methods": PaymentMethodsController,
-        "subscriptions": SubscriptionsController
+        "payment-methods": PaymentMethodsController
     }
 
     @wsme_pecan.wsexpose(models.Customer, unicode)
@@ -493,10 +474,11 @@ class CustomersController(RestBase):
     """Customers controller"""
     __resource__ = CustomerController
 
-    @wsme_pecan.wsexpose([models.Customer])
-    def get_all(self):
+    @wsme_pecan.wsexpose([models.Customer], [Query])
+    def get_all(self, q=[]):
         rows = request.central_api.list_customer(
-            request.ctxt, criterion={"merchant_id": self.parent.id_})
+            request.ctxt,
+            criterion=[o.as_dict() for o in q])
 
         return [models.Customer.from_db(r) for r in rows]
 
@@ -517,7 +499,8 @@ class MerchantController(RestBase):
         "invoices": InvoicesController,
         "payment-gateways": PGConfigsController,
         "plans": PlansController,
-        "products": ProductsController
+        "products": ProductsController,
+        "subscriptions": SubscriptionsController
     }
 
     @wsme_pecan.wsexpose(models.Merchant)
@@ -544,8 +527,8 @@ class MerchantsController(RestBase):
     """Merchants controller"""
     __resource__ = MerchantController
 
-    @wsme_pecan.wsexpose([models.Merchant])
-    def get_all(self):
+    @wsme_pecan.wsexpose([models.Merchant], [Query])
+    def get_all(self, q=[]):
         rows = request.central_api.list_merchant(request.ctxt)
 
         return [models.Merchant.from_db(i) for i in rows]
