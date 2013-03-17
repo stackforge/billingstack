@@ -25,6 +25,7 @@ import sqlalchemy.orm
 from sqlalchemy.pool import NullPool, StaticPool
 
 from oslo.config import cfg
+from billingstack.openstack.common import lockutils
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.gettextutils import _
 
@@ -55,6 +56,7 @@ SQLOPTS = [
 ]
 
 
+@lockutils.synchronized('session', 'billingstack-')
 def get_session(config_group,
                 autocommit=True,
                 expire_on_commit=False,
