@@ -15,6 +15,7 @@ Contents:
    api
    glossary
    install/index
+   resources/index
 
 
 Indices and tables

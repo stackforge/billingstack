@@ -29,3 +29,10 @@ Glossary
         Web API
     central
         The Central service that does CRUD operations and more in BS.
+    customer
+        An entity underneath :term:`merchant` that holds different data that
+        resembles a Customer in an external system like a Tenant, Project etc.
+    merchant
+        An entity that holds one or more users, can configure integration with
+        third party services like OpenStack ceilometer, configure api
+        credentials for API access etc.
