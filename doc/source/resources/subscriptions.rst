@@ -34,8 +34,8 @@ Process
 2. Have an external service to create a new subscription against
     BillingStack when a new :term:`resource` is created in a system.
 
-3. Subscription is either created towards an existing:term:`customer` or
+3. Subscription is either created towards an existing :term:`customer` or
     if the :term:`merchant` has a setting configured to allow :term:`customer`
-    created if the given customer doesn't exist it will be created along with
+    created if the given :term:`customer` doesn't exist it will be created along with
     subscription.
 4. When a subscription is created we're ready to receive events from a system.
