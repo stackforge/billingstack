@@ -1,5 +1,6 @@
 ..
     Copyright 2013 Endre Karlson <endre.karlson@gmail.com>
+    Copyright 2013 Luis Gervaso <luis@woorea.es>
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may
     not use this file except in compliance with the License. You may obtain
@@ -28,14 +29,46 @@ Process
 
 .. note:: Try to outline a sample subscription creation process.
 
-* Prerequisites: Registered Merchant with API credentials configured for a Service.
 
-1. The :term:`merchant` configures a API access key for others services.
-2. Have an external service to create a new subscription against
-    BillingStack when a new :term:`resource` is created in a system.
 
-3. Subscription is either created towards an existing :term:`customer` or
-    if the :term:`merchant` has a setting configured to allow :term:`customer`
-    created if the given :term:`customer` doesn't exist it will be created along with
-    subscription.
-4. When a subscription is created we're ready to receive events from a system.
+* Prerequisites: Registered Merchant with API credentials configured and a merchant plan available.
+
+1. User registers in the merchant portal application using the merchant identity manager (e.g keystone)
+
+2. Portal gathers the available plans from BillingStack
+    
+    GET /merchants/<merchant_id>/plans
+
+3. User select the desired plan to subscribe in
+
+    3.1 If user is not registered in BillingStack then portal will register first the user in BillingStack
+        for a customer account
+
+        POST /users
+
+        POST /accounts
+
+        PUT /account/<account_id>/users/<user_id>/roles/<customer_admin_role_id>
+
+        PUT /merchants/<merchant_id>/customers/<account_id>
+
+        At this point the user is registered in BillingStack
+
+    3.2 BillingStack subscription is created for the BillingStack customer
+
+        3.1 Create the BillingStack Subscription
+
+        POST /merchants/<merchant_id>/subscriptions
+
+        3.2 Create a new OpenStack tenant
+
+        POST /tenants
+
+        3.3 Add OpenStack user to the recently created tenant
+
+        PUT /tenants/<tenant_id>/users/<openstack_user_id>/roles/<openstack_admin_role_id>
+
+        3.4 Update subscription resource attribute with the tenant id from OpenStack
+
+        PATCH /merchants/<merchant_id>/subscriptions/<subscription_id>
+4. Now the subscription can start receiving usage data from ceilometer tied by resource attribute
