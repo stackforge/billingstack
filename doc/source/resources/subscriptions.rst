@@ -74,21 +74,21 @@ Process
 
     3.2 BillingStack subscription is created for the BillingStack customer
 
-        3.1 Create the BillingStack Subscription
+        3.2.1 Create the BillingStack Subscription
 
           POST /merchants/<merchant_id>/subscriptions
 
-        3.2 Create a new OpenStack tenant
+        3.2.2 Create a new OpenStack tenant
 
           POST /tenants
 
           This tenant should be named bs-subscription-<subscription_id>
 
-        3.3 Add OpenStack user to the recently created tenant
+        3.2.3 Add OpenStack user to the recently created tenant
 
           PUT /tenants/<tenant_id>/users/<user_id>/roles/<openstack_admin_role_id>
 
-        3.4 Update subscription resource attribute with the tenant id from OpenStack
+        3.2.4 Update subscription resource attribute with the tenant id from OpenStack
 
         PATCH /merchants/<merchant_id>/subscriptions/<subscription_id>
 
