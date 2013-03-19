@@ -6,7 +6,6 @@ from oslo.config import cfg
 
 from billingstack.samples import get_samples
 from billingstack.identity.base import IdentityPlugin
-from billingstack.tests.api.base import PecanTestMixin
 from billingstack.tests.base import BaseTestCase
 
 
@@ -20,10 +19,13 @@ ROLE = {
 }
 
 
-class IdentityAPITest(BaseTestCase, PecanTestMixin):
+# FIXME: Remove or keep
+class IdentityAPITest(BaseTestCase):
     """
     billingstack.api base test
     """
+
+    __test__ = False
     PATH_PREFIX = '/v1'
 
     def setUp(self):

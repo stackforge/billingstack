@@ -64,6 +64,8 @@ setup(
         pg-register = billingstack.manage.provider:ProvidersRegister
         pg-list = billingstack.manage.provider:ProvidersList
 
+        [billingstack.api.v1.extensions]
+
         [billingstack.identity_plugin]
         sqlalchemy = billingstack.identity.impl_sqlalchemy:SQLAlchemyPlugin
 

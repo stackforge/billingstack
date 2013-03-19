@@ -19,7 +19,7 @@ Test Language
 
 import logging
 
-from billingstack.tests.api.v1.base import FunctionalTest
+from billingstack.tests.api.base import FunctionalTest
 
 LOG = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class TestLanguage(FunctionalTest):
 
         self.assertData(fixture, resp.json)
 
-    def test_list_language(self):
+    def test_list_languages(self):
 
         resp = self.get(self.path)
 
@@ -63,5 +63,5 @@ class TestLanguage(FunctionalTest):
         url = self.item_path(language['name'])
         self.delete(url)
 
-        data = self.central_service.list_language(self.admin_ctxt)
+        data = self.central_service.list_languages(self.admin_ctxt)
         self.assertLen(1, data)

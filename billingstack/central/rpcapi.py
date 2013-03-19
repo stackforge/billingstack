@@ -22,8 +22,8 @@ class CentralAPI(proxy.RpcProxy):
     def create_currency(self, ctxt, values):
         return self.call(ctxt, self.make_msg('create_currency', values=values))
 
-    def list_currency(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_currency',
+    def list_currencies(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_currencies',
                          criterion=criterion))
 
     def get_currency(self, ctxt, id_):
@@ -42,8 +42,8 @@ class CentralAPI(proxy.RpcProxy):
     def create_language(self, ctxt, values):
         return self.call(ctxt, self.make_msg('create_language', values=values))
 
-    def list_language(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_language',
+    def list_languages(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_languages',
                          criterion=criterion))
 
     def get_language(self, ctxt, id_):
@@ -61,8 +61,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('create_invoice_state',
                          values=values))
 
-    def list_invoice_state(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_invoice_state',
+    def list_invoice_states(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_invoice_states',
                          criterion=criterion))
 
     def get_invoice_state(self, ctxt, id_):
@@ -91,20 +91,20 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('delete_contact_info', id_=id_))
 
     # PGP
-    def list_pg_provider(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_pg_provider',
+    def list_pg_providers(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_pg_providers',
                          criterion=criterion))
 
     def get_pg_provider(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('get_pg_provider', id_=id_))
 
     # PGM
-    def list_pg_method(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_pg_method',
+    def list_pg_methods(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_pg_methods',
                          criterion=criterion))
 
     def get_pg_method(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('list_pg_method', id_=id_))
+        return self.call(ctxt, self.make_msg('list_pg_methods', id_=id_))
 
     # PGC
     def create_pg_config(self, ctxt, merchant_id, provider_id, values):
@@ -112,8 +112,8 @@ class CentralAPI(proxy.RpcProxy):
                          merchant_id=merchant_id, provider_id=provider_id,
                          values=values))
 
-    def list_pg_config(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_pg_config',
+    def list_pg_configs(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_pg_configs',
                          criterion=criterion))
 
     def get_pg_config(self, ctxt, id_):
@@ -132,8 +132,8 @@ class CentralAPI(proxy.RpcProxy):
                          customer_id=customer_id, pg_method_id=pg_method_id,
                          values=values))
 
-    def list_payment_method(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_payment_method',
+    def list_payment_methods(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_payment_methods',
                          criterion=criterion))
 
     def get_payment_method(self, ctxt, id_):
@@ -150,8 +150,8 @@ class CentralAPI(proxy.RpcProxy):
     def create_merchant(self, ctxt, values):
         return self.call(ctxt, self.make_msg('create_merchant', values=values))
 
-    def list_merchant(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_merchant',
+    def list_merchants(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_merchants',
                          criterion=criterion))
 
     def get_merchant(self, ctxt, id_):
@@ -170,8 +170,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('create_customer',
                          merchant_id=merchant_id, values=values))
 
-    def list_customer(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_customer',
+    def list_customers(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_customers',
                          criterion=criterion))
 
     def get_customer(self, ctxt, id_):
@@ -189,8 +189,9 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('create_plan',
                          merchant_id=merchant_id, values=values))
 
-    def list_plan(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_plan', criterion=criterion))
+    def list_plans(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_plans',
+                         criterion=criterion))
 
     def get_plan(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('get_plan', id_=id_))
@@ -207,8 +208,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('create_plan_item',
                          values=values))
 
-    def list_plan_item(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_plan_item',
+    def list_plan_items(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_plan_items',
                          criterion=criterion))
 
     def get_plan_item(self, ctxt, id_):
@@ -226,8 +227,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('create_product',
                          merchant_id=merchant_id, values=values))
 
-    def list_product(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_product',
+    def list_products(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_products',
                          criterion=criterion))
 
     def get_product(self, ctxt, id_):
@@ -245,8 +246,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('create_invoice',
                          merchant_id=merchant_id, values=values))
 
-    def list_invoice(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_invoice',
+    def list_invoices(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_invoices',
                          criterion=criterion))
 
     def get_invoice(self, ctxt, id_):
@@ -264,8 +265,8 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('create_subscription',
                          merchant_id=merchant_id, values=values))
 
-    def list_subscription(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_subscription',
+    def list_subscriptions(self, ctxt, criterion=None):
+        return self.call(ctxt, self.make_msg('list_subscriptions',
                          criterion=criterion))
 
     def get_subscription(self, ctxt, id_):
@@ -277,3 +278,6 @@ class CentralAPI(proxy.RpcProxy):
 
     def delete_subscription(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('delete_subscription', id_=id_))
+
+
+central_api = CentralAPI()

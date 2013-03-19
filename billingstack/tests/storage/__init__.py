@@ -249,7 +249,7 @@ class StorageDriverTestCase(TestCase):
         self.assertData(expected, actual)
 
     # TODO(ekarlso): Make this test more extensive?
-    def test_list_payment_method(self):
+    def test_list_payment_methods(self):
         # Setup a PGP with it's sample methods
         _, provider = self.pg_provider_register()
         m_id = provider['methods'][0]['id']
@@ -257,7 +257,7 @@ class StorageDriverTestCase(TestCase):
         # Add two Customers with some methods
         _, customer1 = self.create_customer(self.merchant['id'])
         self.create_payment_method(customer1['id'], m_id)
-        rows = self.storage_conn.list_payment_method(
+        rows = self.storage_conn.list_payment_methods(
             self.admin_ctxt,
             criterion={'customer_id': customer1['id']})
         self.assertLen(1, rows)
@@ -266,7 +266,7 @@ class StorageDriverTestCase(TestCase):
         self.create_payment_method(customer2['id'], m_id)
         self.create_payment_method(customer2['id'], m_id)
 
-        rows = self.storage_conn.list_payment_method(
+        rows = self.storage_conn.list_payment_methods(
             self.admin_ctxt,
             criterion={'customer_id': customer2['id']})
         self.assertLen(2, rows)

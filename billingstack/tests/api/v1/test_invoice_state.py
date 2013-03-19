@@ -19,7 +19,7 @@ Test InvoiceState
 
 import logging
 
-from billingstack.tests.api.v1.base import FunctionalTest
+from billingstack.tests.api.base import FunctionalTest
 
 LOG = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class TestInvoiceState(FunctionalTest):
 
         self.assertData(fixture, resp.json)
 
-    def test_list_invoice_state(self):
+    def test_list_invoice_states(self):
         self.create_invoice_state()
 
         resp = self.get(self.path)
@@ -64,5 +64,5 @@ class TestInvoiceState(FunctionalTest):
         url = self.item_path(state['name'])
         self.delete(url)
 
-        data = self.central_service.list_invoice_state(self.admin_ctxt)
+        data = self.central_service.list_invoice_states(self.admin_ctxt)
         self.assertLen(0, data)

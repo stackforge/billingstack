@@ -87,7 +87,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def list_currency(self, ctxt, **kw):
+    def list_currencies(self, ctxt, **kw):
         rows = self._list(models.Currency, **kw)
         return map(dict, rows)
 
@@ -112,7 +112,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def list_language(self, ctxt, **kw):
+    def list_languages(self, ctxt, **kw):
         rows = self._list(models.Language, **kw)
         return map(dict, rows)
 
@@ -136,7 +136,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def list_invoice_state(self, ctxt, **kw):
+    def list_invoice_states(self, ctxt, **kw):
         rows = self._list(models.InvoiceState, **kw)
         return map(dict, rows)
 
@@ -208,7 +208,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(provider)
         return self._dict(provider, extra=['methods'])
 
-    def list_pg_provider(self, ctxt, **kw):
+    def list_pg_providers(self, ctxt, **kw):
         """
         List available PG Providers
         """
@@ -237,7 +237,7 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         Helper method for setting the Methods for a Provider
         """
-        rows = self.list_pg_method(ctxt, criterion={"owner_id": None})
+        rows = self.list_pg_methods(ctxt, criterion={"owner_id": None})
         system_methods = self._kv_rows(rows, key=models.PGMethod.make_key)
 
         existing = self._get_provider_methods(provider)
@@ -278,7 +278,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def list_pg_method(self, ctxt, **kw):
+    def list_pg_methods(self, ctxt, **kw):
         return self._list(models.PGMethod, **kw)
 
     def get_pg_method(self, ctxt, id_):
@@ -303,7 +303,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def list_pg_config(self, ctxt, **kw):
+    def list_pg_configs(self, ctxt, **kw):
         rows = self._list(models.PGConfig, **kw)
         return map(dict, rows)
 
@@ -333,7 +333,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return self._dict(row, extra=['provider_method'])
 
-    def list_payment_method(self, ctxt, **kw):
+    def list_payment_methods(self, ctxt, **kw):
         rows = self._list(models.PaymentMethod, **kw)
         return [self._dict(row, extra=['provider_method']) for row in rows]
 
@@ -355,7 +355,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return dict(row)
 
-    def list_merchant(self, ctxt, **kw):
+    def list_merchants(self, ctxt, **kw):
         rows = self._list(models.Merchant, **kw)
         return map(dict, rows)
 
@@ -393,7 +393,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(customer)
         return self._customer(customer)
 
-    def list_customer(self, ctxt, **kw):
+    def list_customers(self, ctxt, **kw):
         rows = self._list(models.Customer, **kw)
         return map(dict, rows)
 
@@ -442,7 +442,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(plan)
         return self._plan(plan)
 
-    def list_plan(self, ctxt, **kw):
+    def list_plans(self, ctxt, **kw):
         """
         List Plan
 
@@ -498,7 +498,7 @@ class Connection(base.Connection, api.HelpersMixin):
         row.update(values)
         return self._save(row, save=save)
 
-    def list_plan_item(self, ctxt, **kw):
+    def list_plan_items(self, ctxt, **kw):
         return self._list(models.PlanItem, **kw)
 
     def get_plan_item(self, ctxt, id_):
@@ -535,7 +535,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(product)
         return self._product(product)
 
-    def list_product(self, ctxt, **kw):
+    def list_products(self, ctxt, **kw):
         """
         List Products
 
@@ -598,7 +598,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(invoice)
         return self._invoice(invoice)
 
-    def list_invoice(self, ctxt, **kw):
+    def list_invoices(self, ctxt, **kw):
         """
         List Invoices
         """
@@ -655,7 +655,7 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(subscription)
         return self._subscription(subscription)
 
-    def list_subscription(self, ctxt, **kw):
+    def list_subscriptions(self, ctxt, **kw):
         """
         List Subscriptions
 

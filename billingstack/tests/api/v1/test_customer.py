@@ -17,7 +17,7 @@
 Test Customers.
 """
 
-from billingstack.tests.api.v1.base import FunctionalTest
+from billingstack.tests.api.base import FunctionalTest
 from billingstack.api.v1.models import Customer
 
 
@@ -40,7 +40,7 @@ class TestCustomer(FunctionalTest):
 
         self.assertData(expected, resp.json)
 
-    def test_list_customer(self):
+    def test_list_customers(self):
         url = self.path % self.merchant['id']
 
         resp = self.get(url)
@@ -79,4 +79,4 @@ class TestCustomer(FunctionalTest):
         url = self.item_path(self.merchant['id'], customer['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.list_customer(self.admin_ctxt))
+        self.assertLen(0, self.central_service.list_customers(self.admin_ctxt))

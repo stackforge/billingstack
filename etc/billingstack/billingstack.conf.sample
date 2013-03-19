@@ -16,6 +16,9 @@ debug = True
 
 identity_driver = internal
 
+# Enabled API Version 1 extensions
+# #enabled_extensions_v1 = none
+
 [service:api]
 # Address to bind the API server
 # api_host = 0.0.0.0

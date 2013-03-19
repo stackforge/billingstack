@@ -17,7 +17,7 @@
 Test Plans
 """
 
-from billingstack.tests.api.v1.base import FunctionalTest
+from billingstack.tests.api.base import FunctionalTest
 
 
 class TestPlan(FunctionalTest):
@@ -33,7 +33,7 @@ class TestPlan(FunctionalTest):
 
         self.assertData(fixture, resp.json)
 
-    def test_list_plan(self):
+    def test_list_plans(self):
         self.create_plan(self.merchant['id'])
 
         url = self.path % self.merchant['id']
@@ -64,4 +64,4 @@ class TestPlan(FunctionalTest):
         url = self.item_path(self.merchant['id'], plan['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.list_plan(self.admin_ctxt))
+        self.assertLen(0, self.central_service.list_plans(self.admin_ctxt))

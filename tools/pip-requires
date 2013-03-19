@@ -1,12 +1,17 @@
-WebOb>=1.2
+Flask
+Paste
+PasteDeploy
 eventlet
-#pecan
--e git://github.com/ryanpetrello/pecan.git@next#egg=pecan
 stevedore
 argparse
 -e hg+https://bitbucket.org/cdevienne/wsme/#egg=wsme
-anyjson>=0.2.4
 pycountry
 iso8601
 cliff
 http://tarballs.openstack.org/oslo-config/oslo-config-2013.1b4.tar.gz#egg=oslo-config
+
+# From OpenStack Common
+routes>=1.12.3
+iso8601>=0.1.4
+WebOb>=1.0.8
+extras

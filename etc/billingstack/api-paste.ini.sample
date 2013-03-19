@@ -1,0 +1,33 @@
+[composite:bs_api]
+use = egg:Paste#urlmap
+/: bs_api_versions
+/v1: bs_core_api_v1
+
+[app:bs_api_versions]
+paste.app_factory = billingstack.api.versions:factory
+
+[composite:bs_core_api_v1]
+use = call:billingstack.api.auth:pipeline_factory
+noauth = noauthcontext bs_core_app_v1
+keystone = authtoken keystonecontext bs_core_app_v1
+
+[app:bs_core_app_v1]
+paste.app_factory = billingstack.api.v1:factory
+
+[filter:noauthcontext]
+paste.filter_factory = billingstack.api.auth:NoAuthContextMiddleware.factory
+
+#[filter:keystonecontext]
+#paste.filter_factory = billingstack.api.auth:KeystoneContextMiddleware.factory
+
+[filter:authtoken]
+paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+service_protocol = http
+service_host = 127.0.0.1
+service_port = 5000
+auth_host = 127.0.0.1
+auth_port = 35357
+auth_protocol = http
+admin_tenant_name = %SERVICE_TENANT_NAME%
+admin_user = %SERVICE_USER%
+admin_password = %SERVICE_PASSWORD%

@@ -17,7 +17,7 @@
 Test Merchants
 """
 
-from billingstack.tests.api.v1.base import FunctionalTest
+from billingstack.tests.api.base import FunctionalTest
 from billingstack.api.v1.models import Merchant
 
 
@@ -37,7 +37,7 @@ class TestMerchant(FunctionalTest):
 
         self.assertData(expected, resp.json)
 
-    def test_list_merchant(self):
+    def test_list_merchants(self):
         resp = self.get('merchants')
         self.assertLen(1, resp.json)
 
@@ -57,4 +57,4 @@ class TestMerchant(FunctionalTest):
 
     def test_delete_merchant(self):
         self.delete('merchants/' + self.merchant['id'])
-        self.assertLen(0, self.central_service.list_merchant(self.admin_ctxt))
+        self.assertLen(0, self.central_service.list_merchants(self.admin_ctxt))

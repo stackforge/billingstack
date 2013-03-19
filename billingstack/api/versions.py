@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-# Copyright 2012 Managed I.T.
+# Copyright 2012 Hewlett-Packard Development Company, L.P. All Rights Reserved.
 #
-# Author: Kiall Mac Innes <kiall@managedit.ie>
+# Author: Kiall Mac Innes <kiall@hp.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -16,21 +15,19 @@
 # under the License.
 #
 # Copied: Moniker
-import sys
-import eventlet
+import flask
 
-from oslo.config import cfg
-from billingstack.openstack.common import log as logging
-from billingstack.openstack.common import service
-from billingstack import utils
-from billingstack.api import service as api_service
 
-eventlet.monkey_patch()
+def factory(global_config, **local_conf):
+    app = flask.Flask('billingstack.api.versions')
 
-utils.read_config('billingstack', sys.argv)
+    @app.route('/', methods=['GET'])
+    def version_list():
+        return flask.jsonify({
+            "versions": [{
+                "id": "v1",
+                "status": "CURRENT"
+            }]
+        })
 
-logging.setup('billingstack')
-
-launcher = service.launch(api_service.Service(),
-                          cfg.CONF['service:api'].workers)
-launcher.wait()
+    return app

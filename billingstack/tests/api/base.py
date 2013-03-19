@@ -18,11 +18,8 @@
 """
 Base classes for API tests.
 """
-import os
-
-from pecan import set_config
-from pecan.testing import load_test_app
-
+from billingstack.api.v1 import factory
+from billingstack.api.auth import NoAuthContextMiddleware
 from billingstack.openstack.common import jsonutils as json
 from billingstack.openstack.common import log
 from billingstack.tests.base import TestCase
@@ -31,19 +28,31 @@ from billingstack.tests.base import TestCase
 LOG = log.getLogger(__name__)
 
 
-class PecanTestMixin(object):
-    PATH_PREFIX = ''
+class APITestMixin(object):
+    PATH_PREFIX = None
 
-    path = ""
+    path = None
 
     def item_path(self, *args):
         url = self.path + '/%s'
         return url % args
 
-    def make_path(self, path):
+    def _ensure_slash(self, path):
         if not path.startswith('/'):
             path = '/' + path
-        return self.PATH_PREFIX + path
+        return path
+
+    def make_path(self, path):
+        path = self._ensure_slash(path)
+        if self.PATH_PREFIX:
+            path = path + self._ensure_slash(self.PATH_PREFIX)
+        return path
+
+    def load_content(self, response):
+        try:
+            response.json = json.loads(response.data)
+        except ValueError:
+            response.json = None
 
     def _query(self, queries):
         query_params = {'q.field': [],
@@ -62,82 +71,84 @@ class PecanTestMixin(object):
             all_params.update(self._query(queries))
         return all_params
 
-    def get(self, path, headers=None,
-            q=[], status_code=200, **params):
+    def get(self, path, headers=None, q=[], status_code=200,
+            content_type="application/json", **params):
         path = self.make_path(path)
         all_params = self._params(params, q)
 
         LOG.debug('GET: %s %r', path, all_params)
 
-        response = self.app.get(path,
-                                params=all_params,
-                                headers=headers)
+        response = self.client.get(path,
+                                   content_type=content_type,
+                                   query_string=all_params,
+                                   headers=headers)
 
-        LOG.debug('GOT RESPONSE: %s', response)
+        LOG.debug('GOT RESPONSE: %s', response.data)
 
         self.assertEqual(response.status_code, status_code)
+
+        self.load_content(response)
 
         return response
 
     def post(self, path, data, headers=None, content_type="application/json",
-             q=[], status_code=200):
+             q=[], status_code=202):
         path = self.make_path(path)
 
         LOG.debug('POST: %s %s', path, data)
 
         content = json.dumps(data)
-        response = self.app.post(
+        response = self.client.post(
             path,
-            content,
+            data=content,
             content_type=content_type,
             headers=headers)
 
-        LOG.debug('POST RESPONSE: %r' % response.body)
+        LOG.debug('POST RESPONSE: %r' % response.data)
 
         self.assertEqual(response.status_code, status_code)
+
+        self.load_content(response)
 
         return response
 
     def put(self, path, data, headers=None, content_type="application/json",
-            q=[], status_code=200, **params):
+            q=[], status_code=202, **params):
         path = self.make_path(path)
 
         LOG.debug('PUT: %s %s', path, data)
 
         content = json.dumps(data)
-        response = self.app.put(
+        response = self.client.put(
             path,
-            content,
+            data=content,
             content_type=content_type,
             headers=headers)
 
         self.assertEqual(response.status_code, status_code)
 
-        LOG.debug('PUT RESPONSE: %r' % response.body)
+        LOG.debug('PUT RESPONSE: %r' % response.data)
+
+        self.load_content(response)
 
         return response
 
-    def delete(self, path, status_code=200, headers=None, q=[], **params):
+    def delete(self, path, status_code=204, headers=None, q=[], **params):
         path = self.make_path(path)
         all_params = self._params(params, q)
 
         LOG.debug('DELETE: %s %r', path, all_params)
 
-        response = self.app.delete(path, params=all_params)
+        response = self.client.delete(path, query_string=all_params)
 
-        LOG.debug('DELETE RESPONSE: %r' % response.body)
+        #LOG.debug('DELETE RESPONSE: %r' % response.body)
 
         self.assertEqual(response.status_code, status_code)
 
         return response
 
-    def make_app(self, enable_acl=False):
-        # This is done like this because if you import load_test_app in 2 diff
-        # modules it will fail with a PECAN_CONFIG error.
-        return load_test_app(self.make_config(enable_acl=enable_acl))
 
-
-class FunctionalTest(TestCase, PecanTestMixin):
+class FunctionalTest(TestCase, APITestMixin):
     """
     billingstack.api base test
     """
@@ -150,49 +161,10 @@ class FunctionalTest(TestCase, PecanTestMixin):
 
         self.setSamples()
 
-        self.app = self.make_app()
+        self.app = factory({})
+        self.app.wsgi_app = NoAuthContextMiddleware(self.app.wsgi_app)
+        self.client = self.app.test_client()
 
     def tearDown(self):
+        self.central_service.stop()
         super(FunctionalTest, self).tearDown()
-        set_config({}, overwrite=True)
-
-
-    def make_config(self, enable_acl=True):
-        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                '..',
-                                                '..',
-                                                )
-                                   )
-
-        return {
-            'app': {
-                'root': 'billingstack.api.root.RootController',
-                'modules': ['billingstack.api'],
-                'static_root': '%s/public' % root_dir,
-                'template_path': '%s/billingstack/api/templates' % root_dir,
-                'enable_acl': enable_acl,
-            },
-
-            'logging': {
-                'loggers': {
-                    'root': {'level': 'INFO', 'handlers': ['console']},
-                    'wsme': {'level': 'INFO', 'handlers': ['console']},
-                    'billingstack': {'level': 'DEBUG',
-                                   'handlers': ['console'],
-                                   },
-                },
-                'handlers': {
-                    'console': {
-                        'level': 'DEBUG',
-                        'class': 'logging.StreamHandler',
-                        'formatter': 'simple'
-                    }
-                },
-                'formatters': {
-                    'simple': {
-                        'format': ('%(asctime)s %(levelname)-5.5s [%(name)s]'
-                                   '[%(threadName)s] %(message)s')
-                    }
-                },
-            },
-        }

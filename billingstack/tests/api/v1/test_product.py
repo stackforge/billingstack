@@ -19,7 +19,7 @@ Test Products
 
 import logging
 
-from billingstack.tests.api.v1.base import FunctionalTest
+from billingstack.tests.api.base import FunctionalTest
 
 LOG = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class TestProduct(FunctionalTest):
 
         self.assertData(fixture, resp.json)
 
-    def test_list_product(self):
+    def test_list_products(self):
         self.create_product(self.merchant['id'])
 
         url = self.path % self.merchant['id']
@@ -67,4 +67,4 @@ class TestProduct(FunctionalTest):
         url = self.item_path(self.merchant['id'], product['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.list_product(self.admin_ctxt))
+        self.assertLen(0, self.central_service.list_products(self.admin_ctxt))

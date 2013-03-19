@@ -19,7 +19,7 @@ Test Currency
 
 import logging
 
-from billingstack.tests.api.v1.base import FunctionalTest
+from billingstack.tests.api.base import FunctionalTest
 
 LOG = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class TestCurrency(FunctionalTest):
 
         self.assertData(fixture, resp.json)
 
-    def test_list_currency(self):
+    def test_list_currencies(self):
 
         resp = self.get(self.path)
 
@@ -63,5 +63,5 @@ class TestCurrency(FunctionalTest):
         url = self.item_path(currency['name'])
         self.delete(url)
 
-        data = self.central_service.list_currency(self.admin_ctxt)
+        data = self.central_service.list_currencies(self.admin_ctxt)
         self.assertLen(1, data)
