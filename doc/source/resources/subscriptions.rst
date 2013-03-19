@@ -66,6 +66,7 @@ Process
         POST /v2.0/tenants
 
         PUT /v2.0/tenants/<tenant_id>/users/<user_id>/role/<openstack_admin_role_id>
+        
         PUT /v2.0/tenants/<tenant_id>/users/<user_id>/role/<billingstack_admin_role_id>
 
         Now it is necessary exchange the unscoped token to a scoped one
