@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = billingstack
+omit = billingstack/tests/*,billingstack/openstack/*
+
+[report]
+ignore-errors = True
