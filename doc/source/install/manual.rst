@@ -91,30 +91,6 @@ Installing Central
    $ billingstack-central
 
 
-Installing a PGP
-================
-
-.. index:
-   double: installing; pgp
-
-.. note::
-   This is REQUIRED to be installed on the same machine that has access to
-   the database and that has the billingstack-manage command.
-
-1. Clone a provider repo off of github::
-
-   $ git clone git@github.com:billingstack/billingstack-braintree.git
-
-2. Install it in the SAME env / venv as the main billingstack package::
-
-   $ pip install -rtools/setup-requires -rtools/pip-requires -rtools/pip-options
-   $ python setup.py develop
-
-3. Now register :term:`pgp` with it's :term:`pgm`::
-
-   $ billingstack-manage pg-register
-
-
 Installing the API
 ====================
 

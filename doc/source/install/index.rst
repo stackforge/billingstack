@@ -22,4 +22,6 @@
 .. toctree::
    :maxdepth: 2
 
+   common
    manual
+   pgp

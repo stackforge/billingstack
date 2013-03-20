@@ -13,6 +13,7 @@ Contents:
 
    architecture
    api
+   developing
    glossary
    install/index
    resources/index
