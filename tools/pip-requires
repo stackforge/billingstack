@@ -7,7 +7,8 @@ argparse
 -e hg+https://bitbucket.org/cdevienne/wsme/#egg=wsme
 pycountry
 cliff
-http://tarballs.openstack.org/oslo-config/oslo-config-2013.1b4.tar.gz#egg=oslo-config
+#http://tarballs.openstack.org/oslo-config/oslo-config-master.tar.gz#egg=oslo-config
+oslo.config>=1.1.0
 
 # From OpenStack Common
 routes>=1.12.3

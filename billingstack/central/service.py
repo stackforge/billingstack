@@ -10,6 +10,8 @@ cfg.CONF.import_opt('central_topic', 'billingstack.central.rpcapi')
 
 LOG = logging.getLogger(__name__)
 
+cfg.CONF.import_opt('state_path', 'billingstack.conf')
+
 
 class Service(rpc_service.Service):
     def __init__(self, *args, **kwargs):
