@@ -6,7 +6,6 @@ stevedore
 argparse
 -e hg+https://bitbucket.org/cdevienne/wsme/#egg=wsme
 pycountry
-iso8601
 cliff
 http://tarballs.openstack.org/oslo-config/oslo-config-2013.1b4.tar.gz#egg=oslo-config
 
