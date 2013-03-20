@@ -22,8 +22,6 @@ class Service(rpc_service.Service):
 
         super(Service, self).__init__(*args, **kwargs)
 
-        # Get a storage connection
-
     def start(self):
         self.storage_conn = storage.get_connection()
         super(Service, self).start()
