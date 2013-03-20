@@ -48,6 +48,7 @@ setup(
     dependency_links=dependency_links,
     scripts=[
         'bin/billingstack-api',
+        'bin/billingstack-db-manage',
         'bin/billingstack-identity-api',
         'bin/billingstack-manage',
         'bin/billingstack-central'
