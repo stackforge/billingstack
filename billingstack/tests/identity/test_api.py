@@ -9,9 +9,10 @@ from billingstack.identity.base import IdentityPlugin
 from billingstack.tests.base import BaseTestCase
 
 
-cfg.CONF.import_opt('database_connection',
-        'billingstack.identity.impl_sqlalchemy',
-        group='identity:sqlalchemy')
+cfg.CONF.import_opt(
+    'database_connection',
+    'billingstack.identity.impl_sqlalchemy',
+    group='identity:sqlalchemy')
 
 
 ROLE = {
@@ -52,7 +53,6 @@ class IdentityAPITest(BaseTestCase):
         super(IdentityAPITest, self).tearDown()
         set_config({}, overwrite=True)
 
-
     def make_config(self, enable_acl=True):
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                 '..',
@@ -74,8 +74,8 @@ class IdentityAPITest(BaseTestCase):
                     'root': {'level': 'INFO', 'handlers': ['console']},
                     'wsme': {'level': 'INFO', 'handlers': ['console']},
                     'billingstack': {'level': 'DEBUG',
-                                   'handlers': ['console'],
-                                   },
+                                     'handlers': ['console'],
+                                     },
                 },
                 'handlers': {
                     'console': {
@@ -137,12 +137,6 @@ class IdentityAPITest(BaseTestCase):
         resp = self.get('accounts')
         self.assertLen(0, resp.json)
 
-    def test_create_account(self):
-        values = self.get_fixture('merchant')
-        values['type'] = 'merchant'
-
-        self.post('accounts', values)
-
     # Roles
     def test_create_role(self):
         values = ROLE.copy()
@@ -150,7 +144,7 @@ class IdentityAPITest(BaseTestCase):
         resp = self.post('roles', values)
 
         assert resp.json['name'] == values['name']
-        assert resp.json['id'] != None
+        assert resp.json['id'] is not None
 
     def test_list_roles(self):
         resp = self.get('roles')
@@ -264,7 +258,7 @@ class IdentityAPITest(BaseTestCase):
 
     def test_login(self):
         user_data = self.get_fixture('user')
-        user = self.post('users', user_data).json
+        self.post('users', user_data).json
 
         resp = self.post('tokens', user_data)
 

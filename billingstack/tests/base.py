@@ -7,9 +7,10 @@ from oslo.config import cfg
 from billingstack import exceptions
 from billingstack import samples
 from billingstack import storage
+from billingstack.api import service as api_service
 from billingstack.central import service as central_service
-from billingstack.openstack.common import log as logging
-from billingstack.openstack.common.context import RequestContext, get_admin_context
+from billingstack.openstack.common.context import RequestContext, \
+    get_admin_context
 
 
 cfg.CONF.import_opt('storage_driver', 'billingstack.central',
@@ -140,24 +141,28 @@ class TestCase(BaseTestCase):
     def create_language(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('language', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.create_language(ctxt, fixture, **kw)
+        return fixture, self.central_service.create_language(ctxt, fixture,
+                                                             **kw)
 
     def create_currency(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('currency', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.create_currency(ctxt, fixture, **kw)
+        return fixture, self.central_service.create_currency(ctxt, fixture,
+                                                             **kw)
 
     def create_invoice_state(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('invoice_state', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.create_invoice_state(ctxt, fixture, **kw)
+        return fixture, self.central_service.create_invoice_state(
+            ctxt, fixture, **kw)
 
     def pg_provider_register(self, fixture=0, values={}, methods=[], **kw):
         methods = [self.get_fixture('pg_method')] or methods
         fixture = self.get_fixture('pg_provider', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
 
-        data = self.central_service.pg_provider_register(ctxt, fixture, methods=methods, **kw)
+        data = self.central_service.pg_provider_register(ctxt, fixture,
+                                                         methods=methods, **kw)
 
         fixture['methods'] = methods
         return fixture, data
@@ -181,20 +186,24 @@ class TestCase(BaseTestCase):
 
         self._account_defaults(fixture)
 
-        return fixture, self.central_service.create_merchant(ctxt, fixture, **kw)
+        return fixture, self.central_service.create_merchant(
+            ctxt, fixture, **kw)
 
     def create_pg_config(self, provider_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('pg_config', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.create_pg_config(ctxt, self.merchant['id'], provider_id, fixture, **kw)
+        return fixture, self.central_service.create_pg_config(
+            ctxt, self.merchant['id'], provider_id, fixture, **kw)
 
     def create_customer(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         self._account_defaults(fixture)
-        return fixture, self.central_service.create_customer(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.central_service.create_customer(
+            ctxt, merchant_id, fixture, **kw)
 
-    def create_payment_method(self, customer_id, provider_method_id, fixture=0, values={}, **kw):
+    def create_payment_method(self, customer_id, provider_method_id, fixture=0,
+                              values={}, **kw):
         fixture = self.get_fixture('payment_method', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.central_service.create_payment_method(
@@ -203,14 +212,17 @@ class TestCase(BaseTestCase):
     def user_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('user', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.user_add(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.central_service.user_add(
+            ctxt, merchant_id, fixture, **kw)
 
     def create_product(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('product', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.create_product(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.central_service.create_product(
+            ctxt, merchant_id, fixture, **kw)
 
     def create_plan(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('plan', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.create_plan(ctxt, merchant_id, fixture, **kw)
+        return fixture, self.central_service.create_plan(
+            ctxt, merchant_id, fixture, **kw)

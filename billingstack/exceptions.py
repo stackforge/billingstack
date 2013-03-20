@@ -52,6 +52,7 @@ class InvalidQueryField(Base):
 class InvalidOperator(Base):
     pass
 
+
 class Duplicate(Base):
     pass
 

@@ -3,14 +3,9 @@ A service that does calls towards the PGP web endpoint or so
 """
 
 import functools
-import re
 from oslo.config import cfg
 from billingstack.openstack.common import log as logging
-from billingstack.openstack.common import rpc
 from billingstack.openstack.common.rpc import service as rpc_service
-from stevedore.named import NamedExtensionManager
-from billingstack import exceptions
-from billingstack import utils
 from billingstack.central.rpcapi import CentralAPI
 
 
@@ -34,7 +29,8 @@ class Service(rpc_service.Service):
 
     def get_pg_provider(self, ctxt, pg_info):
         """
-        Work out a PGC config either from pg_info or via ctxt fetching it from central.
+        Work out a PGC config either from pg_info or via ctxt fetching it
+        from central.
         Return the appropriate PGP for this info.
 
         :param ctxt: Request context

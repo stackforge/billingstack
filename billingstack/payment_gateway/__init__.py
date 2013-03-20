@@ -14,7 +14,8 @@ def _register(ep, context, conn):
 
     values = provider.values()
 
-    LOG.debug("Attempting registration of PGP %s" % ep.plugin.get_plugin_name())
+    LOG.debug("Attempting registration of PGP %s" %
+              ep.plugin.get_plugin_name())
     try:
         methods = provider.methods()
     except NotImplementedError:

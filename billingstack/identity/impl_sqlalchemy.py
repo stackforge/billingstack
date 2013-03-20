@@ -15,7 +15,7 @@
 A Identity plugin...
 """
 from oslo.config import cfg
-from sqlalchemy import Column, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Unicode
 from sqlalchemy.orm import exc
 from sqlalchemy.ext.declarative import declarative_base
@@ -51,7 +51,7 @@ class UserAccountGrant(BASE):
     user_id = Column(UUID, ForeignKey('user.id', ondelete='CASCADE',
                      onupdate='CASCADE'), primary_key=True)
     account_id = Column(UUID, ForeignKey('account.id', ondelete='CASCADE',
-                     onupdate='CASCADE'), primary_key=True)
+                        onupdate='CASCADE'), primary_key=True)
     data = Column(JSON)
 
 
@@ -80,7 +80,8 @@ class SQLAlchemyPlugin(IdentityPlugin, api.HelpersMixin):
     def base(self):
         return BASE
 
-    def authenticate(self, context, user_id=None, password=None, account_id=None):
+    def authenticate(self, context, user_id=None, password=None,
+                     account_id=None):
         #self._get_by_name(models.
         pass
 

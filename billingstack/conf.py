@@ -9,7 +9,7 @@ cfg.CONF.register_opts([
                                                     '../')),
                help='Directory where the nova python module is installed'),
     cfg.StrOpt('state-path', default='$pybasedir',
-               help='Top-level directory for maintaining billingstack\'s state')
+               help='Top-level directory for maintaining state')
 ])
 
 
