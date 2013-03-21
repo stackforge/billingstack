@@ -5,12 +5,11 @@ from billingstack.openstack.common.rpc import service as rpc_service
 from billingstack import storage
 
 
-cfg.CONF.import_opt('host', 'billingstack.netconf')
 cfg.CONF.import_opt('central_topic', 'billingstack.central.rpcapi')
+cfg.CONF.import_opt('host', 'billingstack.netconf')
+cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 LOG = logging.getLogger(__name__)
-
-cfg.CONF.import_opt('state_path', 'billingstack.conf')
 
 
 class Service(rpc_service.Service):

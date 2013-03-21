@@ -25,7 +25,7 @@ from billingstack import utils
 #from billingstack import policy
 
 
-cfg.CONF.import_opt('state_path', 'billingstack.conf')
+cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 
 LOG = logging.getLogger(__name__)

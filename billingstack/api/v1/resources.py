@@ -310,7 +310,7 @@ def create_payment_method(merchant_id, customer_id):
 
 
 @bp.get('/merchants/<merchant_id>/customers/<customer_id>/payment-methods')
-def list_payment_methods(merchant_id):
+def list_payment_methods(merchant_id, customer_id):
     rows = central_api.list_payment_methods(request.environ['context'])
 
     return render([models.PaymentMethod.from_db(r) for r in rows])

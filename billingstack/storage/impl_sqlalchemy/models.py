@@ -401,8 +401,8 @@ class Subscription(BASE, BaseMixin):
     """
     billing_day = Column(Integer)
 
-    resource_id = Column(Unicode(255))
-    resource_type = Column(Unicode(255))
+    resource_id = Column(Unicode(255), nullable=False)
+    resource_type = Column(Unicode(255), nullable=True)
 
     usages = relationship(
         'Usage',
@@ -421,8 +421,7 @@ class Subscription(BASE, BaseMixin):
 
     payment_method = relationship('PaymentMethod', backref='subscriptions')
     payment_method_id = Column(UUID, ForeignKey('payment_method.id',
-                                                ondelete='CASCADE',
-                                                onupdate='CASCADE'),
+                               ondelete='CASCADE', onupdate='CASCADE'),
                                nullable=False)
 
 

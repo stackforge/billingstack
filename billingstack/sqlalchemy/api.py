@@ -78,6 +78,8 @@ class Filterer(object):
         """
         query = self.query
 
+        LOG.debug('Applying Critera %s' % self.criterion)
+
         for c in self.criterion:
             # NOTE: Try to get the column
             try:
@@ -99,11 +101,17 @@ class Filterer(object):
             else:
                 msg = 'Invalid operator in criteria \'%s\'' % c
                 raise exceptions.InvalidOperator(msg)
+
             return query
 
 
 class HelpersMixin(object):
     def setup(self, config_group):
+        """
+        Setup the Connection
+
+        :param config_group: The config group to get the config from
+        """
         self.session = session.get_session(config_group)
         self.engine = session.get_engine(config_group)
 
@@ -119,12 +127,18 @@ class HelpersMixin(object):
         base = self.base()
         base.metadata.drop_all(self.session.bind)
 
-    def _save(self, obj, save=True):
+    def _save(self, row, save=True):
+        """
+        Save a row.
+
+        :param row: The row to save.
+        :param save: Save or just return a ref.
+        """
         if not save:
-            return obj
+            return row
 
         try:
-            obj.save(self.session)
+            row.save(self.session)
         except exceptions.Duplicate:
             raise
 
@@ -157,6 +171,13 @@ class HelpersMixin(object):
             return result
 
     def _filter_id(self, cls, identifier, by_name):
+        """
+        Apply filter for either id or name
+
+        :param cls: The Model class.
+        :param identifier: The identifier of it.
+        :param by_name: By name.
+        """
         if hasattr(cls, 'id') and utils.is_valid_id(identifier):
             return cls.id == identifier
         elif hasattr(cls, 'name') and by_name:
