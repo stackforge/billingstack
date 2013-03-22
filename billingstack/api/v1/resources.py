@@ -473,6 +473,52 @@ def update_invoice(merchant_id, invoice_id):
     return render(models.Invoice.from_db(row))
 
 
+# Products
+@bp.post('/merchants/<merchant_id>/invoices/<invoice_id>/lines')
+def create_invoice_line(merchant_id, invoice_id):
+    data = request_data(models.Product)
+
+    row = central_api.create_invoice_line(
+        request.environ['context'],
+        invoice_id,
+        data)
+
+    return render(models.Product.from_db(row))
+
+
+@bp.get('/merchants/<merchant_id>/invoices/<invoice_id>/lines')
+def list_invoice_lines(merchant_id, invoice_id):
+    rows = central_api.list_invoice_lines(request.environ['context'])
+
+    return render([models.Product.from_db(r) for r in rows])
+
+
+@bp.get('/merchants/<merchant_id>/invoices/<invoice_id>/lines/<line_id>')
+def get_invoice_line(merchant_id, invoice_id, line_id):
+    row = central_api.get_invoice_line(request.environ['context'],
+                                       line_id)
+
+    return render(models.Product.from_db(row))
+
+
+@bp.put('/merchants/<merchant_id>/invoices/<invoice_id>/lines/<line_id>')
+def update_invoice_line(merchant_id, invoice_id, line_id):
+    data = request_data(models.Product)
+
+    row = central_api.update_invoice_line(
+        request.environ['context'],
+        line_id,
+        data)
+
+    return render(models.Product.from_db(row))
+
+
+@bp.delete('/merchants/<merchant_id>/invoices/<invoice_id>/lines/<line_id>')
+def delete_invoice_line(merchant_id, invoice_id, line_id):
+    central_api.delete_invoice_line(request.environ['context'], line_id)
+    return render()
+
+
 @bp.delete('/merchants/<merchant_id>/invoices/<invoice_id>')
 def delete_invoice(merchant_id, invoice_id):
     central_api.delete_invoice(request.environ['context'], invoice_id)
@@ -524,4 +570,55 @@ def delete_subscription(merchant_id, subscription_id):
     central_api.delete_subscription(
         request.environ['context'],
         subscription_id)
+    return render()
+
+
+# Usage
+@bp.post('/merchants/<merchant_id>/subscriptions/<subscription_id>/usage')
+def create_usage(merchant_id, subscription_id):
+    data = request_data(models.Usage)
+
+    row = central_api.create_usage(
+        request.environ['context'],
+        subscription_id,
+        data)
+
+    return render(models.Usage.from_db(row))
+
+
+@bp.get('/merchants/<merchant_id>/subscriptions/<subscription_id>/usage')
+def list_usages(merchant_id, subscription_id):
+    rows = central_api.list_usages(request.environ['context'])
+
+    return render([models.Usage.from_db(r) for r in rows])
+
+
+@bp.get('/merchants/<merchant_id>/subscriptions/subscription_id>/usage/'
+        '<usage_id>')
+def get_usage(merchant_id, subscription_id, usage_id):
+    row = central_api.get_usage(request.environ['context'],
+                                usage_id)
+
+    return render(models.Invoice.from_db(row))
+
+
+@bp.put('/merchants/<merchant_id>/subscriptions/<subscription_id>/usage/'
+        '<usage_id>')
+def update_usage(merchant_id, subscription_id, usage_id):
+    data = request_data(models.Usage)
+
+    row = central_api.update_usage(
+        request.environ['context'],
+        usage_id,
+        data)
+
+    return render(models.Usage.from_db(row))
+
+
+@bp.delete('/merchants/<merchant_id>/subscriptions/<subscription_id>/usage/'
+           '<usage_id>')
+def delete_usage(merchant_id, subscription_id, usage_id):
+    central_api.delete_usage(
+        request.environ['context'],
+        usage_id)
     return render()

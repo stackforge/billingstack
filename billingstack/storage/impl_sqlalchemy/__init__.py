@@ -635,6 +635,63 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         self._delete(models.Invoice, id_)
 
+    # Invoices Items
+    def _invoice_line(self, row):
+        line = dict(row)
+        return line
+
+    def create_invoice_items(self, ctxt, invoice_id, values):
+        """
+        Add a new Invoice
+
+        :param invoice_id: The Invoice
+        :param values: Values describing the new Invoice Line
+        """
+        invoice = self._get(models.Invoice, invoice_id)
+
+        line = models.InvoiceLine(**values)
+        line.invoice = invoice
+
+        self._save(line)
+        return self._invoice_line(line)
+
+    def list_invoice_lines(self, ctxt, **kw):
+        """
+        List Invoice Lines
+        """
+        rows = self._list(models.InvoiceLine, **kw)
+        return map(self._invoice_line, rows)
+
+    def get_invoice_line(self, ctxt, id_):
+        """
+        Get a Invoice Line
+
+        :param id_: The Invoice Line ID
+        """
+        row = self._get(models.InvoiceLine, id_)
+        return self._invoice_line(row)
+
+    def update_invoice_line(self, ctxt, id_, values):
+        """
+        Update a Invoice Line
+
+        :param id_: The Invoice ID
+        :param values: Values to update with
+        """
+        row = self._get(models.InvoiceLine, id_)
+        row.update(values)
+
+        self._save(row)
+        return self._invoice_line(row)
+
+    def delete_invoice_line(self, ctxt, id_):
+        """
+        Delete a Invoice Line
+
+        :param id_: Invoice Line ID
+        """
+        self._delete(models.InvoiceLine, id_)
+
     # Subscriptions
     def _subscription(self, row):
         subscription = dict(row)
@@ -693,3 +750,59 @@ class Connection(base.Connection, api.HelpersMixin):
         :param id_: Subscription ID
         """
         self._delete(models.Subscription, id_)
+
+    # Usages
+    def _usage(self, row):
+        return dict(row)
+
+    def create_usage(self, ctxt, subscription_id, values):
+        """
+        Add a new Usage
+
+        :param subscription_id: The Subscription
+        :param values: Values describing the new Subscription
+        """
+        subscription = self._get(models.Subscription, subscription_id)
+
+        usage = models.Usage(**values)
+        usage.subscription = subscription
+
+        self._save(usage)
+        return self._usage(usage)
+
+    def list_usages(self, ctxt, **kw):
+        """
+        List Usage
+        """
+        rows = self._list(models.Usage, **kw)
+        return map(self._usage, rows)
+
+    def get_usage(self, ctxt, id_):
+        """
+        Get a Usage
+
+        :param id_: The Usage ID
+        """
+        row = self._get(models.Usage, id_)
+        return self._usage(row)
+
+    def update_usage(self, ctxt, id_, values):
+        """
+        Update a Usage
+
+        :param id_: The Usage ID
+        :param values: Values to update with
+        """
+        row = self._get(models.Usage, id_)
+        row.update(values)
+
+        self._save(row)
+        return self._usage(row)
+
+    def delete_usage(self, ctxt, id_):
+        """
+        Delete a Usage
+
+        :param id_: Usage ID
+        """
+        self._delete(models.Usage, id_)

@@ -247,6 +247,22 @@ class Service(rpc_service.Service):
     def delete_invoice(self, ctxt, id_):
         return self.storage_conn.delete_invoice(ctxt, id_)
 
+    def create_invoice_line(self, ctxt, invoice_id, values):
+        return self.storage_conn.create_invoice_line_state(
+            ctxt, invoice_id, values)
+
+    def list_invoice_lines(self, ctxt, **kw):
+        return self.storage_conn.list_invoice_lines(ctxt, **kw)
+
+    def get_invoice_line(self, ctxt, id_):
+        return self.storage_conn.get_invoice_line(ctxt, id_)
+
+    def update_invoice_line(self, ctxt, id_, values):
+        return self.storage_conn.update_invoice_line(ctxt, id_, values)
+
+    def delete_invoice_line(self, ctxt, id_):
+        return self.storage_conn.delete_invoice_line(ctxt, id_)
+
     def create_subscription(self, ctxt, customer_id, values):
         return self.storage_conn.create_subscription(ctxt, customer_id, values)
 
@@ -261,3 +277,18 @@ class Service(rpc_service.Service):
 
     def delete_subscription(self, ctxt, id_):
         return self.storage_conn.delete_subscription(ctxt, id_)
+
+    def create_usage(self, ctxt, subscription_id, values):
+        return self.storage_conn.create_usage(ctxt, subscription_id, values)
+
+    def list_usages(self, ctxt, **kw):
+        return self.storage_conn.list_usages(ctxt, **kw)
+
+    def get_usage(self, ctxt, id_):
+        return self.storage_conn.get_usage(ctxt, id_)
+
+    def update_usage(self, ctxt, id_, values):
+        return self.storage_conn.update_usage(ctxt, id_, values)
+
+    def delete_usage(self, ctxt, id_):
+        return self.storage_conn.delete_usage(ctxt, id_)
