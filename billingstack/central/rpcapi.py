@@ -275,7 +275,7 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('get_invoice_line', id_=id_))
 
     def update_invoice_line(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_invoice_linet', id_=id_,
+        return self.call(ctxt, self.make_msg('update_invoice_line', id_=id_,
                          values=values))
 
     def delete_invoice_line(self, ctxt, id_):
@@ -294,7 +294,7 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('get_subscription', id_=id_))
 
     def update_subscription(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_subscriptiont', id_=id_,
+        return self.call(ctxt, self.make_msg('update_subscription', id_=id_,
                          values=values))
 
     def delete_subscription(self, ctxt, id_):
@@ -313,7 +313,7 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('get_usage', id_=id_))
 
     def update_usage(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_usaget', id_=id_,
+        return self.call(ctxt, self.make_msg('update_usage', id_=id_,
                          values=values))
 
     def delete_usage(self, ctxt, id_):
