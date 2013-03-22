@@ -115,6 +115,9 @@ class PaymentMethod(Base):
     identifier = text
     expires = text
 
+    customer_id = text
+    provider_method_id = text
+
     properties = DictType(key_type=text, value_type=property_type)
 
 

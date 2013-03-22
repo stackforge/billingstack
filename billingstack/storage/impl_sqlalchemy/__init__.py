@@ -319,16 +319,17 @@ class Connection(base.Connection, api.HelpersMixin):
         self._delete(models.PGConfig, id_)
 
     # PaymentMethod
-    def create_payment_method(self, ctxt, customer_id, pg_method_id, values):
+    def create_payment_method(self, ctxt, customer_id, values):
         """
         Configure a PaymentMethod like a CreditCard
         """
         customer = self._get_id_or_name(models.Customer, customer_id)
-        pg_method = self._get_id_or_name(models.PGMethod, pg_method_id)
+        provider_method = self._get_id_or_name(
+            models.PGMethod, values['provider_method_id'])
 
         row = models.PaymentMethod(**values)
         row.customer = customer
-        row.provider_method = pg_method
+        row.provider_method = provider_method
 
         self._save(row)
         return self._dict(row, extra=['provider_method'])
@@ -697,17 +698,14 @@ class Connection(base.Connection, api.HelpersMixin):
         subscription = dict(row)
         return subscription
 
-    def create_subscription(self, ctxt, customer_id, values):
+    def create_subscription(self, ctxt, values):
         """
         Add a new Subscription
 
         :param merchant_id: The Merchant
         :param values: Values describing the new Subscription
         """
-        customer = self._get(models.Customer, customer_id)
-
         subscription = models.Subscription(**values)
-        subscription.customer = customer
 
         self._save(subscription)
         return self._subscription(subscription)

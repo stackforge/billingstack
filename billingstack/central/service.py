@@ -45,13 +45,13 @@ class Service(rpc_service.Service):
         return _wrapper
 
     def create_currency(self, ctxt, values):
-        return self.create_currency(ctxt, values)
+        return self.storage_conn.create_currency(ctxt, values)
 
     def list_currencies(self, ctxt, **kw):
         return self.storage_conn.list_currencies(ctxt, **kw)
 
     def get_currency(self, ctxt, id_):
-        return self.storage.get_currency(ctxt, id_)
+        return self.storage_conn.get_currency(ctxt, id_)
 
     def update_currency(self, ctxt, id_, values):
         return self.storage_conn.update_currency(ctxt, id_, values)
@@ -84,7 +84,7 @@ class Service(rpc_service.Service):
         return self.storage_conn.get_invoice_state(ctxt, id_)
 
     def update_invoice_state(self, ctxt, id_, values):
-        return self.storage_conn.update_invoice_state(ctxt, id_)
+        return self.storage_conn.update_invoice_state(ctxt, id_, values)
 
     def delete_invoice_state(self, ctxt, id_):
         return self.storage_conn.delete_invoice_state(ctxt, id_)
@@ -140,9 +140,9 @@ class Service(rpc_service.Service):
     def delete_pg_config(self, ctxt, id_):
         return self.storage_conn.delete_pg_config(ctxt, id_)
 
-    def create_payment_method(self, ctxt, customer_id, pg_method_id, values):
+    def create_payment_method(self, ctxt, customer_id, values):
         return self.storage_conn.create_payment_method(
-            ctxt, customer_id, pg_method_id, values)
+            ctxt, customer_id, values)
 
     def list_payment_methods(self, ctxt, **kw):
         return self.storage_conn.list_payment_methods(ctxt, **kw)
@@ -263,8 +263,8 @@ class Service(rpc_service.Service):
     def delete_invoice_line(self, ctxt, id_):
         return self.storage_conn.delete_invoice_line(ctxt, id_)
 
-    def create_subscription(self, ctxt, customer_id, values):
-        return self.storage_conn.create_subscription(ctxt, customer_id, values)
+    def create_subscription(self, ctxt, values):
+        return self.storage_conn.create_subscription(ctxt, values)
 
     def list_subscriptions(self, ctxt, **kw):
         return self.storage_conn.list_subscriptions(ctxt, **kw)

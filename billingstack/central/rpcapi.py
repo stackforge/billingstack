@@ -104,7 +104,10 @@ class CentralAPI(proxy.RpcProxy):
                          criterion=criterion))
 
     def get_pg_method(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('list_pg_methods', id_=id_))
+        return self.call(ctxt, self.make_msg('get_pg_method', id_=id_))
+
+    def delete_pg_method(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('delete_pg_method', id_=id_))
 
     # PGC
     def create_pg_config(self, ctxt, merchant_id, provider_id, values):
@@ -127,10 +130,9 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('delete_pg_config', id_=id_))
 
     # PaymentMethod
-    def create_payment_method(self, ctxt, customer_id, pg_method_id, values):
+    def create_payment_method(self, ctxt, customer_id, values):
         return self.call(ctxt, self.make_msg('create_payment_method',
-                         customer_id=customer_id, pg_method_id=pg_method_id,
-                         values=values))
+                         customer_id=customer_id, values=values))
 
     def list_payment_methods(self, ctxt, criterion=None):
         return self.call(ctxt, self.make_msg('list_payment_methods',
@@ -254,7 +256,7 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('get_invoice', id_=id_))
 
     def update_invoice(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_invoicet', id_=id_,
+        return self.call(ctxt, self.make_msg('update_invoice', id_=id_,
                          values=values))
 
     def delete_invoice(self, ctxt, id_):
@@ -280,9 +282,9 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('delete_invoice_line', id_=id_))
 
     # Subscriptions
-    def create_subscription(self, ctxt, merchant_id, values):
+    def create_subscription(self, ctxt, values):
         return self.call(ctxt, self.make_msg('create_subscription',
-                         merchant_id=merchant_id, values=values))
+                         values=values))
 
     def list_subscriptions(self, ctxt, criterion=None):
         return self.call(ctxt, self.make_msg('list_subscriptions',

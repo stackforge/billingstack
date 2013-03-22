@@ -102,15 +102,15 @@ def delete_language(language_id):
 
 # PGP / PGM
 @bp.get('/payment-gateway-providers')
-def list_pg_providers(self):
-    rows = request.central_api.list_pg_provider(request.ctxt)
+def list_pg_providers():
+    rows = central_api.list_pg_provider(request.environ['context'])
 
     return render([models.PGProvider.from_db(r) for r in rows])
 
 
 @bp.get('/payment-gateway-methods')
-def list_pg_methods(self):
-    rows = request.central_api.list_pg_method(request.ctxt)
+def list_pg_methods():
+    rows = central_api.list_pg_methods(request.environ['context'])
 
     return render([models.PGMethod.from_db(r) for r in rows])
 
@@ -303,7 +303,7 @@ def create_payment_method(merchant_id, customer_id):
 
     row = central_api.create_payment_method(
         request.environ['context'],
-        merchant_id,
+        customer_id,
         data)
 
     return render(models.PaymentMethod.from_db(row))
@@ -528,21 +528,20 @@ def delete_invoice(merchant_id, invoice_id):
 # Subscription
 @bp.post('/merchants/<merchant_id>/subscriptions')
 def create_subscription(merchant_id):
-    data = request_data(models.Invoice)
+    data = request_data(models.Subscription)
 
     row = central_api.create_subscription(
         request.environ['context'],
-        merchant_id,
         data)
 
-    return render(models.Invoice.from_db(row))
+    return render(models.Subscription.from_db(row))
 
 
 @bp.get('/merchants/<merchant_id>/subscriptions')
 def list_subscriptions(merchant_id):
     rows = central_api.list_subscriptions(request.environ['context'])
 
-    return render([models.Invoice.from_db(r) for r in rows])
+    return render([models.Subscription.from_db(r) for r in rows])
 
 
 @bp.get('/merchants/<merchant_id>/subscriptions/<subscription_id>')
@@ -550,19 +549,19 @@ def get_subscription(merchant_id, subscription_id):
     row = central_api.get_subscription(request.environ['context'],
                                        subscription_id)
 
-    return render(models.Invoice.from_db(row))
+    return render(models.Subscription.from_db(row))
 
 
 @bp.put('/merchants/<merchant_id>/subscriptions/<subscription_id>')
 def update_subscription(merchant_id, subscription_id):
-    data = request_data(models.Invoice)
+    data = request_data(models.Subscription)
 
     row = central_api.update_subscription(
         request.environ['context'],
         subscription_id,
         data)
 
-    return render(models.Invoice.from_db(row))
+    return render(models.Subscription.from_db(row))
 
 
 @bp.delete('/merchants/<merchant_id>/subscriptions/<subscription_id>')
