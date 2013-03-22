@@ -81,12 +81,12 @@ class StorageDriverTestCase(TestCase):
         return fixture, self.storage_conn.create_customer(
             ctxt, merchant_id, fixture, **kw)
 
-    def create_payment_method(self, customer_id, provider_method_id, fixture=0,
+    def create_payment_method(self, customer_id, fixture=0,
                               values={}, **kw):
         fixture = self.get_fixture('payment_method', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.storage_conn.create_payment_method(
-            ctxt, customer_id, provider_method_id, fixture, **kw)
+            ctxt, customer_id, fixture, **kw)
 
     def create_product(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('product', fixture, values)
@@ -254,7 +254,8 @@ class StorageDriverTestCase(TestCase):
         m_id = provider['methods'][0]['id']
         _, customer = self.create_customer(self.merchant['id'])
 
-        fixture, data = self.create_payment_method(customer['id'], m_id)
+        fixture, data = self.create_payment_method(
+            customer['id'], values={'provider_method_id': m_id})
         self.assertData(fixture, data)
 
     def test_get_payment_method(self):
@@ -262,7 +263,8 @@ class StorageDriverTestCase(TestCase):
         m_id = provider['methods'][0]['id']
         _, customer = self.create_customer(self.merchant['id'])
 
-        _, expected = self.create_payment_method(customer['id'], m_id)
+        _, expected = self.create_payment_method(
+            customer['id'], values={'provider_method_id': m_id})
         actual = self.storage_conn.get_payment_method(self.admin_ctxt,
                                                       expected['id'])
         self.assertData(expected, actual)
@@ -275,15 +277,18 @@ class StorageDriverTestCase(TestCase):
 
         # Add two Customers with some methods
         _, customer1 = self.create_customer(self.merchant['id'])
-        self.create_payment_method(customer1['id'], m_id)
+        self.create_payment_method(
+            customer1['id'], values={'provider_method_id': m_id})
         rows = self.storage_conn.list_payment_methods(
             self.admin_ctxt,
             criterion={'customer_id': customer1['id']})
         self.assertLen(1, rows)
 
         _, customer2 = self.create_customer(self.merchant['id'])
-        self.create_payment_method(customer2['id'], m_id)
-        self.create_payment_method(customer2['id'], m_id)
+        self.create_payment_method(
+            customer2['id'], values={'provider_method_id': m_id})
+        self.create_payment_method(
+            customer2['id'], values={'provider_method_id': m_id})
 
         rows = self.storage_conn.list_payment_methods(
             self.admin_ctxt,
@@ -299,7 +304,8 @@ class StorageDriverTestCase(TestCase):
         m_id = provider['methods'][0]['id']
         _, customer = self.create_customer(self.merchant['id'])
 
-        fixture, data = self.create_payment_method(customer['id'], m_id)
+        fixture, data = self.create_payment_method(
+            customer['id'], values={'provider_method_id': m_id})
 
         fixture['identifier'] = 1
         updated = self.storage_conn.update_payment_method(self.admin_ctxt,
@@ -313,10 +319,14 @@ class StorageDriverTestCase(TestCase):
 
     def test_delete_payment_method(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.create_pg_config(provider['id'])
+        m_id = provider['methods'][0]['id']
+        _, customer = self.create_customer(self.merchant['id'])
 
-        self.storage_conn.delete_pg_config(self.admin_ctxt, data['id'])
-        self.assertMissing(self.storage_conn.delete_payment_method,
+        fixture, data = self.create_payment_method(
+            customer['id'], values={'provider_method_id': m_id})
+
+        self.storage_conn.delete_payment_method(self.admin_ctxt, data['id'])
+        self.assertMissing(self.storage_conn.get_payment_method,
                            self.admin_ctxt, data['id'])
 
     def test_delete_payment_method_missing(self):
