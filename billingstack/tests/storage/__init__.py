@@ -1,6 +1,6 @@
-# Copyright 2012 Managed I.T.
+# -*- encoding: utf-8 -*-
 #
-# Author: Kiall Mac Innes <kiall@managedit.ie>
+# Author: Endre Karlson <endre.karlson@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -13,8 +13,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-#
-# Copied: Moniker
 from billingstack.openstack.common import log as logging
 from billingstack.storage.impl_sqlalchemy import models
 from billingstack.tests.base import TestCase
@@ -68,11 +66,12 @@ class StorageDriverTestCase(TestCase):
 
         return fixture, self.storage_conn.create_merchant(ctxt, fixture, **kw)
 
-    def create_pg_config(self, provider_id, fixture=0, values={}, **kw):
+    def create_pg_config(self, merchant_id, provider_id, fixture=0, values={},
+                         **kw):
         fixture = self.get_fixture('pg_config', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.storage_conn.create_pg_config(
-            ctxt, self.merchant['id'], provider_id, fixture, **kw)
+            ctxt, merchant_id, provider_id, fixture, **kw)
 
     def create_customer(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
@@ -172,12 +171,14 @@ class StorageDriverTestCase(TestCase):
     # Payment Gateway Configuration
     def test_create_pg_config(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.create_pg_config(provider['id'])
+        fixture, data = self.create_pg_config(
+            self.merchant['id'], provider['id'])
         self.assertData(fixture, data)
 
     def test_get_pg_config(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.create_pg_config(provider['id'])
+        fixture, data = self.create_pg_config(
+            self.merchant['id'], provider['id'])
 
     def test_get_pg_config_missing(self):
         self.assertMissing(self.storage_conn.get_pg_config,
@@ -185,7 +186,8 @@ class StorageDriverTestCase(TestCase):
 
     def test_update_pg_config(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.create_pg_config(provider['id'])
+        fixture, data = self.create_pg_config(
+            self.merchant['id'], provider['id'])
 
         fixture['properties'] = {"api": 1}
         updated = self.storage_conn.update_pg_config(
@@ -195,14 +197,16 @@ class StorageDriverTestCase(TestCase):
 
     def test_update_pg_config_missing(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.create_pg_config(provider['id'])
+        fixture, data = self.create_pg_config(
+            self.merchant['id'], provider['id'])
 
         self.assertMissing(self.storage_conn.update_pg_config,
                            self.admin_ctxt, UUID, {})
 
     def test_delete_pg_config(self):
         _, provider = self.pg_provider_register()
-        fixture, data = self.create_pg_config(provider['id'])
+        fixture, data = self.create_pg_config(
+            self.merchant['id'], provider['id'])
 
         self.storage_conn.delete_pg_config(self.admin_ctxt, data['id'])
         self.assertMissing(self.storage_conn.get_pg_config,
@@ -214,35 +218,51 @@ class StorageDriverTestCase(TestCase):
 
     # PaymentMethod
     def test_create_payment_method(self):
+        # Setup pgp / pgm / pgc
         _, provider = self.pg_provider_register()
-        m_id = provider['methods'][0]['id']
+        _, config = self.create_pg_config(self.merchant['id'], provider['id'])
         _, customer = self.create_customer(self.merchant['id'])
 
+        # Setup PaymentMethod
+        values = {
+            'provider_method_id': provider['methods'][0]['id'],
+            'provider_config_id': config['id']}
+
         fixture, data = self.create_payment_method(
-            customer['id'], values={'provider_method_id': m_id})
+            customer['id'], values=values)
         self.assertData(fixture, data)
 
     def test_get_payment_method(self):
+        # Setup pgp / pgm / pgc
         _, provider = self.pg_provider_register()
-        m_id = provider['methods'][0]['id']
+        _, config = self.create_pg_config(self.merchant['id'], provider['id'])
         _, customer = self.create_customer(self.merchant['id'])
 
+        # Setup PaymentMethod
+        values = {
+            'provider_method_id': provider['methods'][0]['id'],
+            'provider_config_id': config['id']}
+
         _, expected = self.create_payment_method(
-            customer['id'], values={'provider_method_id': m_id})
+            customer['id'], values=values)
         actual = self.storage_conn.get_payment_method(self.admin_ctxt,
                                                       expected['id'])
         self.assertData(expected, actual)
 
     # TODO(ekarlso): Make this test more extensive?
     def test_list_payment_methods(self):
-        # Setup a PGP with it's sample methods
+        # Setup pgp / pgm / pgc
         _, provider = self.pg_provider_register()
-        m_id = provider['methods'][0]['id']
+        _, config = self.create_pg_config(self.merchant['id'], provider['id'])
+
+        values = {
+            'provider_method_id': provider['methods'][0]['id'],
+            'provider_config_id': config['id']}
 
         # Add two Customers with some methods
         _, customer1 = self.create_customer(self.merchant['id'])
         self.create_payment_method(
-            customer1['id'], values={'provider_method_id': m_id})
+            customer1['id'], values=values)
         rows = self.storage_conn.list_payment_methods(
             self.admin_ctxt,
             criterion={'customer_id': customer1['id']})
@@ -250,10 +270,9 @@ class StorageDriverTestCase(TestCase):
 
         _, customer2 = self.create_customer(self.merchant['id'])
         self.create_payment_method(
-            customer2['id'], values={'provider_method_id': m_id})
+            customer2['id'], values=values)
         self.create_payment_method(
-            customer2['id'], values={'provider_method_id': m_id})
-
+            customer2['id'], values=values)
         rows = self.storage_conn.list_payment_methods(
             self.admin_ctxt,
             criterion={'customer_id': customer2['id']})
@@ -264,12 +283,18 @@ class StorageDriverTestCase(TestCase):
                            self.admin_ctxt, UUID)
 
     def test_update_payment_method(self):
+        # Setup pgp / pgm / pgc
         _, provider = self.pg_provider_register()
-        m_id = provider['methods'][0]['id']
+        _, config = self.create_pg_config(self.merchant['id'], provider['id'])
         _, customer = self.create_customer(self.merchant['id'])
 
+        # Setup PaymentMethod
+        values = {
+            'provider_method_id': provider['methods'][0]['id'],
+            'provider_config_id': config['id']}
+
         fixture, data = self.create_payment_method(
-            customer['id'], values={'provider_method_id': m_id})
+            customer['id'], values=values)
 
         fixture['identifier'] = 1
         updated = self.storage_conn.update_payment_method(self.admin_ctxt,
@@ -282,12 +307,18 @@ class StorageDriverTestCase(TestCase):
                            self.admin_ctxt, UUID, {})
 
     def test_delete_payment_method(self):
+        # Setup pgp / pgm / pgc
         _, provider = self.pg_provider_register()
-        m_id = provider['methods'][0]['id']
+        _, config = self.create_pg_config(self.merchant['id'], provider['id'])
         _, customer = self.create_customer(self.merchant['id'])
 
+        # Setup PaymentMethod
+        values = {
+            'provider_method_id': provider['methods'][0]['id'],
+            'provider_config_id': config['id']}
+
         fixture, data = self.create_payment_method(
-            customer['id'], values={'provider_method_id': m_id})
+            customer['id'], values=values)
 
         self.storage_conn.delete_payment_method(self.admin_ctxt, data['id'])
         self.assertMissing(self.storage_conn.get_payment_method,
