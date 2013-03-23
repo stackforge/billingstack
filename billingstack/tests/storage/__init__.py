@@ -138,7 +138,7 @@ class StorageDriverTestCase(TestCase):
         method2 = {'type': 'creditcard', 'name': 'amex'}
         self.storage_conn.create_pg_method(self.admin_ctxt, method2)
 
-        method3 = {'type': 'creditcard', 'name': 'visa', 'owned': 1}
+        method3 = {'type': 'creditcard', 'name': 'visa'}
 
         methods = [method1, method2, method3]
         provider = {'name': 'noop'}
@@ -148,42 +148,6 @@ class StorageDriverTestCase(TestCase):
 
         # TODO(ekarls): Make this more extensive?
         self.assertLen(3, provider['methods'])
-
-    def test_pg_provider_register_method_switch_methods(self):
-        provider_data = {'name': 'noop'}
-
-        system_method = {
-            'type': 'creditcard',
-            'name': 'mastercard',
-            'title': "random"}
-        self.storage_conn.create_pg_method(self.admin_ctxt, system_method)
-
-        provider = self.storage_conn.pg_provider_register(
-            self.admin_ctxt,
-            provider_data,
-            [system_method])
-        self.assertLen(1, provider['methods'])
-        self.assertData(system_method, provider['methods'][0])
-
-        provider_method = {
-            'type': 'creditcard',
-            'name': 'mastercard',
-            'title': 'random2',
-            'owned': 1}
-
-        provider = self.storage_conn.pg_provider_register(
-            self.admin_ctxt,
-            provider_data,
-            [provider_method])
-        self.assertLen(1, provider['methods'])
-        self.assertData(provider_method, provider['methods'][0])
-
-        provider = self.storage_conn.pg_provider_register(
-            self.admin_ctxt,
-            provider_data,
-            [system_method])
-        self.assertLen(1, provider['methods'])
-        self.assertData(system_method, provider['methods'][0])
 
     def test_get_pg_provider(self):
         _, expected = self.pg_provider_register()

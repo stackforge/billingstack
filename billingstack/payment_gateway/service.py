@@ -10,7 +10,9 @@ from billingstack.central.rpcapi import CentralAPI
 
 
 cfg.CONF.import_opt('host', 'billingstack.netconf')
-cfg.CONF.import_opt('host', 'billingstack.payment_gateway.rpcapi')
+cfg.CONF.import_opt('pg_topic', 'billingstack.payment_gateway.rpcapi')
+cfg.CONF.import_opt('state_path', 'billingstack.paths')
+
 
 LOG = logging.getLogger(__name__)
 

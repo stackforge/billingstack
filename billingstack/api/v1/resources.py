@@ -103,12 +103,12 @@ def delete_language(language_id):
 # PGP / PGM
 @bp.get('/payment-gateway-providers')
 def list_pg_providers():
-    rows = central_api.list_pg_provider(request.environ['context'])
+    rows = central_api.list_pg_providers(request.environ['context'])
 
     return render([models.PGProvider.from_db(r) for r in rows])
 
 
-@bp.get('/payment-gateway-methods')
+@bp.get('/payment-gateway-providers/<pgp_id>/methods')
 def list_pg_methods():
     rows = central_api.list_pg_methods(request.environ['context'])
 

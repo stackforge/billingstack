@@ -228,49 +228,27 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         methods = {}
         for m in provider.methods:
-            m_key = m.key()
-            key = '%s:%s' % (m.owner_id, m_key) if m.owner_id else m_key
-            methods[key] = m
+            methods[m.key()] = m
         return methods
 
     def _set_provider_methods(self, ctxt, provider, config_methods):
         """
         Helper method for setting the Methods for a Provider
         """
-        rows = self.list_pg_methods(ctxt, criterion={"owner_id": None})
-        system_methods = self._kv_rows(rows, key=models.PGMethod.make_key)
-
         existing = self._get_provider_methods(provider)
 
         for method in config_methods:
-            self._set_method(provider, method, existing, system_methods)
+            self._set_method(provider, method, existing)
         self._save(provider)
 
-    def _set_method(self, provider, method, existing, all_methods):
-        method_key = models.PGMethod.make_key(method)
-        key = '%s:%s' % (provider.id, method_key)
+    def _set_method(self, provider, method, existing):
+        key = models.PGMethod.make_key(method)
 
-        if method.pop('owned', False):
-            if method_key in existing:
-                provider.methods.remove(existing[method_key])
-
-            if key in existing:
-                existing[key].update(method)
-            else:
-                row = models.PGMethod(**method)
-                provider.methods.append(row)
-                provider.provider_methods.append(row)
+        if key in existing:
+            existing[key].update(method)
         else:
-            if key in existing:
-                provider.methods.remove(existing[key])
-
-            try:
-                all_methods[method_key].providers.append(provider)
-            except KeyError:
-                msg = 'Provider %s tried to associate to non-existing'\
-                      'method %s' % (provider.name, method_key)
-                LOG.error(msg)
-                raise exceptions.ConfigurationError(msg)
+            row = models.PGMethod(**method)
+            provider.methods.append(row)
 
     # PGMethods
     def create_pg_method(self, ctxt, values):

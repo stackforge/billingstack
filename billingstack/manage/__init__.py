@@ -13,9 +13,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from oslo.config import cfg
 from cliff.app import App
 from cliff.commandmanager import CommandManager
 from billingstack.version import version_info as version
+
+
+cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 
 class Shell(App):

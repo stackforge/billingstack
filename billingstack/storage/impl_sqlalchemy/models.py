@@ -11,7 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from sqlalchemy import Column, Table, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, ForeignKey, UniqueConstraint
 from sqlalchemy import Integer, Float
 from sqlalchemy import DateTime, Unicode
 from sqlalchemy.orm import relationship, backref
@@ -45,12 +45,6 @@ class Language(BASE):
     title = Column(Unicode(100), nullable=False)
 
 
-pg_provider_methods = Table(
-    'pg_provider_methods', BASE.metadata,
-    Column('provider_id', UUID, ForeignKey('pg_provider.id')),
-    Column('method_id', UUID, ForeignKey('pg_method.id')))
-
-
 class PGProvider(BASE, BaseMixin):
     """
     A Payment Gateway - The thing that processes a Payment Method
@@ -67,18 +61,7 @@ class PGProvider(BASE, BaseMixin):
 
     methods = relationship(
         'PGMethod',
-        backref='providers',
-        secondary=pg_provider_methods,
-        primaryjoin="PGProvider.id==pg_provider_methods.c.provider_id",
-        secondaryjoin="PGMethod.id==pg_provider_methods.c.method_id",
-        lazy='joined')
-
-    provider_methods = relationship(
-        'PGMethod',
-        backref='owner',
-        primaryjoin='PGProvider.id == PGMethod.owner_id',
-        foreign_keys='[PGMethod.owner_id]',
-        post_update=True,
+        backref='provider',
         lazy='joined')
 
     def method_map(self):
@@ -105,12 +88,10 @@ class PGMethod(BASE, BaseMixin):
 
     # NOTE: This is so a PGMethod can be "owned" by a Provider, meaning that
     # other Providers should not be able to use it.
-    owner_id = Column(UUID, ForeignKey(
-        'pg_provider_methods.provider_id',
+    provider_id = Column(UUID, ForeignKey(
+        'pg_provider.id',
         ondelete='CASCADE',
-        onupdate='CASCADE',
-        use_alter=True,
-        name='owner_fk'))
+        onupdate='CASCADE'))
 
     @staticmethod
     def make_key(data):
