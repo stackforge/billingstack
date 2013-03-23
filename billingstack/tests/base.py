@@ -189,11 +189,12 @@ class TestCase(BaseTestCase):
         return fixture, self.central_service.create_merchant(
             ctxt, fixture, **kw)
 
-    def create_pg_config(self, provider_id, fixture=0, values={}, **kw):
+    def create_pg_config(self, merchant_id, provider_id, fixture=0, values={},
+                         **kw):
         fixture = self.get_fixture('pg_config', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.central_service.create_pg_config(
-            ctxt, self.merchant['id'], provider_id, fixture, **kw)
+            ctxt, merchant_id, provider_id, fixture, **kw)
 
     def create_customer(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
