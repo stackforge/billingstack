@@ -271,8 +271,8 @@ class Connection(base.Connection, api.HelpersMixin):
 
     # Payment Gateway Configuration
     def create_pg_config(self, ctxt, merchant_id, provider_id, values):
-        merchant = self._get_id_or_name(models.Merchant, merchant_id)
-        provider = self._get_id_or_name(models.PGProvider, provider_id)
+        merchant = self._get(models.Merchant, merchant_id)
+        provider = self._get(models.PGProvider, provider_id)
 
         row = models.PGConfig(**values)
         row.merchant = merchant

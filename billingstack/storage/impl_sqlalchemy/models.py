@@ -230,7 +230,11 @@ class PaymentMethod(BASE, BaseMixin):
     provider_method = relationship('PGMethod',
                                    backref='payment_methods')
     provider_method_id = Column(UUID, ForeignKey('pg_method.id',
-                                                 onupdate='CASCADE'))
+                                onupdate='CASCADE'), nullable=False)
+
+    provider_config = relationship('PGConfig', backref='payment_methods')
+    provider_config_id = Column(UUID, ForeignKey('pg_config.id',
+                                onupdate='CASCADE'), nullable=False)
 
 
 class InvoiceState(BASE):
