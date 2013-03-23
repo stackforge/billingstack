@@ -52,7 +52,7 @@ class PGMethod(DescribedBase):
 
 class PGProvider(DescribedBase):
     def __init__(self, **kw):
-        kw['methods'] = [PGMethod(**m) for m in kw.get('methods', {})]
+        kw['methods'] = [PGMethod.from_db(m) for m in kw.get('methods', {})]
         super(PGProvider, self).__init__(**kw)
 
     methods = [PGMethod]
@@ -146,7 +146,7 @@ class Merchant(Account):
 class Customer(Account):
     def __init__(self, **kw):
         infos = kw.get('contact_info', {})
-        kw['contact_info'] = [ContactInfo(**i) for i in infos]
+        kw['contact_info'] = [ContactInfo.from_db(i) for i in infos]
         super(Customer, self).__init__(**kw)
 
     merchant_id = text
