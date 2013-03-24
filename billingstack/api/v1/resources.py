@@ -340,7 +340,8 @@ def get_payment_method(merchant_id, customer_id, pm_id):
     return render(models.PaymentMethod.from_db(row))
 
 
-@bp.put('/merchants/<merchant_id>/customers/<customer_id>')
+@bp.put('/merchants/<merchant_id>/customers/<customer_id>/payment-methods/'
+        '<pm_id>')
 def update_payment_method(merchant_id, customer_id, pm_id):
     data = request_data(models.PaymentMethod)
 
