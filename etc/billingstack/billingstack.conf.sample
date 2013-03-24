@@ -16,6 +16,8 @@ debug = True
 
 identity_driver = internal
 
+allowed_rpc_exception_modules = billingstack.exceptions, billingstack.openstack.common.exception
+
 # Enabled API Version 1 extensions
 # #enabled_extensions_v1 = none
 
@@ -25,6 +27,16 @@ identity_driver = internal
 
 # Port the bind the API server to
 #api_port = 9001
+
+[service:identity_api]
+# Address to bind the API server
+# api_host = 0.0.0.0
+
+# Port the bind the API server to
+api_port = 9092
+
+admin_token = rand0m
+
 
 #######################
 ## Storage Configuration

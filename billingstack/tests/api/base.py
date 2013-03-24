@@ -1,8 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright © 2012 New Dream Network, LLC (DreamHost)
-#
-# Author: Doug Hellmann <doug.hellmann@dreamhost.com>
+# Author: Endre Karlson <endre.karlson@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -19,6 +17,7 @@
 Base classes for API tests.
 """
 from billingstack.api.v1 import factory
+from billingstack.api.errors import FaultWrapperMiddleware
 from billingstack.api.auth import NoAuthContextMiddleware
 from billingstack.openstack.common import jsonutils as json
 from billingstack.openstack.common import log
@@ -162,6 +161,7 @@ class FunctionalTest(TestCase, APITestMixin):
         self.setSamples()
 
         self.app = factory({})
+        self.app.wsgi_app = FaultWrapperMiddleware(self.app.wsgi_app)
         self.app.wsgi_app = NoAuthContextMiddleware(self.app.wsgi_app)
         self.client = self.app.test_client()
 

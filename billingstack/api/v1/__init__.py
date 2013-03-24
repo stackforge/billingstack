@@ -33,6 +33,10 @@ cfg.CONF.register_opts([
 def factory(global_config, **local_conf):
     app = flask.Flask('billingstack.api.v1')
 
+    app.config.update(
+        PROPAGATE_EXCEPTIONS=True
+    )
+
     app.register_blueprint(v1_bp)
 
     # TODO(kiall): Ideally, we want to make use of the Plugin class here.

@@ -8,11 +8,14 @@ paste.app_factory = billingstack.api.versions:factory
 
 [composite:bs_core_api_v1]
 use = call:billingstack.api.auth:pipeline_factory
-noauth = noauthcontext bs_core_app_v1
-keystone = authtoken keystonecontext bs_core_app_v1
+noauth = noauthcontext faultwrapper bs_core_app_v1
+keystone = authtoken keystonecontext faultwrapper bs_core_app_v1
 
 [app:bs_core_app_v1]
 paste.app_factory = billingstack.api.v1:factory
+
+[filter:faultwrapper]
+paste.filter_factory = billingstack.api.errors:FaultWrapperMiddleware.factory
 
 [filter:noauthcontext]
 paste.filter_factory = billingstack.api.auth:NoAuthContextMiddleware.factory
