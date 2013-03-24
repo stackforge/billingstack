@@ -183,6 +183,7 @@ class Rest(Blueprint):
         def decorator(func):
             endpoint = options.pop('endpoint', func.__name__)
 
+            # NOTE: Wrap the function with CORS support.
             @crossdomain(origin=cfg.CONF.allowed_origin)
             def handler(**kwargs):
                 # extract response content type
