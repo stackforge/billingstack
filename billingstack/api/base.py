@@ -18,7 +18,17 @@ LOG = log.getLogger(__name__)
 
 
 cfg.CONF.register_opts([
-    cfg.StrOpt('allowed_origin', default='*', help='Allowed CORS Origin')])
+    cfg.StrOpt('cors_allowed_origin', default='*', help='Allowed CORS Origin'),
+    cfg.IntOpt('cors_max_age', default=3600)])
+
+
+CORS_ALLOW_HEADERS = [
+    'origin',
+    'authorization',
+    'accept',
+    'content-type',
+    'x-requested-with'
+]
 
 
 class Property(UserType):
@@ -184,7 +194,9 @@ class Rest(Blueprint):
             endpoint = options.pop('endpoint', func.__name__)
 
             # NOTE: Wrap the function with CORS support.
-            @crossdomain(origin=cfg.CONF.allowed_origin)
+            @crossdomain(origin=cfg.CONF.cors_allowed_origin,
+                         max_age=cfg.CONF.cors_max_age,
+                         headers=",".join(CORS_ALLOW_HEADERS))
             def handler(**kwargs):
                 # extract response content type
                 resp_type = request.accept_mimetypes
