@@ -21,6 +21,9 @@ allowed_rpc_exception_modules = billingstack.exceptions, billingstack.openstack.
 # Enabled API Version 1 extensions
 # #enabled_extensions_v1 = none
 
+# CORS origin
+# allowed_origin = *
+
 [service:api]
 # Address to bind the API server
 # api_host = 0.0.0.0

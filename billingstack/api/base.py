@@ -2,19 +2,23 @@ import inspect
 import mimetypes
 import traceback
 
-
 from flask import abort, request, Blueprint, Response
-from billingstack.openstack.common.wsgi import JSONDictSerializer, \
-    XMLDictSerializer, JSONDeserializer
-
 from wsme.types import Base, Enum, UserType, text, Unset, wsproperty
 from werkzeug.datastructures import MIMEAccept
 
+from oslo.config import cfg
 
+from billingstack.api.cors import crossdomain
 from billingstack.openstack.common import log
+from billingstack.openstack.common.wsgi import JSONDictSerializer, \
+    XMLDictSerializer, JSONDeserializer
 
 
 LOG = log.getLogger(__name__)
+
+
+cfg.CONF.register_opts([
+    cfg.StrOpt('allowed_origin', default='*', help='Allowed CORS Origin')])
 
 
 class Property(UserType):
@@ -167,14 +171,19 @@ class Rest(Blueprint):
     def _mroute(self, methods, rule, status_code=None):
         if type(methods) is str:
             methods = [methods]
+
         return self.route(rule, methods=methods, status_code=status_code)
 
     def route(self, rule, **options):
+        """
+        Helper function that sets up the route as well as adding CORS..
+        """
         status = options.pop('status_code', None)
 
         def decorator(func):
             endpoint = options.pop('endpoint', func.__name__)
 
+            @crossdomain(origin=cfg.CONF.allowed_origin)
             def handler(**kwargs):
                 # extract response content type
                 resp_type = request.accept_mimetypes

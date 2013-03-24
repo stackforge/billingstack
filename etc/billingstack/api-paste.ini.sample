@@ -15,7 +15,7 @@ keystone = authtoken keystonecontext faultwrapper bs_core_app_v1
 paste.app_factory = billingstack.api.v1:factory
 
 [filter:faultwrapper]
-paste.filter_factory = billingstack.api.errors:FaultWrapperMiddleware.factory
+paste.filter_factory = billingstack.api.middleware.errors:FaultWrapperMiddleware.factory
 
 [filter:noauthcontext]
 paste.filter_factory = billingstack.api.auth:NoAuthContextMiddleware.factory
