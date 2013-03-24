@@ -17,7 +17,7 @@
 Base classes for API tests.
 """
 from billingstack.api.v1 import factory
-from billingstack.api.errors import FaultWrapperMiddleware
+from billingstack.api.middleware.errors import FaultWrapperMiddleware
 from billingstack.api.auth import NoAuthContextMiddleware
 from billingstack.openstack.common import jsonutils as json
 from billingstack.openstack.common import log
