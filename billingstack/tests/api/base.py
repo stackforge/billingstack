@@ -124,9 +124,9 @@ class APITestMixin(object):
             content_type=content_type,
             headers=headers)
 
-        self.assertEqual(response.status_code, status_code)
-
         LOG.debug('PUT RESPONSE: %r' % response.data)
+
+        self.assertEqual(response.status_code, status_code)
 
         self.load_content(response)
 
