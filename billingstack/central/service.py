@@ -124,9 +124,8 @@ class Service(rpc_service.Service):
     def delete_pg_method(self, ctxt, id_):
         return self.storage_conn.delete_pg_method(ctxt, id_)
 
-    def create_pg_config(self, ctxt, merchant_id, provider_id, values):
-        return self.storage_conn.create_pg_config(ctxt, merchant_id,
-                                                  provider_id, values)
+    def create_pg_config(self, ctxt, merchant_id, values):
+        return self.storage_conn.create_pg_config(ctxt, merchant_id, values)
 
     def list_pg_configs(self, ctxt, **kw):
         return self.storage_conn.list_pg_configs(ctxt, **kw)

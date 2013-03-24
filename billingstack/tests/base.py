@@ -189,12 +189,12 @@ class TestCase(BaseTestCase):
         return fixture, self.central_service.create_merchant(
             ctxt, fixture, **kw)
 
-    def create_pg_config(self, merchant_id, provider_id, fixture=0, values={},
+    def create_pg_config(self, merchant_id, fixture=0, values={},
                          **kw):
         fixture = self.get_fixture('pg_config', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.central_service.create_pg_config(
-            ctxt, merchant_id, provider_id, fixture, **kw)
+            ctxt, merchant_id, fixture, **kw)
 
     def create_customer(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
@@ -203,12 +203,11 @@ class TestCase(BaseTestCase):
         return fixture, self.central_service.create_customer(
             ctxt, merchant_id, fixture, **kw)
 
-    def create_payment_method(self, customer_id, provider_method_id, fixture=0,
-                              values={}, **kw):
+    def create_payment_method(self, customer_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('payment_method', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
         return fixture, self.central_service.create_payment_method(
-            ctxt, customer_id, provider_method_id, fixture, **kw)
+            ctxt, customer_id, fixture, **kw)
 
     def user_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('user', fixture, values)

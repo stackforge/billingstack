@@ -270,13 +270,11 @@ class Connection(base.Connection, api.HelpersMixin):
         return self._delete(models.PGMethod, id_)
 
     # Payment Gateway Configuration
-    def create_pg_config(self, ctxt, merchant_id, provider_id, values):
+    def create_pg_config(self, ctxt, merchant_id, values):
         merchant = self._get(models.Merchant, merchant_id)
-        provider = self._get(models.PGProvider, provider_id)
 
         row = models.PGConfig(**values)
         row.merchant = merchant
-        row.provider = provider
 
         self._save(row)
         return dict(row)
@@ -302,12 +300,9 @@ class Connection(base.Connection, api.HelpersMixin):
         Configure a PaymentMethod like a CreditCard
         """
         customer = self._get_id_or_name(models.Customer, customer_id)
-        provider_method = self._get_id_or_name(
-            models.PGMethod, values['provider_method_id'])
 
         row = models.PaymentMethod(**values)
         row.customer = customer
-        row.provider_method = provider_method
 
         self._save(row)
         return self._dict(row, extra=['provider_method'])

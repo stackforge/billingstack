@@ -110,10 +110,9 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('delete_pg_method', id_=id_))
 
     # PGC
-    def create_pg_config(self, ctxt, merchant_id, provider_id, values):
+    def create_pg_config(self, ctxt, merchant_id, values):
         return self.call(ctxt, self.make_msg('create_pg_config',
-                         merchant_id=merchant_id, provider_id=provider_id,
-                         values=values))
+                         merchant_id=merchant_id, values=values))
 
     def list_pg_configs(self, ctxt, criterion=None):
         return self.call(ctxt, self.make_msg('list_pg_configs',
