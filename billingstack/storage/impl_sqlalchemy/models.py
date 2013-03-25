@@ -14,7 +14,7 @@
 from sqlalchemy import Column, ForeignKey, UniqueConstraint
 from sqlalchemy import Integer, Float
 from sqlalchemy import DateTime, Unicode
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 from billingstack import utils
@@ -292,21 +292,6 @@ class InvoiceLine(BASE, BaseMixin):
                                          onupdate='CASCADE'), nullable=False)
 
 
-class Pricing(BASE, BaseMixin):
-    """
-    Resembles a Price information in some way
-    """
-    __tablename__ = 'product_pricing'
-    value_from = Column(Float)
-    value_to = Column(Float)
-    price = Column(Float, nullable=False)
-
-    plan_item_id = Column(UUID, ForeignKey('plan_item.id', ondelete='CASCADE',
-                                           onupdate='CASCADE'))
-    product_id = Column(UUID, ForeignKey('product.id', ondelete='CASCADE',
-                                         onupdate='CASCADE'))
-
-
 class Plan(BASE, BaseMixin):
     """
     A Product collection like a "Virtual Web Cluster" with 10 servers
@@ -336,11 +321,7 @@ class PlanProperty(BASE, PropertyMixin):
 class PlanItem(BASE, BaseMixin):
     description = Column(Unicode(255))
 
-    price_rules = relationship(
-        'Pricing',
-        backref=backref('plan_items', uselist=False),
-        lazy='dynamic', cascade='delete, delete-orphan',
-        passive_deletes=True)
+    pricing = Column(JSON)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
                      onupdate='CASCADE', nullable=False)
@@ -358,7 +339,7 @@ class Product(BASE, BaseMixin):
     title = Column(Unicode(100))
     description = Column(Unicode(255))
 
-    price = relationship('Pricing', backref='product', uselist=False)
+    pricing = Column(JSON)
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
