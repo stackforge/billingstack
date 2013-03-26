@@ -30,6 +30,7 @@ eventlet.monkey_patch()
 utils.read_config('billingstack', sys.argv)
 
 logging.setup('billingstack')
+logging.setup('wsme')
 
 launcher = service.launch(api_service.Service(),
                           cfg.CONF['service:api'].workers)
