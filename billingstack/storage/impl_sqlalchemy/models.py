@@ -319,6 +319,8 @@ class PlanProperty(BASE, PropertyMixin):
 
 
 class PlanItem(BASE, BaseMixin):
+    __table_args__ = (UniqueConstraint('plan_id', 'product_id', name='item'),)
+
     pricing = Column(JSON)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),

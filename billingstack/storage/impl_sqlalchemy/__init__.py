@@ -461,8 +461,6 @@ class Connection(base.Connection, api.HelpersMixin):
 
     # PlanItem
     def create_plan_item(self, ctxt, values, save=True):
-        import ipdb
-        ipdb.set_trace()
         ref = models.PlanItem()
         return self._update_plan_item(ref, values, save=save)
 
