@@ -201,7 +201,7 @@ class Service(rpc_service.Service):
         return self.storage_conn.delete_plan(ctxt, id_)
 
     def create_plan_item(self, ctxt, values):
-        return self.storage_conn.create_plan(ctxt, values)
+        return self.storage_conn.create_plan_item(ctxt, values)
 
     def update_plan_item(self, ctxt, id_, values):
         return self.storage_conn.update_plan_item(ctxt, id_, values)

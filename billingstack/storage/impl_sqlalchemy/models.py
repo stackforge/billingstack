@@ -319,8 +319,6 @@ class PlanProperty(BASE, PropertyMixin):
 
 
 class PlanItem(BASE, BaseMixin):
-    description = Column(Unicode(255))
-
     pricing = Column(JSON)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),

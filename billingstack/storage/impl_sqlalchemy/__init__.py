@@ -461,6 +461,8 @@ class Connection(base.Connection, api.HelpersMixin):
 
     # PlanItem
     def create_plan_item(self, ctxt, values, save=True):
+        import ipdb
+        ipdb.set_trace()
         ref = models.PlanItem()
         return self._update_plan_item(ref, values, save=save)
 
@@ -481,6 +483,17 @@ class Connection(base.Connection, api.HelpersMixin):
 
     def delete_plan_item(self, ctxt, id_):
         self._delete(models.PlanItem, id_)
+
+    def remove_plan_product(self, ctxt, plan_id, product_id):
+        """
+        Remove a Product from a Plan by deleting the PlanItem.
+
+        :param plan_id: The Plan's ID.
+        :param product_id: The Product's ID.
+        """
+        query = self.session.query(models.PlanItem).\
+            filter_by(plan_id=plan_id, product_id=product_id)
+        query.delete()
 
     # Products
     def _product(self, row):

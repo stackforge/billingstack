@@ -238,7 +238,7 @@ def create_payment_gateway(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/payment-gateways')
 @signature([models.PGConfig], str)
 def list_payment_gateways(merchant_id):
-    rows = central_api.list_pg_config(request.environ['context'])
+    rows = central_api.list_pg_configs(request.environ['context'])
 
     return map(models.PGConfig.from_db, rows)
 
@@ -408,6 +408,26 @@ def delete_plan(merchant_id, plan_id):
     return render()
 
 
+# Plan Item
+@bp.put('/merchants/<merchant_id>/plans/<plan_id>/items/<product_id>')
+@signature(models.PlanItem, str, str, str)
+def add_plan_item(merchant_id, plan_id, product_id):
+    values = {
+        'plan_id': plan_id,
+        'product_id': product_id
+    }
+
+    row = central_api.create_plan_item(request.environ['context'], values)
+
+    return models.PlanItem.from_db(row)
+
+
+@bp.put('/merchants/<merchant_id>/plans/<plan_id>/items/<product_id>')
+def delete_plan_item(merchant_id, plan_id, product_id):
+    central_api.delete_plan_item(request.environ['context'],
+                                 plan_id, product_id)
+
+
 # Products
 @bp.post('/merchants/<merchant_id>/products')
 @signature(models.Product, str, body=models.Product)
@@ -558,7 +578,7 @@ def create_subscription(merchant_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/subscriptions')
-@signature(models.Subscription, str)
+@signature([models.Subscription], str)
 def list_subscriptions(merchant_id):
     rows = central_api.list_subscriptions(request.environ['context'])
 
