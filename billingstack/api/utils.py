@@ -15,7 +15,7 @@
 # Copied: http://flask.pocoo.org/snippets/56/
 from datetime import timedelta
 from flask import make_response, request, current_app
-from functools import update_wrapper
+import functools
 
 
 def crossdomain(origin=None, methods=None, headers=None,
@@ -38,12 +38,11 @@ def crossdomain(origin=None, methods=None, headers=None,
         return options_resp.headers['allow']
 
     def decorator(f):
-        def wrapped_function(*args, **kwargs):
-
+        def wrapped_function(*args, **kw):
             if automatic_options and request.method == 'OPTIONS':
                 resp = current_app.make_default_options_response()
             else:
-                resp = make_response(f(*args, **kwargs))
+                resp = make_response(f(*args, **kw))
             if not attach_to_all and request.method != 'OPTIONS':
                 return resp
 
@@ -59,5 +58,5 @@ def crossdomain(origin=None, methods=None, headers=None,
 
         f.provide_automatic_options = False
         f.required_methods = ['OPTIONS']
-        return update_wrapper(wrapped_function, f)
+        return functools.update_wrapper(wrapped_function, f)
     return decorator

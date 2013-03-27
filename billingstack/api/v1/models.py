@@ -100,6 +100,14 @@ class Product(DescribedBase):
     properties = DictType(key_type=text, value_type=property_type)
 
 
+class InvoiceLine(Base):
+    description = text
+    price = float
+    quantity = float
+    sub_total = float
+    invoice_id = text
+
+
 class Invoice(Base):
     identifier = text
     sub_total = float
@@ -116,6 +124,10 @@ class Subscription(Base):
     plan_id = text
     customer_id = text
     payment_method_id = text
+
+
+class Usage(Base):
+    pass
 
 
 class PGConfig(Base):

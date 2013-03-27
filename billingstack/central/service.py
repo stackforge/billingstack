@@ -277,8 +277,8 @@ class Service(rpc_service.Service):
     def delete_subscription(self, ctxt, id_):
         return self.storage_conn.delete_subscription(ctxt, id_)
 
-    def create_usage(self, ctxt, subscription_id, values):
-        return self.storage_conn.create_usage(ctxt, subscription_id, values)
+    def create_usage(self, ctxt, values):
+        return self.storage_conn.create_usage(ctxt, values)
 
     def list_usages(self, ctxt, **kw):
         return self.storage_conn.list_usages(ctxt, **kw)

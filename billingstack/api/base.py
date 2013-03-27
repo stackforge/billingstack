@@ -1,4 +1,4 @@
-import inspect
+import functools
 import mimetypes
 import traceback
 
@@ -8,7 +8,7 @@ from werkzeug.datastructures import MIMEAccept
 
 from oslo.config import cfg
 
-from billingstack.api.cors import crossdomain
+from billingstack.api import utils
 from billingstack.openstack.common import log
 from billingstack.openstack.common.wsgi import JSONDictSerializer, \
     XMLDictSerializer, JSONDeserializer
@@ -91,48 +91,6 @@ class Query(Base):
         }
 
 
-def _query_to_kwargs(query, db_func):
-    # TODO(dhellmann): This function needs tests of its own.
-    valid_keys = inspect.getargspec(db_func)[0]
-    if 'self' in valid_keys:
-        valid_keys.remove('self')
-    translation = {'user_id': 'user',
-                   'project_id': 'project',
-                   'resource_id': 'resource'}
-    stamp = {}
-    trans = {}
-    metaquery = {}
-    for i in query:
-        if i.field == 'timestamp':
-            # FIXME(dhellmann): This logic is not consistent with the
-            # way the timestamps are treated inside the mongo driver
-            # (the end timestamp is always tested using $lt). We
-            # should just pass a single timestamp through to the
-            # storage layer with the operator and let the storage
-            # layer use that operator.
-            if i.op in ('lt', 'le'):
-                stamp['end_timestamp'] = i.value
-            elif i.op in ('gt', 'ge'):
-                stamp['start_timestamp'] = i.value
-            else:
-                LOG.warn('_query_to_kwargs ignoring %r unexpected op %r"' %
-                         (i.field, i.op))
-        else:
-            if i.op != 'eq':
-                LOG.warn('_query_to_kwargs ignoring %r unimplemented op %r' %
-                         (i.field, i.op))
-            elif i.field == 'search_offset':
-                stamp['search_offset'] = i.value
-            elif i.field.startswith('metadata.'):
-                metaquery[i.field] = i.value
-            else:
-                trans[translation.get(i.field, i.field)] = i.value
-
-    kwargs = {}
-    if metaquery and 'metaquery' in valid_keys:
-        kwargs['metaquery'] = metaquery
-
-
 class ModelBase(Base):
     def as_dict(self):
         """
@@ -166,25 +124,37 @@ class ModelBase(Base):
 
 
 class Rest(Blueprint):
-    def get(self, rule, status_code=200):
-        return self._mroute('GET', rule, status_code)
+    """
+    Helper to do stuff
+    """
+    def get(self, rule, status_code=200, **kw):
+        return self._mroute('GET', rule, status_code, **kw)
 
-    def post(self, rule, status_code=202):
-        return self._mroute('POST', rule, status_code)
+    def post(self, rule, status_code=202, **kw):
+        return self._mroute('POST', rule, status_code, **kw)
 
-    def put(self, rule, status_code=202):
-        return self._mroute('PUT', rule, status_code)
+    def put(self, rule, status_code=202, **kw):
+        return self._mroute('PUT', rule, status_code, **kw)
 
-    def delete(self, rule, status_code=204):
-        return self._mroute('DELETE', rule, status_code)
+    def delete(self, rule, status_code=204, **kw):
+        return self._mroute('DELETE', rule, status_code, **kw)
 
-    def _mroute(self, methods, rule, status_code=None):
+    def _mroute(self, methods, rule, status_code=None, **kw):
         if type(methods) is str:
             methods = [methods]
 
-        return self.route(rule, methods=methods, status_code=status_code)
+        return self.route(rule, methods=methods, status_code=status_code,
+                          **kw)
 
-    def route(self, rule, **options):
+    def guess_response_type(self, type_suffix=None):
+        """
+        Get the MIME type based on keywords / request
+        """
+        if type_suffix:
+            response_type = mimetypes.guess_type("res." + type_suffix)[0]
+            request.response_type = response_type
+
+    def route(self, rule, sig_args=[], sig_kw={}, **options):
         """
         Helper function that sets up the route as well as adding CORS..
         """
@@ -193,19 +163,17 @@ class Rest(Blueprint):
         def decorator(func):
             endpoint = options.pop('endpoint', func.__name__)
 
+            if 'body' in options and 'body' not in sig_kw:
+                sig_kw['body'] = options['body']
+
             # NOTE: Wrap the function with CORS support.
-            @crossdomain(origin=cfg.CONF.cors_allowed_origin,
-                         max_age=cfg.CONF.cors_max_age,
-                         headers=",".join(CORS_ALLOW_HEADERS))
-            def handler(**kwargs):
+            @utils.crossdomain(origin=cfg.CONF.cors_allowed_origin,
+                               max_age=cfg.CONF.cors_max_age,
+                               headers=",".join(CORS_ALLOW_HEADERS))
+            @functools.wraps(func)
+            def handler(**kw):
                 # extract response content type
-                resp_type = request.accept_mimetypes
-                type_suffix = kwargs.pop('resp_type', None)
-                if type_suffix:
-                    suffix_mime = mimetypes.guess_type("res." + type_suffix)[0]
-                    if suffix_mime:
-                        resp_type = MIMEAccept([(suffix_mime, 1)])
-                request.resp_type = resp_type
+                self.guess_response_type(kw.pop('response_type', None))
 
                 # NOTE: Extract fields (column selection)
                 fields = list(set(request.args.getlist('fields')))
@@ -215,16 +183,15 @@ class Rest(Blueprint):
                 if status:
                     request.status_code = status
 
-                return func(**kwargs)
+                return func(**kw)
 
             #_rule = "/<tenant_id>" + rule
             # NOTE: Add 2 set of rules, 1 with response content type and one wo
             self.add_url_rule(rule, endpoint, handler, **options)
-            rtype_rule = rule + '.<resp_type>'
+            rtype_rule = rule + '.<response_type>'
             self.add_url_rule(rtype_rule, endpoint, handler, **options)
 
             return func
-
         return decorator
 
 

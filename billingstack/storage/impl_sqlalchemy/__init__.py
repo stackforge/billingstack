@@ -726,17 +726,14 @@ class Connection(base.Connection, api.HelpersMixin):
     def _usage(self, row):
         return dict(row)
 
-    def create_usage(self, ctxt, subscription_id, values):
+    def create_usage(self, ctxt, values):
         """
         Add a new Usage
 
         :param subscription_id: The Subscription
         :param values: Values describing the new Subscription
         """
-        subscription = self._get(models.Subscription, subscription_id)
-
         usage = models.Usage(**values)
-        usage.subscription = subscription
 
         self._save(usage)
         return self._usage(usage)
