@@ -141,6 +141,7 @@ class HelpersMixin(object):
             row.save(self.session)
         except exceptions.Duplicate:
             raise
+        return row
 
     def _list(self, cls=None, query=None, criterion=None):
         """
