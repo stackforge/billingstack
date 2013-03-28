@@ -17,7 +17,7 @@
 from flask import request
 
 
-from billingstack.api.base import Rest, render, request_data
+from billingstack.api.base import Rest, Query, render, request_data
 from billingstack.api.v1 import models
 from billingstack.central.rpcapi import central_api
 
@@ -39,9 +39,12 @@ def create_currency(body):
 
 
 @bp.get('/currencies')
-@signature([models.Currency])
-def list_currencies():
-    rows = central_api.list_currencies(request.environ['context'])
+@signature([models.Currency], [Query])
+def list_currencies(q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_currencies(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Currency.from_db, rows)
 
@@ -83,9 +86,12 @@ def create_language(body):
 
 
 @bp.get('/languages')
-@signature([models.Language])
-def list_languages():
-    rows = central_api.list_languages(request.environ['context'])
+@signature([models.Language], [Query])
+def list_languages(q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_languages(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Language.from_db, rows)
 
@@ -118,17 +124,23 @@ def delete_language(language_id):
 
 # PGP / PGM
 @bp.get('/payment-gateway-providers')
-@signature([models.PGProvider])
-def list_pg_providers():
-    rows = central_api.list_pg_providers(request.environ['context'])
+@signature([models.PGProvider], [Query])
+def list_pg_providers(q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_pg_providers(
+        request.environ['context'], criterion=criterion)
 
     return map(models.PGProvider.from_db, rows)
 
 
 @bp.get('/payment-gateway-providers/<pgp_id>/methods')
-@signature([models.PGMethod], str)
-def list_pg_methods(pgp_id):
-    rows = central_api.list_pg_methods(request.environ['context'])
+@signature([models.PGMethod], str, [Query])
+def list_pg_methods(pgp_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_pg_methods(
+        request.environ['context'], criterion=criterion)
 
     return map(models.PGMethod.from_db, rows)
 
@@ -144,15 +156,18 @@ def create_invoice_state(body):
 
 
 @bp.get('/invoice-states')
-@signature([models.InvoiceState])
-def list_invoice_states():
-    rows = central_api.list_invoice_states(request.environ['context'])
+@signature([models.InvoiceState], [Query])
+def list_invoice_states(q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_invoice_states(
+        request.environ['context'], criterion=criterion)
 
     return map(models.InvoiceState.from_db, rows)
 
 
 @bp.get('/invoice-states/<state_id>')
-@signature(models.InvoiceState, str)
+@signature(models.InvoiceState, str,)
 def get_invoice_state(state_id):
     row = central_api.get_invoice_state(request.environ['context'],
                                         state_id)
@@ -190,9 +205,12 @@ def create_merchant(body):
 
 
 @bp.get('/merchants')
-@signature([models.Merchant])
-def list_merchants():
-    rows = central_api.list_merchants(request.environ['context'])
+@signature([models.Merchant], [Query])
+def list_merchants(q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_merchants(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Merchant.from_db, rows)
 
@@ -236,9 +254,12 @@ def create_payment_gateway(merchant_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/payment-gateways')
-@signature([models.PGConfig], str)
-def list_payment_gateways(merchant_id):
-    rows = central_api.list_pg_configs(request.environ['context'])
+@signature([models.PGConfig], str, [Query])
+def list_payment_gateways(merchant_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_pg_configs(
+        request.environ['context'], criterion=criterion)
 
     return map(models.PGConfig.from_db, rows)
 
@@ -283,9 +304,12 @@ def create_customer(merchant_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/customers')
-@signature([models.Customer], str)
-def list_customers(merchant_id):
-    rows = central_api.list_customers(request.environ['context'])
+@signature([models.Customer], str, [Query])
+def list_customers(merchant_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_customers(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Customer.from_db, rows)
 
@@ -329,9 +353,12 @@ def create_payment_method(merchant_id, customer_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/customers/<customer_id>/payment-methods')
-@signature([models.PaymentMethod], str, str)
-def list_payment_methods(merchant_id, customer_id):
-    rows = central_api.list_payment_methods(request.environ['context'])
+@signature([models.PaymentMethod], str, str, [Query])
+def list_payment_methods(merchant_id, customer_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_payment_methods(
+        request.environ['context'], criterion=criterion)
 
     return map(models.PaymentMethod.from_db, rows)
 
@@ -375,9 +402,12 @@ def create_plan(merchant_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/plans')
-@signature([models.Plan], str)
-def list_plans(merchant_id):
-    rows = central_api.list_plans(request.environ['context'])
+@signature([models.Plan], str, [Query])
+def list_plans(merchant_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_plans(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Plan.from_db, rows)
 
@@ -441,9 +471,12 @@ def create_product(merchant_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/products')
-@signature([models.Product], str)
-def list_products(merchant_id):
-    rows = central_api.list_products(request.environ['context'])
+@signature([models.Product], str, [Query])
+def list_products(merchant_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_products(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Product.from_db, rows)
 
@@ -487,9 +520,12 @@ def create_invoice(merchant_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/invoices')
-@signature([models.InvoiceState], str)
-def list_invoices(merchant_id):
-    rows = central_api.list_invoices(request.environ['context'])
+@signature([models.InvoiceState], str, [Query])
+def list_invoices(merchant_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_invoices(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Invoice.from_db, rows)
 
@@ -533,9 +569,12 @@ def create_invoice_line(merchant_id, invoice_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/invoices/<invoice_id>/lines')
-@signature([models.InvoiceLine], str, str)
-def list_invoice_lines(merchant_id, invoice_id):
-    rows = central_api.list_invoice_lines(request.environ['context'])
+@signature([models.InvoiceLine], str, str, [Query])
+def list_invoice_lines(merchant_id, invoice_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_invoice_lines(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Product.from_db, rows)
 
@@ -578,9 +617,12 @@ def create_subscription(merchant_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/subscriptions')
-@signature([models.Subscription], str)
-def list_subscriptions(merchant_id):
-    rows = central_api.list_subscriptions(request.environ['context'])
+@signature([models.Subscription], str, [Query])
+def list_subscriptions(merchant_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_subscriptions(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Subscription.from_db, rows)
 
@@ -627,9 +669,12 @@ def create_usage(merchant_id, body):
 
 
 @bp.get('/merchants/<merchant_id>/usage')
-@signature([models.Usage], str)
-def list_usages(merchant_id):
-    rows = central_api.list_usages(request.environ['context'])
+@signature([models.Usage], str, [Query])
+def list_usages(merchant_id, q=[]):
+    criterion = [o.as_dict() for o in q]
+
+    rows = central_api.list_usages(
+        request.environ['context'], criterion=criterion)
 
     return map(models.Usage.from_db, rows)
 
