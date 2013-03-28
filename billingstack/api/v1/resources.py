@@ -15,9 +15,9 @@
 # under the License.
 
 from flask import request
+from flask import Response
 
-
-from billingstack.api.base import Rest, Query, render, request_data
+from billingstack.api.base import Rest, Query
 from billingstack.api.v1 import models
 from billingstack.central.rpcapi import central_api
 
@@ -31,11 +31,9 @@ bp = Rest('v1', __name__)
 @bp.post('/currencies')
 @signature(models.Currency, body=models.Currency)
 def create_currency(body):
-    data = request_data(models.Currency)
-
-    row = central_api.create_currency(request.environ['context'], data)
+    row = central_api.create_currency(
+        request.environ['context'], body.to_db())
     return models.Currency.from_db(row)
-    #return render(models.Currency.from_db(row))
 
 
 @bp.get('/currencies')
@@ -72,7 +70,7 @@ def update_currency(currency_id, body):
 @bp.delete('/currencies/<currency_id>')
 def delete_currency(currency_id):
     central_api.delete_currency(request.environ['context'], currency_id)
-    return render()
+    return Response(status_code=204)
 
 
 # Language
@@ -119,7 +117,7 @@ def update_language(language_id, body):
 @bp.delete('/languages/<language_id>')
 def delete_language(language_id):
     central_api.delete_language(request.environ['context'], language_id)
-    return render()
+    return Response(status_code=204)
 
 
 # PGP / PGM
@@ -191,7 +189,7 @@ def delete_invoice_state(state_id):
     central_api.delete_invoice_state(
         request.environ['context'],
         state_id)
-    return render()
+    return Response(status_code=204)
 
 
 # merchants
@@ -238,7 +236,7 @@ def update_merchant(merchant_id, body):
 @bp.delete('/merchants/<merchant_id>')
 def delete_merchant(merchant_id):
     central_api.delete_merchant(request.environ['context'], merchant_id)
-    return render()
+    return Response(status_code=204)
 
 
 # Invoices
@@ -288,7 +286,7 @@ def delete_pg_config(merchant_id, pg_config_id):
     central_api.delete_pg_config(
         request.environ['context'],
         pg_config_id)
-    return render()
+    return Response(status_code=204)
 
 
 # customers
@@ -337,7 +335,7 @@ def update_customer(merchant_id, customer_id, body):
 @bp.delete('/merchants/<merchant_id>/customers/<customer_id>')
 def delete_customer(merchant_id, customer_id):
     central_api.delete_customer(request.environ['context'], customer_id)
-    return render()
+    return Response(status_code=204)
 
 
 # PaymentMethods
@@ -386,7 +384,7 @@ def update_payment_method(merchant_id, customer_id, pm_id, body):
            '<pm_id>')
 def delete_payment_method(merchant_id, customer_id, pm_id):
     central_api.delete_payment_method(request.environ['context'], pm_id)
-    return render()
+    return Response(status_code=204)
 
 
 # Plans
@@ -435,7 +433,7 @@ def update_plan(merchant_id, plan_id, body):
 @bp.delete('/merchants/<merchant_id>/plans/<plan_id>')
 def delete_plan(merchant_id, plan_id):
     central_api.delete_plan(request.environ['context'], plan_id)
-    return render()
+    return Response(status_code=204)
 
 
 # Plan Item
@@ -504,7 +502,7 @@ def update_product(merchant_id, product_id, body):
 @bp.delete('/merchants/<merchant_id>/products/<product_id>')
 def delete_product(merchant_id, product_id):
     central_api.delete_product(request.environ['context'], product_id)
-    return render()
+    return Response(status_code=204)
 
 
 # Invoices
@@ -553,7 +551,7 @@ def update_invoice(merchant_id, invoice_id, body):
 @bp.delete('/merchants/<merchant_id>/invoices/<invoice_id>')
 def delete_invoice(merchant_id, invoice_id):
     central_api.delete_invoice(request.environ['context'], invoice_id)
-    return render()
+    return Response(status_code=204)
 
 
 # Products
@@ -602,7 +600,7 @@ def update_invoice_line(merchant_id, invoice_id, line_id, body):
 @bp.delete('/merchants/<merchant_id>/invoices/<invoice_id>/lines/<line_id>')
 def delete_invoice_line(merchant_id, invoice_id, line_id):
     central_api.delete_invoice_line(request.environ['context'], line_id)
-    return render()
+    return Response(status_code=204)
 
 
 # Subscription
@@ -638,13 +636,11 @@ def get_subscription(merchant_id, subscription_id):
 
 @bp.put('/merchants/<merchant_id>/subscriptions/<subscription_id>')
 @signature(models.Subscription, str, str, body=models.Subscription)
-def update_subscription(merchant_id, subscription_id):
-    data = request_data(models.Subscription)
-
+def update_subscription(merchant_id, subscription_id, body):
     row = central_api.update_subscription(
         request.environ['context'],
         subscription_id,
-        data)
+        body.to_db())
 
     return models.Subscription.from_db(row)
 
@@ -654,7 +650,7 @@ def delete_subscription(merchant_id, subscription_id):
     central_api.delete_subscription(
         request.environ['context'],
         subscription_id)
-    return render()
+    return Response(status_code=204)
 
 
 # Usage
@@ -704,4 +700,4 @@ def delete_usage(merchant_id, usage_id):
     central_api.delete_usage(
         request.environ['context'],
         usage_id)
-    return render()
+    return Response(status_code=204)

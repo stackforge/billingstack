@@ -1,17 +1,13 @@
 import functools
 import mimetypes
-import traceback
 
-from flask import abort, request, Blueprint, Response
+from flask import request, Blueprint
 from wsme.types import Base, Enum, UserType, text, Unset, wsproperty
-from werkzeug.datastructures import MIMEAccept
 
 from oslo.config import cfg
 
 from billingstack.api import utils
 from billingstack.openstack.common import log
-from billingstack.openstack.common.wsgi import JSONDictSerializer, \
-    XMLDictSerializer, JSONDeserializer
 
 
 LOG = log.getLogger(__name__)
@@ -180,8 +176,8 @@ class Rest(Blueprint):
                 fields.sort()
                 request.fields_selector = fields
 
-                if status:
-                    request.status_code = status
+                if hasattr(func, '_wsme_definition'):
+                    func._wsme_definition.status_code = status
 
                 return func(**kw)
 
@@ -193,79 +189,3 @@ class Rest(Blueprint):
 
             return func
         return decorator
-
-
-RT_JSON = MIMEAccept([("application/json", 1)])
-RT_XML = MIMEAccept([("application/xml", 1)])
-
-
-def render(res=None, resp_type=None, status=None, **kwargs):
-    if not res:
-        res = {}
-    elif isinstance(res, ModelBase):
-        res = res.as_dict()
-    elif isinstance(res, list):
-        new_res = []
-        for r in res:
-            new_res.append(r.as_dict())
-        res = new_res
-
-    if isinstance(res, dict):
-        res.update(kwargs)
-    elif kwargs:
-        # can't merge kwargs into the non-dict res
-        abort_and_log(500, "Non-dict and non-empty kwargs passed to render")
-
-    status_code = getattr(request, 'status_code', None)
-    if status:
-        status_code = status
-    if not status_code:
-        status_code = 200
-
-    if not resp_type:
-        req_resp_type = getattr(request, 'resp_type', None)
-        resp_type = req_resp_type if req_resp_type else RT_JSON
-
-    serializer = None
-    if "application/json" in resp_type:
-        resp_type = RT_JSON
-        serializer = JSONDictSerializer()
-    elif "application/xml" in resp_type:
-        resp_type = RT_XML
-        serializer = XMLDictSerializer()
-    else:
-        abort_and_log(400, "Content type '%s' isn't supported" % resp_type)
-
-    body = serializer.serialize(res)
-    resp_type = str(resp_type)
-    return Response(response=body, status=status_code, mimetype=resp_type)
-
-
-def request_data(model):
-    if not request.content_length > 0:
-        LOG.debug("Empty body provided in request")
-        return dict()
-
-    deserializer = None
-    content_type = request.mimetype
-
-    if not content_type or content_type in RT_JSON:
-        deserializer = JSONDeserializer()
-    elif content_type in RT_XML:
-        abort_and_log(400, "XML requests are not supported yet")
-        # deserializer = XMLDeserializer()
-    else:
-        abort_and_log(400, "Content type '%s' isn't supported" % content_type)
-
-    data = deserializer.deserialize(request.data)['body']
-    return model(**data).to_db()
-
-
-def abort_and_log(status_code, descr, exc=None):
-    LOG.error("Request aborted with status code %s and message '%s'",
-              status_code, descr)
-
-    if exc is not None:
-        LOG.error(traceback.format_exc())
-
-    abort(status_code, description=descr)
