@@ -19,6 +19,10 @@ class Criteria(object):
     def from_dict(cls, data):
         return cls(**data)
 
+    def __str__(self):
+        return u'Field: %s, Operation: %s, Value: %s' % (
+            self.field, self.op, self.value)
+
 
 class BaseFilterer(object):
     """
