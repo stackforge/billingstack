@@ -27,16 +27,24 @@ from wsmeext.flask import signature
 bp = Rest('v1', __name__)
 
 
-def _query_to_criterion(query, storage_func=None):
+def _query_to_criterion(query, storage_func=None, **kw):
     """
     Iterate over the query checking against the valid signatures (later).
 
     :param query: A list of queries.
     :param storage_func: The name of the storage function to very against.
     """
+    translation = {
+        'customer_id': 'customer'
+    }
+
     criterion = {}
     for q in query:
-        criterion[q.field] = q.as_dict()
+        key = translation.get(q.field, q.field)
+        criterion[key] = q.as_dict()
+
+    criterion.update(kw)
+
     return criterion
 
 
@@ -83,7 +91,7 @@ def update_currency(currency_id, body):
 @bp.delete('/currencies/<currency_id>')
 def delete_currency(currency_id):
     central_api.delete_currency(request.environ['context'], currency_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # Language
@@ -130,7 +138,7 @@ def update_language(language_id, body):
 @bp.delete('/languages/<language_id>')
 def delete_language(language_id):
     central_api.delete_language(request.environ['context'], language_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # PGP / PGM
@@ -145,10 +153,10 @@ def list_pg_providers(q=[]):
     return map(models.PGProvider.from_db, rows)
 
 
-@bp.get('/payment-gateway-providers/<pgp_id>/methods')
+@bp.get('/payment-gateway-providers/<provider_id>/methods')
 @signature([models.PGMethod], str, [Query])
-def list_pg_methods(pgp_id, q=[]):
-    criterion = _query_to_criterion(q)
+def list_pg_methods(provider_id, q=[]):
+    criterion = _query_to_criterion(q, provider_id=provider_id)
 
     rows = central_api.list_pg_methods(
         request.environ['context'], criterion=criterion)
@@ -202,7 +210,7 @@ def delete_invoice_state(state_id):
     central_api.delete_invoice_state(
         request.environ['context'],
         state_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # merchants
@@ -249,7 +257,7 @@ def update_merchant(merchant_id, body):
 @bp.delete('/merchants/<merchant_id>')
 def delete_merchant(merchant_id):
     central_api.delete_merchant(request.environ['context'], merchant_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # Invoices
@@ -267,7 +275,7 @@ def create_payment_gateway(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/payment-gateways')
 @signature([models.PGConfig], str, [Query])
 def list_payment_gateways(merchant_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
     rows = central_api.list_pg_configs(
         request.environ['context'], criterion=criterion)
@@ -299,7 +307,7 @@ def delete_pg_config(merchant_id, pg_config_id):
     central_api.delete_pg_config(
         request.environ['context'],
         pg_config_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # customers
@@ -317,7 +325,7 @@ def create_customer(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/customers')
 @signature([models.Customer], str, [Query])
 def list_customers(merchant_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
     rows = central_api.list_customers(
         request.environ['context'], criterion=criterion)
@@ -348,7 +356,7 @@ def update_customer(merchant_id, customer_id, body):
 @bp.delete('/merchants/<merchant_id>/customers/<customer_id>')
 def delete_customer(merchant_id, customer_id):
     central_api.delete_customer(request.environ['context'], customer_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # PaymentMethods
@@ -366,7 +374,8 @@ def create_payment_method(merchant_id, customer_id, body):
 @bp.get('/merchants/<merchant_id>/customers/<customer_id>/payment-methods')
 @signature([models.PaymentMethod], str, str, [Query])
 def list_payment_methods(merchant_id, customer_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id,
+                                    customer=customer_id)
 
     rows = central_api.list_payment_methods(
         request.environ['context'], criterion=criterion)
@@ -397,7 +406,7 @@ def update_payment_method(merchant_id, customer_id, pm_id, body):
            '<pm_id>')
 def delete_payment_method(merchant_id, customer_id, pm_id):
     central_api.delete_payment_method(request.environ['context'], pm_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # Plans
@@ -415,7 +424,7 @@ def create_plan(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/plans')
 @signature([models.Plan], str, [Query])
 def list_plans(merchant_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
     rows = central_api.list_plans(
         request.environ['context'], criterion=criterion)
@@ -446,7 +455,7 @@ def update_plan(merchant_id, plan_id, body):
 @bp.delete('/merchants/<merchant_id>/plans/<plan_id>')
 def delete_plan(merchant_id, plan_id):
     central_api.delete_plan(request.environ['context'], plan_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # Plan Item
@@ -463,10 +472,11 @@ def add_plan_item(merchant_id, plan_id, product_id):
     return models.PlanItem.from_db(row)
 
 
-@bp.put('/merchants/<merchant_id>/plans/<plan_id>/items/<product_id>')
+@bp.delete('/merchants/<merchant_id>/plans/<plan_id>/items/<product_id>')
 def delete_plan_item(merchant_id, plan_id, product_id):
     central_api.delete_plan_item(request.environ['context'],
                                  plan_id, product_id)
+    return Response(status=204)
 
 
 # Products
@@ -484,7 +494,7 @@ def create_product(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/products')
 @signature([models.Product], str, [Query])
 def list_products(merchant_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
     rows = central_api.list_products(
         request.environ['context'], criterion=criterion)
@@ -515,7 +525,7 @@ def update_product(merchant_id, product_id, body):
 @bp.delete('/merchants/<merchant_id>/products/<product_id>')
 def delete_product(merchant_id, product_id):
     central_api.delete_product(request.environ['context'], product_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # Invoices
@@ -533,7 +543,7 @@ def create_invoice(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/invoices')
 @signature([models.InvoiceState], str, [Query])
 def list_invoices(merchant_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
     rows = central_api.list_invoices(
         request.environ['context'], criterion=criterion)
@@ -564,7 +574,7 @@ def update_invoice(merchant_id, invoice_id, body):
 @bp.delete('/merchants/<merchant_id>/invoices/<invoice_id>')
 def delete_invoice(merchant_id, invoice_id):
     central_api.delete_invoice(request.environ['context'], invoice_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # Products
@@ -582,7 +592,8 @@ def create_invoice_line(merchant_id, invoice_id, body):
 @bp.get('/merchants/<merchant_id>/invoices/<invoice_id>/lines')
 @signature([models.InvoiceLine], str, str, [Query])
 def list_invoice_lines(merchant_id, invoice_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id,
+                                    invoice_id=invoice_id)
 
     rows = central_api.list_invoice_lines(
         request.environ['context'], criterion=criterion)
@@ -613,7 +624,7 @@ def update_invoice_line(merchant_id, invoice_id, line_id, body):
 @bp.delete('/merchants/<merchant_id>/invoices/<invoice_id>/lines/<line_id>')
 def delete_invoice_line(merchant_id, invoice_id, line_id):
     central_api.delete_invoice_line(request.environ['context'], line_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # Subscription
@@ -630,7 +641,7 @@ def create_subscription(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/subscriptions')
 @signature([models.Subscription], str, [Query])
 def list_subscriptions(merchant_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
     rows = central_api.list_subscriptions(
         request.environ['context'], criterion=criterion)
@@ -663,7 +674,7 @@ def delete_subscription(merchant_id, subscription_id):
     central_api.delete_subscription(
         request.environ['context'],
         subscription_id)
-    return Response(status_code=204)
+    return Response(status=204)
 
 
 # Usage
@@ -680,7 +691,7 @@ def create_usage(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/usage')
 @signature([models.Usage], str, [Query])
 def list_usages(merchant_id, q=[]):
-    criterion = _query_to_criterion(q)
+    criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
     rows = central_api.list_usages(
         request.environ['context'], criterion=criterion)
@@ -713,4 +724,4 @@ def delete_usage(merchant_id, usage_id):
     central_api.delete_usage(
         request.environ['context'],
         usage_id)
-    return Response(status_code=204)
+    return Response(status=204)

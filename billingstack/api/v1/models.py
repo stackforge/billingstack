@@ -92,15 +92,20 @@ class ContactInfo(Base):
     website = text
 
 
-class Plan(DescribedBase):
-    properties = DictType(key_type=text, value_type=property_type)
-
-
 class PlanItem(Base):
     plan_id = text
     product_id = text
 
     pricing = DictType(key_type=text, value_type=property_type)
+
+
+class Plan(DescribedBase):
+    def __init__(self, **kw):
+        kw['items'] = map(PlanItem.from_db, kw.pop('items'))
+        super(Plan, self).__init__(**kw)
+
+    items = [PlanItem]
+    properties = DictType(key_type=text, value_type=property_type)
 
 
 class Product(DescribedBase):

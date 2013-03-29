@@ -388,7 +388,7 @@ class Connection(base.Connection, api.HelpersMixin):
 
         plan['properties'] = self._kv_rows(row.properties,
                                            func=lambda i: i['value'])
-        plan['plan_items'] = map(dict, row.plan_items) if row.plan_items\
+        plan['items'] = map(dict, row.plan_items) if row.plan_items\
             else []
         return plan
 
@@ -479,10 +479,7 @@ class Connection(base.Connection, api.HelpersMixin):
         row = self._get(models.PlanItem, id_)
         return dict(row)
 
-    def delete_plan_item(self, ctxt, id_):
-        self._delete(models.PlanItem, id_)
-
-    def remove_plan_product(self, ctxt, plan_id, product_id):
+    def delete_plan_item(self, ctxt, plan_id, product_id):
         """
         Remove a Product from a Plan by deleting the PlanItem.
 
@@ -491,7 +488,12 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         query = self.session.query(models.PlanItem).\
             filter_by(plan_id=plan_id, product_id=product_id)
-        query.delete()
+
+        count = query.delete()
+        if count == 0:
+            msg = 'Couldn\'t match plan_id %s or product_id %s' % (
+                plan_id, product_id)
+            raise exceptions.NotFound(msg)
 
     # Products
     def _product(self, row):

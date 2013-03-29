@@ -220,8 +220,9 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('update_plan_item', id_=id_,
                          values=values))
 
-    def delete_plan_item(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('delete_plan_item', id_=id_))
+    def delete_plan_item(self, ctxt, plan_id, product_id):
+        return self.call(ctxt, self.make_msg('delete_plan_item',
+                         plan_id=plan_id, product_id=product_id))
 
     # Products
     def create_product(self, ctxt, merchant_id, values):

@@ -212,8 +212,8 @@ class Service(rpc_service.Service):
     def get_plan_item(self, ctxt, id_):
         return self.storage_conn.get_plan_item(ctxt, id_)
 
-    def delete_plan_item(self, ctxt, id_):
-        return self.storage_conn.delete_plan_item(ctxt, id_)
+    def delete_plan_item(self, ctxt, plan_id, product_id):
+        return self.storage_conn.delete_plan_item(ctxt, plan_id, product_id)
 
     def create_product(self, ctxt, merchant_id, values):
         return self.storage_conn.create_product(ctxt, merchant_id, values)
