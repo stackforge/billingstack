@@ -472,18 +472,7 @@ class StorageDriverTestCase(TestCase):
                            self.admin_ctxt, UUID)
 
     # Plan
-    def test_create_plan_with_items(self):
-        _, p1 = self.create_product(self.merchant['id'])
-        _, p2 = self.create_product(self.merchant['id'])
-
-        values = {
-            'plan_items': [{'product_id': p1['id']}, {'product_id': p2['id']}]
-        }
-
-        fixture, data = self.create_plan(self.merchant['id'], values=values)
-        self.assertData(fixture, data)
-
-    def test_create_plan_without_items(self):
+    def test_create_plan(self):
         fixture, data = self.create_plan(self.merchant['id'])
         self.assertData(fixture, data)
 

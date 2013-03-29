@@ -203,14 +203,15 @@ class Service(rpc_service.Service):
     def create_plan_item(self, ctxt, values):
         return self.storage_conn.create_plan_item(ctxt, values)
 
-    def update_plan_item(self, ctxt, id_, values):
-        return self.storage_conn.update_plan_item(ctxt, id_, values)
-
     def list_plan_items(self, ctxt, **kw):
         return self.storage_conn.list_plan_items(ctxt, **kw)
 
-    def get_plan_item(self, ctxt, id_):
-        return self.storage_conn.get_plan_item(ctxt, id_)
+    def get_plan_item(self, ctxt, plan_id, product_id):
+        return self.storage_conn.get_plan_item(ctxt, plan_id, product_id)
+
+    def update_plan_item(self, ctxt, plan_id, product_id, values):
+        return self.storage_conn.update_plan_item(
+            ctxt, plan_id, product_id, values)
 
     def delete_plan_item(self, ctxt, plan_id, product_id):
         return self.storage_conn.delete_plan_item(ctxt, plan_id, product_id)

@@ -213,11 +213,13 @@ class CentralAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('list_plan_items',
                          criterion=criterion))
 
-    def get_plan_item(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('get_plan_item', id_=id_))
+    def get_plan_item(self, ctxt, plan_id, product_id):
+        return self.call(ctxt, self.make_msg('get_plan_item',
+                         plan_id=plan_id, product_id=product_id))
 
-    def update_plan_item(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_plan_item', id_=id_,
+    def update_plan_item(self, ctxt, plan_id, product_id, values):
+        return self.call(ctxt, self.make_msg('update_plan_item',
+                         plan_id=plan_id, product_id=product_id,
                          values=values))
 
     def delete_plan_item(self, ctxt, plan_id, product_id):

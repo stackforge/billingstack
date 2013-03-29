@@ -67,7 +67,7 @@ class PGMethod(DescribedBase):
 
 class PGProvider(DescribedBase):
     def __init__(self, **kw):
-        kw['methods'] = [PGMethod.from_db(m) for m in kw.get('methods', {})]
+        kw['methods'] = [PGMethod.from_db(m) for m in kw.get('methods', [])]
         super(PGProvider, self).__init__(**kw)
 
     methods = [PGMethod]
@@ -92,7 +92,7 @@ class ContactInfo(Base):
     website = text
 
 
-class PlanItem(Base):
+class PlanItem(ModelBase):
     plan_id = text
     product_id = text
 
@@ -101,7 +101,8 @@ class PlanItem(Base):
 
 class Plan(DescribedBase):
     def __init__(self, **kw):
-        kw['items'] = map(PlanItem.from_db, kw.pop('items', []))
+        if 'items' in kw:
+            kw['items'] = map(PlanItem.from_db, kw.pop('items'))
         super(Plan, self).__init__(**kw)
 
     items = [PlanItem]

@@ -405,7 +405,7 @@ class Connection(base.Connection, api.HelpersMixin):
         :param row: The Row.
         """
         entity = dict(row)
-        if hasattr(entity, 'properties'):
+        if hasattr(row, 'properties'):
             entity['properties'] = self._kv_rows(
                 row.properties, func=lambda i: i['value'])
         if hasattr(row, 'pricing'):
@@ -428,17 +428,12 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         merchant = self._get(models.Merchant, merchant_id)
 
-        items = values.pop('plan_items', [])
         properties = values.pop('properties', {})
 
         plan = models.Plan(**values)
 
         plan.merchant = merchant
         self.set_properties(plan, properties)
-
-        for i in items:
-            item_row = self.create_plan_item(ctxt, i, save=False)
-            plan.plan_items.append(item_row)
 
         self._save(plan)
         return self._plan(plan)
@@ -486,25 +481,25 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         self._delete(models.Plan, id_)
 
-    # PlanItem
-    def create_plan_item(self, ctxt, values, save=True):
-        ref = models.PlanItem()
-        return self._update_plan_item(ref, values, save=save)
-
-    def update_plan_item(self, ctxt, item, values, save=True):
-        return self._update_plan_item(item, values, save=save)
-
-    def _update_plan_item(self, item, values, save=True):
-        row = self._get_row(item, models.PlanItem)
-        row.update(values)
-        return self._save(row, save=save)
+    # PlanItemw
+    def create_plan_item(self, ctxt, values):
+        row = models.PlanItem(**values)
+        self._save(row)
+        return self._entity(row)
 
     def list_plan_items(self, ctxt, **kw):
         return self._list(models.PlanItem, **kw)
 
-    def get_plan_item(self, ctxt, id_):
-        row = self._get(models.PlanItem, id_)
-        return dict(row)
+    def get_plan_item(self, ctxt, plan_id, product_id, criterion={}):
+        criterion.update({'plan_id': plan_id, 'product_id': product_id})
+        row = self._get(models.PlanItem, criterion=criterion)
+        return self._entity(row)
+
+    def update_plan_item(self, ctxt, plan_id, product_id, values):
+        criterion = {'plan_id': plan_id, 'product_id': product_id}
+        row = self._get(models.PlanItem, criterion=criterion)
+        row.update(values)
+        return self._entity(row)
 
     def delete_plan_item(self, ctxt, plan_id, product_id):
         """
