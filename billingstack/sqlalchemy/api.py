@@ -30,8 +30,6 @@ class SQLAFilterer(BaseFilterer):
         Apply the actual criterion in this filterer and return a query with
         filters applied.
         """
-        LOG.debug('Applying Critera %s' % self.criterion)
-
         for field, c in self.criterion.items():
             # NOTE: Try to get the column
             try:
@@ -54,7 +52,7 @@ class SQLAFilterer(BaseFilterer):
                 msg = 'Invalid operator in criteria \'%s\'' % c
                 raise exceptions.InvalidOperator(msg)
 
-            return query
+        return query
 
 
 class HelpersMixin(object):
