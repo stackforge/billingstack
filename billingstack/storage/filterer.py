@@ -69,8 +69,6 @@ class BaseFilterer(object):
             if isinstance(value, basestring):
                 c = Criteria(key, 'eq', value)
             elif isinstance(value, dict):
-                import ipdb
-                ipdb.set_trace()
                 c = Criteria.from_dict(value)
             data[key] = c
         return data
