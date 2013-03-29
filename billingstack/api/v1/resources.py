@@ -35,7 +35,7 @@ def _query_to_criterion(query, storage_func=None, **kw):
     :param storage_func: The name of the storage function to very against.
     """
     translation = {
-        'customer_id': 'customer'
+        'customer': 'customer_id'
     }
 
     criterion = {}
@@ -375,7 +375,7 @@ def create_payment_method(merchant_id, customer_id, body):
 @signature([models.PaymentMethod], str, str, [Query])
 def list_payment_methods(merchant_id, customer_id, q=[]):
     criterion = _query_to_criterion(q, merchant_id=merchant_id,
-                                    customer=customer_id)
+                                    customer_id=customer_id)
 
     rows = central_api.list_payment_methods(
         request.environ['context'], criterion=criterion)

@@ -31,6 +31,16 @@ cfg.CONF.register_group(cfg.OptGroup(
 cfg.CONF.register_opts(SQLOPTS, group='storage:sqlalchemy')
 
 
+def filter_merchant_by_join(query, cls, criterion):
+    if criterion and 'merchant_id' in criterion:
+        merchant_id = criterion.pop('merchant_id')
+        if not hasattr(cls, 'merchant_id'):
+            raise RuntimeError('No merchant_id attribute on %s' % cls)
+
+        query = query.join(cls).filter(cls.merchant_id == merchant_id)
+    return query
+
+
 class SQLAlchemyStorage(base.StorageEngine):
     __plugin_name__ = 'sqlalchemy'
 
@@ -307,8 +317,14 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(row)
         return self._dict(row, extra=['provider_method'])
 
-    def list_payment_methods(self, ctxt, **kw):
-        rows = self._list(models.PaymentMethod, **kw)
+    def list_payment_methods(self, ctxt, criterion=None, **kw):
+        query = self.session.query(models.PaymentMethod)
+
+        query = filter_merchant_by_join(query, models.Customer, criterion)
+
+        rows = self._list(query=query, cls=models.PaymentMethod,
+                          criterion=criterion, **kw)
+
         return [self._dict(row, extra=['provider_method']) for row in rows]
 
     def get_payment_method(self, ctxt, id_, **kw):
@@ -696,13 +712,19 @@ class Connection(base.Connection, api.HelpersMixin):
         self._save(subscription)
         return self._subscription(subscription)
 
-    def list_subscriptions(self, ctxt, **kw):
+    def list_subscriptions(self, ctxt, criterion=None, **kw):
         """
         List Subscriptions
 
         :param merchant_id: The Merchant to list it for
         """
-        rows = self._list(models.Subscription, **kw)
+        query = self.session.query(models.Subscription)
+
+        query = filter_merchant_by_join(query, models.Customer, criterion)
+
+        rows = self._list(query=query, cls=models.Subscription,
+                          criterion=criterion, **kw)
+
         return map(self._subscription, rows)
 
     def get_subscription(self, ctxt, id_):
