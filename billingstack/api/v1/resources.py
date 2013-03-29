@@ -27,6 +27,19 @@ from wsmeext.flask import signature
 bp = Rest('v1', __name__)
 
 
+def _query_to_criterion(query, storage_func=None):
+    """
+    Iterate over the query checking against the valid signatures (later).
+
+    :param query: A list of queries.
+    :param storage_func: The name of the storage function to very against.
+    """
+    criterion = {}
+    for q in query:
+        criterion[q.field] = q.as_dict()
+    return criterion
+
+
 # Currencies
 @bp.post('/currencies')
 @signature(models.Currency, body=models.Currency)
@@ -39,7 +52,7 @@ def create_currency(body):
 @bp.get('/currencies')
 @signature([models.Currency], [Query])
 def list_currencies(q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_currencies(
         request.environ['context'], criterion=criterion)
@@ -86,7 +99,7 @@ def create_language(body):
 @bp.get('/languages')
 @signature([models.Language], [Query])
 def list_languages(q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_languages(
         request.environ['context'], criterion=criterion)
@@ -124,7 +137,7 @@ def delete_language(language_id):
 @bp.get('/payment-gateway-providers')
 @signature([models.PGProvider], [Query])
 def list_pg_providers(q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_pg_providers(
         request.environ['context'], criterion=criterion)
@@ -135,7 +148,7 @@ def list_pg_providers(q=[]):
 @bp.get('/payment-gateway-providers/<pgp_id>/methods')
 @signature([models.PGMethod], str, [Query])
 def list_pg_methods(pgp_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_pg_methods(
         request.environ['context'], criterion=criterion)
@@ -156,7 +169,7 @@ def create_invoice_state(body):
 @bp.get('/invoice-states')
 @signature([models.InvoiceState], [Query])
 def list_invoice_states(q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_invoice_states(
         request.environ['context'], criterion=criterion)
@@ -205,7 +218,7 @@ def create_merchant(body):
 @bp.get('/merchants')
 @signature([models.Merchant], [Query])
 def list_merchants(q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_merchants(
         request.environ['context'], criterion=criterion)
@@ -254,7 +267,7 @@ def create_payment_gateway(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/payment-gateways')
 @signature([models.PGConfig], str, [Query])
 def list_payment_gateways(merchant_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_pg_configs(
         request.environ['context'], criterion=criterion)
@@ -304,7 +317,7 @@ def create_customer(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/customers')
 @signature([models.Customer], str, [Query])
 def list_customers(merchant_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_customers(
         request.environ['context'], criterion=criterion)
@@ -353,7 +366,7 @@ def create_payment_method(merchant_id, customer_id, body):
 @bp.get('/merchants/<merchant_id>/customers/<customer_id>/payment-methods')
 @signature([models.PaymentMethod], str, str, [Query])
 def list_payment_methods(merchant_id, customer_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_payment_methods(
         request.environ['context'], criterion=criterion)
@@ -402,7 +415,7 @@ def create_plan(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/plans')
 @signature([models.Plan], str, [Query])
 def list_plans(merchant_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_plans(
         request.environ['context'], criterion=criterion)
@@ -471,7 +484,7 @@ def create_product(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/products')
 @signature([models.Product], str, [Query])
 def list_products(merchant_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_products(
         request.environ['context'], criterion=criterion)
@@ -520,7 +533,7 @@ def create_invoice(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/invoices')
 @signature([models.InvoiceState], str, [Query])
 def list_invoices(merchant_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_invoices(
         request.environ['context'], criterion=criterion)
@@ -569,7 +582,7 @@ def create_invoice_line(merchant_id, invoice_id, body):
 @bp.get('/merchants/<merchant_id>/invoices/<invoice_id>/lines')
 @signature([models.InvoiceLine], str, str, [Query])
 def list_invoice_lines(merchant_id, invoice_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_invoice_lines(
         request.environ['context'], criterion=criterion)
@@ -617,7 +630,7 @@ def create_subscription(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/subscriptions')
 @signature([models.Subscription], str, [Query])
 def list_subscriptions(merchant_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_subscriptions(
         request.environ['context'], criterion=criterion)
@@ -667,7 +680,7 @@ def create_usage(merchant_id, body):
 @bp.get('/merchants/<merchant_id>/usage')
 @signature([models.Usage], str, [Query])
 def list_usages(merchant_id, q=[]):
-    criterion = [o.as_dict() for o in q]
+    criterion = _query_to_criterion(q)
 
     rows = central_api.list_usages(
         request.environ['context'], criterion=criterion)

@@ -11,93 +11,45 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License
-import operator
 
 from sqlalchemy.orm import exc
+
 
 from billingstack import exceptions
 from billingstack.openstack.common import log
 from billingstack.sqlalchemy import model_base, session, utils
+from billingstack.storage.filterer import BaseFilterer
 
 
 LOG = log.getLogger(__name__)
 
 
-class Filterer(object):
-    """
-    Helper to apply filters...
-    """
-    std_op = [
-        (('eq', '==', '='), operator.eq),
-        (('ne', '!='), operator.ne),
-        (('ge', '>='), operator.ge),
-        (('le', '<='), operator.le),
-        (('gt', '>'), operator.gt),
-        (('le', '<'), operator.lt)
-    ]
-
-    def __init__(self, model, query, criterion):
-        self.model = model
-        self.query = query
-
-        if isinstance(criterion, dict):
-            criterion = self.from_dict(criterion)
-
-        self.criterion = criterion
-
-    def from_dict(self, criterion):
-        """
-        Transform a dict with key values to a filter compliant list of dicts.
-
-        :param criterion: The criterion dict.
-        """
-        data = []
-        for key, value in criterion.items():
-            c = {
-                'field': key,
-                'value': value,
-                'op': 'eq'
-            }
-            data.append(c)
-        return data
-
-    def get_op(self, op_key):
-        """
-        Get the operator.
-
-        :param op_key: The operator key as string.
-        """
-        for op_keys, op in self.std_op:
-            if op_key in op_keys:
-                return op
-
-    def apply_criteria(self):
+class SQLAFilterer(BaseFilterer):
+    def apply_criteria(self, query, model):
         """
         Apply the actual criterion in this filterer and return a query with
         filters applied.
         """
-        query = self.query
-
         LOG.debug('Applying Critera %s' % self.criterion)
 
-        for c in self.criterion:
+        for field, c in self.criterion.items():
             # NOTE: Try to get the column
             try:
-                col = getattr(self.model, c['field'])
+                col_obj = getattr(model, field)
             except AttributeError:
-                msg = '%s is not a valid field to query by' % c['field']
+                msg = '%s is not a valid field to query by' % field
                 raise exceptions.InvalidQueryField(msg)
 
             # NOTE: Handle a special operator
-            std_op = self.get_op(c['op'])
-            if hasattr(self, c['op']):
-                getattr(self, c['op'])(c)
+            std_op = self.get_op(c.op)
+            if hasattr(self, c.op):
+                getattr(self, c.op)(c)
             elif std_op:
-                query = query.filter(std_op(col, c['value']))
-            elif c['op'] in ('%', 'like'):
-                query = query.filter(col.like(c['value']))
-            elif c['op'] in ('!%', 'nlike'):
-                query = query.filter(col.notlike(c['value']))
+                query = query.filter(std_op(col_obj, c.value))
+            elif c.op in ('%', 'like'):
+                query = query.filter(col_obj.like(c.value))
+            elif c.op in ('!%', 'nlike'):
+                query = query.filter(col_obj.notlike(c.value))
             else:
                 msg = 'Invalid operator in criteria \'%s\'' % c
                 raise exceptions.InvalidOperator(msg)
@@ -159,8 +111,8 @@ class HelpersMixin(object):
         query = query or self.session.query(cls)
 
         if criterion:
-            filterer = Filterer(cls, query, criterion)
-            query = filterer.apply_criteria()
+            filterer = SQLAFilterer(criterion)
+            query = filterer.apply_criteria(query, cls)
 
         try:
             result = query.all()

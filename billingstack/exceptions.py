@@ -66,11 +66,11 @@ class InvalidSortKey(BadRequest):
     pass
 
 
-class InvalidQueryField(Base):
+class InvalidQueryField(BadRequest):
     pass
 
 
-class InvalidOperator(Base):
+class InvalidOperator(BadRequest):
     pass
 
 
