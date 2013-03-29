@@ -398,13 +398,24 @@ class Connection(base.Connection, api.HelpersMixin):
     def delete_customer(self, ctxt, id_):
         return self._delete(models.Customer, id_)
 
+    def _entity(self, row):
+        """
+        Helper to serialize a entity like a Product or a Plan
+
+        :param row: The Row.
+        """
+        entity = dict(row)
+        if hasattr(entity, 'properties'):
+            entity['properties'] = self._kv_rows(
+                row.properties, func=lambda i: i['value'])
+        if hasattr(row, 'pricing'):
+            entity['pricing'] = row.pricing or []
+        return entity
+
     # Plan
     def _plan(self, row):
-        plan = dict(row)
-
-        plan['properties'] = self._kv_rows(row.properties,
-                                           func=lambda i: i['value'])
-        plan['items'] = map(dict, row.plan_items) if row.plan_items\
+        plan = self._entity(row)
+        plan['items'] = map(self._entity, row.plan_items) if row.plan_items\
             else []
         return plan
 
@@ -513,10 +524,7 @@ class Connection(base.Connection, api.HelpersMixin):
 
     # Products
     def _product(self, row):
-        product = dict(row)
-
-        product['properties'] = self._kv_rows(row.properties,
-                                              func=lambda i: i['value'])
+        product = self._entity(row)
         return product
 
     def create_product(self, ctxt, merchant_id, values):
