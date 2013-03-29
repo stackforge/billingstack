@@ -101,7 +101,7 @@ class PlanItem(Base):
 
 class Plan(DescribedBase):
     def __init__(self, **kw):
-        kw['items'] = map(PlanItem.from_db, kw.pop('items'))
+        kw['items'] = map(PlanItem.from_db, kw.pop('items', []))
         super(Plan, self).__init__(**kw)
 
     items = [PlanItem]
