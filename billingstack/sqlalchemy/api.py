@@ -43,7 +43,7 @@ class SQLAFilterer(BaseFilterer):
             # NOTE: Handle a special operator
             std_op = self.get_op(c.op)
             if hasattr(self, c.op):
-                getattr(self, c.op)(c)
+                query = getattr(self, c.op)(c)
             elif std_op:
                 query = query.filter(std_op(col_obj, c.value))
             elif c.op in ('%', 'like'):
