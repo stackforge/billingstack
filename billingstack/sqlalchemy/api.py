@@ -130,13 +130,13 @@ class HelpersMixin(object):
         :param by_name: By name.
         """
         if hasattr(cls, 'id') and utils.is_valid_id(identifier):
-            return cls.id == identifier
+            return {'id': identifier}
         elif hasattr(cls, 'name') and by_name:
-            return cls.name == identifier
+            return {'name': identifier}
         else:
             raise exceptions.NotFound('No criterias matched')
 
-    def _get(self, cls, identifier, by_name=False):
+    def _get(self, cls, identifier=None, criterion=None, by_name=False):
         """
         Get an instance of a Model matching ID
 
@@ -144,9 +144,18 @@ class HelpersMixin(object):
         :param identifier: The ID to get
         :param by_name: Search by name as well as ID
         """
-        id_filter = self._filter_id(cls, identifier, by_name)
+        criterion_ = {}
 
-        query = self.session.query(cls).filter(id_filter)
+        if identifier:
+            criterion_.update(self._filter_id(cls, identifier, by_name))
+
+        if isinstance(criterion, dict):
+            criterion_.update(criterion)
+
+        query = self.session.query(cls)
+
+        filterer = SQLAFilterer(criterion_)
+        query = filterer.apply_criteria(query, cls)
 
         try:
             obj = query.one()
