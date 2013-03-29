@@ -22,4 +22,5 @@ Resources in Billingstack
 .. toctree::
    :maxdepth: 2
 
+   api_filtering
    subscriptions
