@@ -129,6 +129,9 @@ class Rest(Blueprint):
     def post(self, rule, status_code=202, **kw):
         return self._mroute('POST', rule, status_code, **kw)
 
+    def patch(self, rule, status_code=202, **kw):
+        return self._mroute('PATCH', rule, status_code, **kw)
+
     def put(self, rule, status_code=202, **kw):
         return self._mroute('PUT', rule, status_code, **kw)
 
