@@ -93,6 +93,10 @@ class ContactInfo(Base):
 
 
 class PlanItem(ModelBase):
+    name = text
+    title = text
+    description = text
+
     plan_id = text
     product_id = text
 

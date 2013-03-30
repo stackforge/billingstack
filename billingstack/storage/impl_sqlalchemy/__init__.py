@@ -415,7 +415,7 @@ class Connection(base.Connection, api.HelpersMixin):
     # Plan
     def _plan(self, row):
         plan = self._entity(row)
-        plan['items'] = map(self._entity, row.plan_items) if row.plan_items\
+        plan['items'] = map(self._plan_item, row.plan_items) if row.plan_items\
             else []
         return plan
 
@@ -482,6 +482,13 @@ class Connection(base.Connection, api.HelpersMixin):
         self._delete(models.Plan, id_)
 
     # PlanItemw
+    def _plan_item(self, row):
+        entity = self._entity(row)
+        entity['name'] = row.product.name
+        entity['title'] = row.title or row.product.title
+        entity['description'] = row.description or row.product.description
+        return entity
+
     def create_plan_item(self, ctxt, values):
         row = models.PlanItem(**values)
         self._save(row)
@@ -499,6 +506,7 @@ class Connection(base.Connection, api.HelpersMixin):
         criterion = {'plan_id': plan_id, 'product_id': product_id}
         row = self._get(models.PlanItem, criterion=criterion)
         row.update(values)
+        self._save(row)
         return self._entity(row)
 
     def delete_plan_item(self, ctxt, plan_id, product_id):

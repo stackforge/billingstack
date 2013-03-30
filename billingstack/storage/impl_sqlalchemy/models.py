@@ -321,14 +321,17 @@ class PlanProperty(BASE, PropertyMixin):
 class PlanItem(BASE, BaseMixin):
     __table_args__ = (UniqueConstraint('plan_id', 'product_id', name='item'),)
 
+    title = Column(Unicode(100))
+    description = Column(Unicode(255))
+
     pricing = Column(JSON)
 
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
-                     onupdate='CASCADE', nullable=False)
+                     onupdate='CASCADE', primary_key=True)
 
     product = relationship('Product', backref='plan_items', uselist=False)
     product_id = Column(UUID, ForeignKey('product.id', onupdate='CASCADE'),
-                        nullable=False)
+                        primary_key=True)
 
 
 class Product(BASE, BaseMixin):
