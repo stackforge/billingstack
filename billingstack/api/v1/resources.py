@@ -472,6 +472,15 @@ def add_plan_item(merchant_id, plan_id, product_id):
     return models.PlanItem.from_db(row)
 
 
+@bp.patch('/merchants/<merchant_id>/plans/<plan_id>/items/<product_id>')
+@signature(models.PlanItem, str, str, str, body=models.PlanItem)
+def update_plan_item(merchant_id, plan_id, product_id, body):
+    row = central_api.update_plan_item(
+        request.environ['context'], plan_id, product_id, body.to_db())
+
+    return models.PlanItem.from_db(row)
+
+
 @bp.delete('/merchants/<merchant_id>/plans/<plan_id>/items/<product_id>')
 def delete_plan_item(merchant_id, plan_id, product_id):
     central_api.delete_plan_item(request.environ['context'],
