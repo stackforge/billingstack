@@ -446,9 +446,11 @@ class ProxyCallback(_ThreadPoolWithWait):
                        connection_pool=self.connection_pool,
                        log_failure=False)
         except Exception:
-            LOG.exception(_('Exception during message handling'))
-            ctxt.reply(None, sys.exc_info(),
-                       connection_pool=self.connection_pool)
+            # sys.exc_info() is deleted by LOG.exception().
+            exc_info = sys.exc_info()
+            LOG.error(_('Exception during message handling'),
+                      exc_info=exc_info)
+            ctxt.reply(None, exc_info, connection_pool=self.connection_pool)
 
 
 class MulticallProxyWaiter(object):
@@ -496,7 +498,6 @@ class MulticallProxyWaiter(object):
                 data = self._dataqueue.get(timeout=self._timeout)
                 result = self._process_data(data)
             except queue.Empty:
-                LOG.exception(_('Timed out waiting for RPC response.'))
                 self.done()
                 raise rpc_common.Timeout()
             except Exception:
@@ -663,7 +664,7 @@ def notify(conf, context, topic, msg, connection_pool, envelope):
     pack_context(msg, context)
     with ConnectionContext(conf, connection_pool) as conn:
         if envelope:
-            msg = rpc_common.serialize_msg(msg, force_envelope=True)
+            msg = rpc_common.serialize_msg(msg)
         conn.notify_send(topic, msg)
 
 

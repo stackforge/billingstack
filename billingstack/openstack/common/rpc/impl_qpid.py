@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-#    Copyright 2011 OpenStack LLC
+#    Copyright 2011 OpenStack Foundation
 #    Copyright 2011 - 2012, Red Hat, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -40,8 +40,8 @@ qpid_opts = [
     cfg.StrOpt('qpid_hostname',
                default='localhost',
                help='Qpid broker hostname'),
-    cfg.StrOpt('qpid_port',
-               default='5672',
+    cfg.IntOpt('qpid_port',
+               default=5672,
                help='Qpid broker port'),
     cfg.ListOpt('qpid_hosts',
                 default=['$qpid_hostname:$qpid_port'],
@@ -320,7 +320,7 @@ class Connection(object):
         # Reconnection is done by self.reconnect()
         self.connection.reconnect = False
         self.connection.heartbeat = self.conf.qpid_heartbeat
-        self.connection.protocol = self.conf.qpid_protocol
+        self.connection.transport = self.conf.qpid_protocol
         self.connection.tcp_nodelay = self.conf.qpid_tcp_nodelay
 
     def _register_consumer(self, consumer):
@@ -415,8 +415,8 @@ class Connection(object):
 
         def _error_callback(exc):
             if isinstance(exc, qpid_exceptions.Empty):
-                LOG.exception(_('Timed out waiting for RPC response: %s') %
-                              str(exc))
+                LOG.debug(_('Timed out waiting for RPC response: %s') %
+                          str(exc))
                 raise rpc_common.Timeout()
             else:
                 LOG.exception(_('Failed to consume message from queue: %s') %

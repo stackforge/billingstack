@@ -126,13 +126,11 @@ class RpcDispatcher(object):
                 rpc_api_version = '1.0'
             is_compatible = rpc_common.version_is_compatible(rpc_api_version,
                                                              version)
-
             had_compatible = had_compatible or is_compatible
-            func = getattr(proxyobj, method)
-            if not func:
+            if not hasattr(proxyobj, method):
                 continue
             if is_compatible:
-                return func(ctxt, **kwargs)
+                return getattr(proxyobj, method)(ctxt, **kwargs)
 
         if had_compatible:
             raise AttributeError("No such RPC function '%s'" % method)

@@ -16,6 +16,7 @@
 
 import os
 import pprint
+import re
 import socket
 import sys
 import types
@@ -25,6 +26,7 @@ import eventlet
 import greenlet
 from oslo.config import cfg
 
+from billingstack.openstack.common import excutils
 from billingstack.openstack.common.gettextutils import _
 from billingstack.openstack.common import importutils
 from billingstack.openstack.common import jsonutils
@@ -91,8 +93,8 @@ def _serialize(data):
     try:
         return jsonutils.dumps(data, ensure_ascii=True)
     except TypeError:
-        LOG.error(_("JSON serialization failed."))
-        raise
+        with excutils.save_and_reraise_exception():
+            LOG.error(_("JSON serialization failed."))
 
 
 def _deserialize(data):
@@ -219,7 +221,7 @@ class ZmqClient(object):
     def cast(self, msg_id, topic, data, envelope=False):
         msg_id = msg_id or 0
 
-        if not (envelope or rpc_common._SEND_RPC_ENVELOPE):
+        if not envelope:
             self.outq.send(map(bytes,
                            (msg_id, topic, 'cast', _serialize(data))))
             return
@@ -293,11 +295,16 @@ class InternalContext(object):
     def reply(self, ctx, proxy,
               msg_id=None, context=None, topic=None, msg=None):
         """Reply to a casted call."""
-        # Our real method is curried into msg['args']
+        # NOTE(ewindisch): context kwarg exists for Grizzly compat.
+        #                  this may be able to be removed earlier than
+        #                  'I' if ConsumerBase.process were refactored.
+        if type(msg) is list:
+            payload = msg[-1]
+        else:
+            payload = msg
 
-        child_ctx = RpcContext.unmarshal(msg[0])
         response = ConsumerBase.normalize_reply(
-            self._get_response(child_ctx, proxy, topic, msg[1]),
+            self._get_response(ctx, proxy, topic, payload),
             ctx.replies)
 
         LOG.debug(_("Sending reply"))
@@ -437,6 +444,8 @@ class ZmqProxy(ZmqBaseReactor):
 
     def __init__(self, conf):
         super(ZmqProxy, self).__init__(conf)
+        pathsep = set((os.path.sep or '', os.path.altsep or '', '/', '\\'))
+        self.badchars = re.compile(r'[%s]' % re.escape(''.join(pathsep)))
 
         self.topic_proxy = {}
 
@@ -462,6 +471,13 @@ class ZmqProxy(ZmqBaseReactor):
                 LOG.info(_("Creating proxy for topic: %s"), topic)
 
                 try:
+                    # The topic is received over the network,
+                    # don't trust this input.
+                    if self.badchars.search(topic) is not None:
+                        emsg = _("Topic contained dangerous characters.")
+                        LOG.warn(emsg)
+                        raise RPCException(emsg)
+
                     out_sock = ZmqSocket("ipc://%s/zmq_topic_%s" %
                                          (ipc_dir, topic),
                                          sock_type, bind=True)
@@ -518,9 +534,9 @@ class ZmqProxy(ZmqBaseReactor):
                               ipc_dir, run_as_root=True)
                 utils.execute('chmod', '750', ipc_dir, run_as_root=True)
             except utils.ProcessExecutionError:
-                LOG.error(_("Could not create IPC directory %s") %
-                          (ipc_dir, ))
-                raise
+                with excutils.save_and_reraise_exception():
+                    LOG.error(_("Could not create IPC directory %s") %
+                              (ipc_dir, ))
 
         try:
             self.register(consumption_proxy,
@@ -528,9 +544,9 @@ class ZmqProxy(ZmqBaseReactor):
                           zmq.PULL,
                           out_bind=True)
         except zmq.ZMQError:
-            LOG.error(_("Could not create ZeroMQ receiver daemon. "
-                        "Socket may already be in use."))
-            raise
+            with excutils.save_and_reraise_exception():
+                LOG.error(_("Could not create ZeroMQ receiver daemon. "
+                            "Socket may already be in use."))
 
         super(ZmqProxy, self).consume_in_thread()
 
@@ -592,9 +608,6 @@ class ZmqReactor(ZmqBaseReactor):
 
         self.pool.spawn_n(self.process, proxy, ctx, request)
 
-    def consume_in_thread_group(self, thread_group):
-        self.reactor.consume_in_thread_group(thread_group)
-
 
 class Connection(rpc_common.Connection):
     """Manages connections and threads."""
@@ -647,6 +660,9 @@ class Connection(rpc_common.Connection):
         _get_matchmaker().start_heartbeat()
         self.reactor.consume_in_thread()
 
+    def consume_in_thread_group(self, thread_group):
+        self.reactor.consume_in_thread_group(thread_group)
+
 
 def _cast(addr, context, topic, msg, timeout=None, envelope=False,
           _msg_id=None):
@@ -684,8 +700,8 @@ def _call(addr, context, topic, msg, timeout=None,
         'method': '-reply',
         'args': {
             'msg_id': msg_id,
-            'context': mcontext,
             'topic': reply_topic,
+            # TODO(ewindisch): safe to remove mcontext in I.
             'msg': [mcontext, msg]
         }
     }
@@ -760,7 +776,7 @@ def _multi_send(method, context, topic, msg, timeout=None,
         LOG.warn(_("No matchmaker results. Not casting."))
         # While not strictly a timeout, callers know how to handle
         # this exception and a timeout isn't too big a lie.
-        raise rpc_common.Timeout, "No match from matchmaker."
+        raise rpc_common.Timeout(_("No match from matchmaker."))
 
     # This supports brokerless fanout (addresses > 1)
     for queue in queues:
