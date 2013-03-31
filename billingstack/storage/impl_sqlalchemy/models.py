@@ -390,8 +390,7 @@ class Subscription(BASE, BaseMixin):
 
     payment_method = relationship('PaymentMethod', backref='subscriptions')
     payment_method_id = Column(UUID, ForeignKey('payment_method.id',
-                               ondelete='CASCADE', onupdate='CASCADE'),
-                               nullable=False)
+                               ondelete='CASCADE', onupdate='CASCADE'))
 
 
 class Usage(BASE, BaseMixin):
