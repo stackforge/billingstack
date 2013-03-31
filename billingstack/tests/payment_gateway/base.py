@@ -24,9 +24,9 @@ class ProviderTestCase(TestCase):
     def test_create_account(self):
         expected = self.pgp.create_account(self.customer)
 
-    def test_list_account(self):
+    def test_list_accounts(self):
         expected = self.pgp.create_account(self.customer)
-        actual = self.pgp.list_account()
+        actual = self.pgp.list_accounts()
 
     def test_get_account(self):
         expected = self.pgp.create_account(self.customer)
@@ -50,7 +50,7 @@ class ProviderTestCase(TestCase):
     def test_create_payment_method(self):
         fixture, pm = self.pm_create()
 
-    def test_list_payment_method(self):
+    def test_list_payment_methods(self):
         fixture, pm = self.pm_create()
         assert len(self.pgp.list_payment_method(self.customer['id'])) == 1
 
