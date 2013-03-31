@@ -7,60 +7,73 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
 from billingstack.central.rpcapi import CentralAPI
+from billingstack.payment_gateway import get_provider
+from billingstack import exceptions
 
 
 cfg.CONF.import_opt('host', 'billingstack.netconf')
-cfg.CONF.import_opt('pg_topic', 'billingstack.payment_gateway.rpcapi')
+cfg.CONF.import_opt('payment_topic', 'billingstack.payment_gateway.rpcapi')
 cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 
 LOG = logging.getLogger(__name__)
 
 
+central_api = CentralAPI()
+
+
 class Service(rpc_service.Service):
     def __init__(self, *args, **kwargs):
         kwargs.update(
             host=cfg.CONF.host,
-            topic=cfg.CONF.central_topic,
+            topic=cfg.CONF.payment_topic
         )
 
         super(Service, self).__init__(*args, **kwargs)
 
-        # Get a storage connection
-        self.central_api = CentralAPI()
-
-    def get_pg_provider(self, ctxt, pg_info):
+    def get_pg_provider(self, ctxt, pg_config):
         """
-        Work out a PGC config either from pg_info or via ctxt fetching it
-        from central.
-        Return the appropriate PGP for this info.
+        Work out a PGP from PGC.
 
-        :param ctxt: Request context
+        :param ctxt: Request context.
         :param pg_info: Payment Gateway Config...
         """
+        try:
+            name = pg_config['name']
+        except KeyError:
+            msg = 'Missing name in config'
+            LOG.error(msg)
+            raise exceptions.ConfigurationError(msg)
 
-    def create_account(self, ctxt, values, pg_config=None):
+        provider = get_provider(name)
+        return provider(pg_config)
+
+    def create_account(self, ctxt, pg_config, values):
         """
-        Create an Account on the underlying provider
+        Create an Account on the underlying Provider. (Typically a Customer)
 
-        :param values: The account values
+        :param ctxt: Request context.
+        :param values: The account values.
         """
+        provider = self.get_pg_provider(pg_config)
+        account = provider.create_account(values)
 
-    def __getattr__(self, name):
+    def create_payment_method(self, ctxt, pg_config, values):
         """
-        Proxy onto the storage api if there is no local method present..
+        Create a PaymentMethod.
 
-        For now to avoid to have to write up every method once more here...
+        :param ctxt: Request context.
+        :param values: The account values.
         """
-        if hasattr(self, name):
-            return getattr(self, name)
+        provider = self.get_pg_provider(pg_config)
+        method = provider.create_payment_method(values)
 
-        f = getattr(self.provider, name)
-        if not f:
-            raise AttributeError
+    def create_transaction(self, ctxt, pg_config, values):
+        """
+        Create a Transaction.
 
-        @functools.wraps(f)
-        def _wrapper(*args, **kw):
-            return f(*args, **kw)
-        setattr(self, name, _wrapper)
-        return _wrapper
+        :param ctxt: Request context.
+        :param values: The Transaction values.
+        """
+        provider = self.get_pg_provider(pg_config)
+        transaction = provider.create_transaction(values)

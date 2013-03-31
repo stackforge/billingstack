@@ -9,6 +9,18 @@ from billingstack.storage import get_connection
 LOG = log.getLogger(__name__)
 
 
+from oslo.config import cfg
+
+cfg.CONF.register_group(cfg.OptGroup(
+    name='service:payments', title="Configuration for Payments Service"
+))
+
+cfg.CONF.register_opts([
+    cfg.IntOpt('workers', default=None,
+               help='Number of worker processes to spawn')
+], group='service:payments')
+
+
 def _register(ep, context, conn):
     provider = ep.plugin
 

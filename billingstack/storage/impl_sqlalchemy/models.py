@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from sqlalchemy import Column, ForeignKey, UniqueConstraint
-from sqlalchemy import Integer, Float
+from sqlalchemy import Integer, Float, Boolean
 from sqlalchemy import DateTime, Unicode
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -169,6 +169,7 @@ class PGConfig(BASE, BaseMixin):
     title = Column(Unicode(100))
 
     properties = Column(JSON)
+    status = Column(Boolean, default=False)
 
     # Link to the Merchant
     merchant_id = Column(UUID, ForeignKey('merchant.id'), nullable=False)
@@ -223,6 +224,7 @@ class PaymentMethod(BASE, BaseMixin):
     expires = Column(Unicode(255))
 
     properties = Column(JSON)
+    status = Column(Boolean, default=False)
 
     customer_id = Column(UUID, ForeignKey('customer.id', onupdate='CASCADE'),
                          nullable=False)

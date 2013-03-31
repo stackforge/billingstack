@@ -23,4 +23,5 @@ Resources in Billingstack
    :maxdepth: 2
 
    api_filtering
+   payments
    subscriptions
