@@ -147,6 +147,7 @@ class Usage(Base):
 class PGConfig(Base):
     name = text
     title = text
+    provider_id = text
 
     properties = DictType(key_type=text, value_type=property_type)
 
