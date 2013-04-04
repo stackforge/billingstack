@@ -199,10 +199,13 @@ class Connection(base.Connection, api.HelpersMixin):
         self._delete(models.ContactInfo, id_)
 
     # Payment Gateway Providers
-    def pg_provider_register(self, ctxt, values, methods=[]):
+    def pg_provider_register(self, ctxt, values):
         """
         Register a Provider and it's Methods
         """
+        values = values.copy()
+        methods = values.pop('methods', [])
+
         query = self.session.query(models.PGProvider)\
             .filter_by(name=values['name'])
 
@@ -242,14 +245,10 @@ class Connection(base.Connection, api.HelpersMixin):
         return methods
 
     def _set_provider_methods(self, ctxt, provider, config_methods):
-        """
-        Helper method for setting the Methods for a Provider
-        """
+        """Helper method for setting the Methods for a Provider"""
         existing = self._get_provider_methods(provider)
-
         for method in config_methods:
             self._set_method(provider, method, existing)
-        self._save(provider)
 
     def _set_method(self, provider, method, existing):
         key = models.PGMethod.make_key(method)
@@ -259,25 +258,6 @@ class Connection(base.Connection, api.HelpersMixin):
         else:
             row = models.PGMethod(**method)
             provider.methods.append(row)
-
-    # PGMethods
-    def create_pg_method(self, ctxt, values):
-        row = models.PGMethod(**values)
-        self._save(row)
-        return dict(row)
-
-    def list_pg_methods(self, ctxt, **kw):
-        return self._list(models.PGMethod, **kw)
-
-    def get_pg_method(self, ctxt, id_):
-        return self._get(models.PGMethod, id_)
-
-    def update_pg_method(self, ctxt, id_, values):
-        row = self._update(models.PGMethod, id_, values)
-        return dict(row)
-
-    def delete_pg_method(self, ctxt, id_):
-        return self._delete(models.PGMethod, id_)
 
     # Payment Gateway Configuration
     def create_pg_config(self, ctxt, merchant_id, values):
@@ -315,7 +295,7 @@ class Connection(base.Connection, api.HelpersMixin):
         row.customer = customer
 
         self._save(row)
-        return self._dict(row, extra=['provider_method'])
+        return self._dict(row)
 
     def list_payment_methods(self, ctxt, criterion=None, **kw):
         query = self.session.query(models.PaymentMethod)
@@ -325,15 +305,15 @@ class Connection(base.Connection, api.HelpersMixin):
         rows = self._list(query=query, cls=models.PaymentMethod,
                           criterion=criterion, **kw)
 
-        return [self._dict(row, extra=['provider_method']) for row in rows]
+        return [self._dict(row) for row in rows]
 
     def get_payment_method(self, ctxt, id_, **kw):
         row = self._get_id_or_name(models.PaymentMethod, id_)
-        return self._dict(row, extra=['provider_method'])
+        return self._dict(row)
 
     def update_payment_method(self, ctxt, id_, values):
         row = self._update(models.PaymentMethod, id_, values)
-        return self._dict(row, extra=['provider_method'])
+        return self._dict(row)
 
     def delete_payment_method(self, ctxt, id_):
         self._delete(models.PaymentMethod, id_)
@@ -537,6 +517,8 @@ class Connection(base.Connection, api.HelpersMixin):
         :param merchant_id: The Merchant
         :param values: Values describing the new Product
         """
+        values = values.copy()
+
         merchant = self._get(models.Merchant, merchant_id)
 
         properties = values.pop('properties', {})
@@ -574,6 +556,7 @@ class Connection(base.Connection, api.HelpersMixin):
         :param id_: The Product ID
         :param values: Values to update with
         """
+        values = values.copy()
         properties = values.pop('properties', {})
 
         row = self._get(models.Product, id_)

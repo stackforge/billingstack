@@ -38,7 +38,6 @@ class TestPaymentMethod(FunctionalTest):
 
     def test_create_payment_method(self):
         fixture = self.get_fixture('payment_method')
-        fixture['provider_method_id'] = self.provider['methods'][0]['id']
         fixture['provider_config_id'] = self.pg_config['id']
 
         url = self.path % (self.merchant['id'], self.customer['id'])
@@ -49,7 +48,6 @@ class TestPaymentMethod(FunctionalTest):
 
     def test_list_payment_methods(self):
         values = {
-            'provider_method_id': self.provider['methods'][0]['id'],
             'provider_config_id': self.pg_config['id']
         }
         self.create_payment_method(self.customer['id'], values=values)
@@ -61,7 +59,6 @@ class TestPaymentMethod(FunctionalTest):
 
     def test_get_payment_method(self):
         values = {
-            'provider_method_id': self.provider['methods'][0]['id'],
             'provider_config_id': self.pg_config['id']
         }
         _, method = self.create_payment_method(
@@ -76,7 +73,6 @@ class TestPaymentMethod(FunctionalTest):
 
     def test_update_payment_method(self):
         values = {
-            'provider_method_id': self.provider['methods'][0]['id'],
             'provider_config_id': self.pg_config['id']
         }
         fixture, method = self.create_payment_method(
@@ -91,7 +87,6 @@ class TestPaymentMethod(FunctionalTest):
 
     def test_delete_payment_method(self):
         values = {
-            'provider_method_id': self.provider['methods'][0]['id'],
             'provider_config_id': self.pg_config['id']
         }
         _, method = self.create_payment_method(

@@ -44,9 +44,6 @@ if __name__ == '__main__':
     for l in samples['language']:
         languages[l['name']] = conn.create_language(ctxt, l)
 
-    for method in samples['pg_method']:
-        conn.create_pg_method(ctxt, method)
-
     country_data = {
         "currency_name": currencies['nok']['name'],
         "language_name": languages['nor']['name']}

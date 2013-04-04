@@ -22,9 +22,9 @@ def _register(ep, context, conn):
         msg = "PaymentGatewayProvider %s doesn't provide any methods - Skipped"
         LOG.warn(msg, provider.get_plugin_name())
         return
-
+    values['methods'] = methods
     try:
-        conn.pg_provider_register(context, values, methods=methods)
+        conn.pg_provider_register(context, values)
     except exceptions.ConfigurationError:
         return
 

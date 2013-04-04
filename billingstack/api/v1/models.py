@@ -61,16 +61,12 @@ class InvoiceState(DescribedBase):
     pass
 
 
-class PGMethod(DescribedBase):
-    type = text
-
-
 class PGProvider(DescribedBase):
     def __init__(self, **kw):
-        kw['methods'] = [PGMethod.from_db(m) for m in kw.get('methods', [])]
+        #kw['methods'] = [PGMethod.from_db(m) for m in kw.get('methods', [])]
         super(PGProvider, self).__init__(**kw)
 
-    methods = [PGMethod]
+    methods = [DictType(key_type=text, value_type=property_type)]
     properties = DictType(key_type=text, value_type=property_type)
 
 
@@ -161,7 +157,6 @@ class PaymentMethod(Base):
     expires = text
 
     customer_id = text
-    provider_method_id = text
     provider_config_id = text
 
     properties = DictType(key_type=text, value_type=property_type)

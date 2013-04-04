@@ -153,17 +153,6 @@ def list_pg_providers(q=[]):
     return map(models.PGProvider.from_db, rows)
 
 
-@bp.get('/payment-gateway-providers/<provider_id>/methods')
-@signature([models.PGMethod], str, [Query])
-def list_pg_methods(provider_id, q=[]):
-    criterion = _query_to_criterion(q, provider_id=provider_id)
-
-    rows = central_api.list_pg_methods(
-        request.environ['context'], criterion=criterion)
-
-    return map(models.PGMethod.from_db, rows)
-
-
 # invoice_states
 @bp.post('/invoice-states')
 @signature(models.InvoiceState, body=models.InvoiceState)
@@ -261,7 +250,7 @@ def delete_merchant(merchant_id):
 
 
 # Invoices
-@bp.post('/merchants/<merchant_id>/invoices')
+@bp.post('/merchants/<merchant_id>/payment-gateways')
 @signature(models.PGConfig, str, body=models.PGConfig)
 def create_payment_gateway(merchant_id, body):
     row = central_api.create_pg_config(

@@ -133,7 +133,6 @@ class TestCase(BaseTestCase):
         return api_service.Service()
 
     def setSamples(self):
-        _, self.pg_method = self.create_pg_method()
         _, self.currency = self.create_currency()
         _, self.language = self.create_language()
         _, self.merchant = self.create_merchant()
@@ -156,21 +155,15 @@ class TestCase(BaseTestCase):
         return fixture, self.central_service.create_invoice_state(
             ctxt, fixture, **kw)
 
-    def pg_provider_register(self, fixture=0, values={}, methods=[], **kw):
-        methods = [self.get_fixture('pg_method')] or methods
+    def pg_provider_register(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('pg_provider', fixture, values)
+        if 'methods' not in fixture:
+            fixture['methods'] = [self.get_fixture('pg_method')]
         ctxt = kw.pop('context', self.admin_ctxt)
 
-        data = self.central_service.pg_provider_register(ctxt, fixture,
-                                                         methods=methods, **kw)
+        data = self.central_service.pg_provider_register(ctxt, fixture, **kw)
 
-        fixture['methods'] = methods
         return fixture, data
-
-    def create_pg_method(self, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('pg_method')
-        ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.central_service.create_pg_method(ctxt, fixture)
 
     def _account_defaults(self, values):
         # NOTE: Do defaults

@@ -67,7 +67,8 @@ class ModelBase(object):
         return getattr(self, key)
 
     def __iter__(self):
-        columns = dict(object_mapper(self).columns).keys()
+        columns = [i.name for i in iter(object_mapper(self).columns)
+                   if not i.name.startswith('_')]
         # NOTE(russellb): Allow models to specify other keys that can be looked
         # up, beyond the actual db columns.  An example would be the 'name'
         # property for an Instance.

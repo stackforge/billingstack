@@ -44,19 +44,16 @@ class StorageDriverTestCase(TestCase):
 
     def pg_provider_register(self, fixture=0, values={}, methods=[], **kw):
         methods = [self.get_fixture('pg_method')] or methods
+        if not 'methods' in values:
+            values['methods'] = methods
+
         fixture = self.get_fixture('pg_provider', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
 
         data = self.storage_conn.pg_provider_register(
-            ctxt, fixture, methods=methods, **kw)
+            ctxt, fixture.copy(), **kw)
 
-        fixture['methods'] = methods
         return fixture, data
-
-    def create_pg_method(self, fixture=0, values={}, **kw):
-        fixture = self.get_fixture('pg_method')
-        ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.storage_conn.create_pg_method(ctxt, fixture)
 
     def create_merchant(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('merchant', fixture, values)
@@ -132,18 +129,13 @@ class StorageDriverTestCase(TestCase):
     def test_pg_provider_register_different_methods(self):
         # Add a Global method
         method1 = {'type': 'creditcard', 'name': 'mastercard'}
-        self.storage_conn.create_pg_method(self.admin_ctxt, method1)
-
         method2 = {'type': 'creditcard', 'name': 'amex'}
-        self.storage_conn.create_pg_method(self.admin_ctxt, method2)
-
         method3 = {'type': 'creditcard', 'name': 'visa'}
 
-        methods = [method1, method2, method3]
-        provider = {'name': 'noop'}
+        provider = {'name': 'noop', 'methods': [method1, method2, method3]}
 
         provider = self.storage_conn.pg_provider_register(
-            self.admin_ctxt, provider, methods)
+            self.admin_ctxt, provider)
 
         # TODO(ekarls): Make this more extensive?
         self.assertLen(3, provider['methods'])
@@ -241,7 +233,6 @@ class StorageDriverTestCase(TestCase):
 
         # Setup PaymentMethod
         values = {
-            'provider_method_id': provider['methods'][0]['id'],
             'provider_config_id': config['id']}
 
         fixture, data = self.create_payment_method(
@@ -257,7 +248,6 @@ class StorageDriverTestCase(TestCase):
 
         # Setup PaymentMethod
         values = {
-            'provider_method_id': provider['methods'][0]['id'],
             'provider_config_id': config['id']}
 
         _, expected = self.create_payment_method(
@@ -274,7 +264,6 @@ class StorageDriverTestCase(TestCase):
             self.merchant['id'], values={'provider_id': provider['id']})
 
         values = {
-            'provider_method_id': provider['methods'][0]['id'],
             'provider_config_id': config['id']}
 
         # Add two Customers with some methods
@@ -309,7 +298,6 @@ class StorageDriverTestCase(TestCase):
 
         # Setup PaymentMethod
         values = {
-            'provider_method_id': provider['methods'][0]['id'],
             'provider_config_id': config['id']}
 
         fixture, data = self.create_payment_method(
@@ -334,7 +322,6 @@ class StorageDriverTestCase(TestCase):
 
         # Setup PaymentMethod
         values = {
-            'provider_method_id': provider['methods'][0]['id'],
             'provider_config_id': config['id']}
 
         fixture, data = self.create_payment_method(
