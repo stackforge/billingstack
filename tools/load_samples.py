@@ -13,6 +13,8 @@ from billingstack.openstack.common.context import get_admin_context
 cfg.CONF.import_opt('storage_driver', 'billingstack.central',
                     group='service:central')
 
+cfg.CONF.import_opt('state_path', 'billingstack.paths')
+
 cfg.CONF.import_opt(
     'database_connection',
     'billingstack.storage.impl_sqlalchemy',

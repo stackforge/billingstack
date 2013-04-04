@@ -16,10 +16,13 @@ LOG = logging.getLogger(__name__)
 cfg.CONF.import_opt('storage_driver', 'billingstack.central',
                     group='service:central')
 
+
+cfg.CONF.import_opt('state_path', 'billingstack.paths')
+
+
 cfg.CONF.import_opt('database_connection',
                     'billingstack.storage.impl_sqlalchemy',
                     group='storage:sqlalchemy')
-
 
 if __name__ == '__main__':
     service.prepare_service(sys.argv)

@@ -16,7 +16,10 @@ LOG = logging.getLogger(__name__)
 cfg.CONF.import_opt('storage_driver', 'billingstack.identity.api',
                     group='service:identity_api')
 
-cfg.CONF.import_opt('database_connection', 'billingstack.identity.impl_sqlalchemy',
+cfg.CONF.import_opt('state_path', 'billingstack.paths')
+
+cfg.CONF.import_opt('database_connection',
+                    'billingstack.identity.impl_sqlalchemy',
                     group='identity:sqlalchemy')
 
 
