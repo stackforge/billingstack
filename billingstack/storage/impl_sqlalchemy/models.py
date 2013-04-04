@@ -145,10 +145,19 @@ class Merchant(BASE, BaseMixin):
     title = Column(Unicode(60))
 
     customers = relationship('Customer', backref='merchant')
-    payment_gateways = relationship('PGConfig', backref='merchant')
+    payment_gateways = relationship(
+        'PGConfig', backref='merchant',
+        primaryjoin='merchant.c.id==pg_config.c.merchant_id')
 
     plans = relationship('Plan', backref='merchant')
     products = relationship('Product', backref='merchant')
+
+    default_gateway = relationship(
+        'PGConfig', uselist=False,
+        primaryjoin='merchant.c.id==pg_config.c.merchant_id')
+    default_gateway_id = Column(UUID, ForeignKey('pg_config.id',
+                                use_alter=True, name='default_gateway'),
+                                nullable=True)
 
     currency = relationship('Currency', uselist=False, backref='merchants')
     currency_name = Column(Unicode(10), ForeignKey('currency.name'),

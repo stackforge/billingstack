@@ -291,6 +291,12 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         customer = self._get_id_or_name(models.Customer, customer_id)
 
+        # NOTE: Attempt to see if there's a default gateway if none is
+        # specified
+        if not values.get('provider_config_id') and \
+                customer.merchant.default_gateway:
+            values['provider_config_id'] = customer.merchant.default_gateway_id
+
         row = models.PaymentMethod(**values)
         row.customer = customer
 

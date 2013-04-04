@@ -164,31 +164,45 @@ class PaymentMethod(Base):
 
 
 class Account(Base):
+    _keys = ['currency', 'language']
+
     currency = text
     language = text
 
     name = text
 
+
+class Merchant(Account):
+    default_gateway = text
+
     def to_db(self):
         values = self.as_dict()
-        change_suffixes(values, ['currency', 'language'], shorten=False)
+        change_suffixes(values, self._keys, shorten=False)
+        values['default_gateway_id'] = values.pop('default_gateway')
         return values
 
     @classmethod
     def from_db(cls, values):
-        change_suffixes(values, ['currency', 'language'])
+        change_suffixes(values, cls._keys)
+        values['default_gateway'] = values.pop('default_gateway_id')
         return cls(**values)
 
 
-class Merchant(Account):
-    pass
-
-
 class Customer(Account):
+    merchant_id = text
+    contact_info = [ContactInfo]
+
     def __init__(self, **kw):
         infos = kw.get('contact_info', {})
         kw['contact_info'] = [ContactInfo.from_db(i) for i in infos]
         super(Customer, self).__init__(**kw)
 
-    merchant_id = text
-    contact_info = [ContactInfo]
+    def to_db(self):
+        values = self.as_dict()
+        change_suffixes(values, self._keys, shorten=False)
+        return values
+
+    @classmethod
+    def from_db(cls, values):
+        change_suffixes(values, cls._keys)
+        return cls(**values)
