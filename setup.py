@@ -51,12 +51,16 @@ setup(
         'bin/billingstack-db-manage',
         'bin/billingstack-identity-api',
         'bin/billingstack-manage',
-        'bin/billingstack-central'
+        'bin/billingstack-central',
+        'bin/billingstack-rater'
     ],
     cmdclass=common_setup.get_cmdclass(),
     entry_points=textwrap.dedent("""
         [billingstack.storage]
         sqlalchemy = billingstack.storage.impl_sqlalchemy:SQLAlchemyStorage
+
+        [billingstack.rating.storage]
+        sqlalchemy = billingstack.rating.storage.impl_sqlalchemy:SQLAlchemyEngine
 
         [billingstack.payment_gateway]
         dummy = billingstack.payment_gateway.dummy:DummyProvider

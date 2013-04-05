@@ -377,13 +377,6 @@ class Subscription(BASE, BaseMixin):
     resource_id = Column(Unicode(255), nullable=False)
     resource_type = Column(Unicode(255), nullable=True)
 
-    usages = relationship(
-        'Usage',
-        backref='subscription',
-        lazy='dynamic',
-        cascade='delete, delete-orphan',
-        passive_deletes=True)
-
     plan = relationship('Plan', backref='subscriptions', uselist=False)
     plan_id = Column(UUID, ForeignKey('plan.id', ondelete='CASCADE'),
                      nullable=False)
@@ -395,25 +388,3 @@ class Subscription(BASE, BaseMixin):
     payment_method = relationship('PaymentMethod', backref='subscriptions')
     payment_method_id = Column(UUID, ForeignKey('payment_method.id',
                                ondelete='CASCADE', onupdate='CASCADE'))
-
-
-class Usage(BASE, BaseMixin):
-    """
-    A record of something that's used from for example a Metering system like
-    Ceilometer
-    """
-    measure = Column(Unicode(255))
-    start_timestamp = Column(DateTime)
-    end_timestamp = Column(DateTime)
-
-    price = Column(Float)
-    total = Column(Float)
-    value = Column(Float)
-
-    product = relationship('Product', backref='usages')
-    prodoct_id = Column(UUID, ForeignKey('product.id', onupdate='CASCADE'),
-                        nullable=False)
-
-    subscription_id = Column(UUID, ForeignKey('subscription.id',
-                                              onupdate='CASCADE'),
-                             nullable=False)

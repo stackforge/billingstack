@@ -42,9 +42,9 @@ api_port = 9092
 admin_token = rand0m
 
 
-#######################
-## Storage Configuration
-########################
+#################################################
+#                Central service
+#################################################
 #-----------------------
 # SQLAlchemy Storage
 #-----------------------
@@ -60,11 +60,31 @@ admin_token = rand0m
 #retry_interval = 10
 
 
-#################################
-## Identity Storage Configuration
-#################################
+#################################################
+#                Rating service
+#################################################
+
 #-----------------------
-# Identity SQLAlchemy Storage
+# SQLAlchemy Storage
+#-----------------------
+[rating:sqlalchemy]
+# Database connection string - to configure options for a given implementation
+# like sqlalchemy or other see below
+#database_connection = mysql://billingstack:billingstack@localhost:3306/billingstack
+#connection_debug = 100
+#connection_trace = False
+#sqlite_synchronous = True
+#idle_timeout = 3600
+#max_retries = 10
+#retry_interval = 10
+
+
+#################################################
+#               Identity service
+#################################################
+
+#-----------------------
+# SQLAlchemy Storage
 #-----------------------
 [identity:sqlalchemy]
 # Database connection string - to configure options for a given implementation
@@ -76,3 +96,5 @@ admin_token = rand0m
 #idle_timeout = 3600
 #max_retries = 10
 #retry_interval = 10
+
+
