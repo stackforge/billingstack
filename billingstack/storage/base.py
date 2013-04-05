@@ -15,7 +15,6 @@
 # under the License.
 #
 # Copied: Moniker
-import abc
 from billingstack.plugin import Plugin
 
 
@@ -25,25 +24,17 @@ class StorageEngine(Plugin):
     __plugin_ns__ = 'billingstack.storage'
     __plugin_type__ = 'storage'
 
-    @abc.abstractmethod
     def get_connection(self):
         """
         Return a Connection instance based on the configuration settings.
         """
+        raise NotImplementedError
 
 
 class Connection(object):
     """
     A Connection
     """
-    __metaclass__ = abc.ABCMeta
-
-    @abc.abstractmethod
-    def __init__(self):
-        """
-        Constructor...
-        """
-
     def ping(self, context):
         """ Ping the Storage connection """
         return {
