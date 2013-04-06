@@ -200,6 +200,9 @@ class Service(rpc_service.Service):
     def delete_plan(self, ctxt, id_):
         return self.storage_conn.delete_plan(ctxt, id_)
 
+    def get_plan_by_subscription(self, ctxt, id_):
+        return self.storage_conn.get_plan_by_subscription(ctxt, id_)
+
     def create_plan_item(self, ctxt, values):
         return self.storage_conn.create_plan_item(ctxt, values)
 

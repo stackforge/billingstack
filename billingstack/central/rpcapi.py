@@ -204,6 +204,10 @@ class CentralAPI(proxy.RpcProxy):
     def delete_plan(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('delete_plan', id_=id_))
 
+    def get_plan_by_subscription(self, ctxt, id_):
+        return self.call(ctxt, self.make_msg('get_plan_by_subscription',
+                         id_=id_))
+
     # PlanItems
     def create_plan_item(self, ctxt, values):
         return self.call(ctxt, self.make_msg('create_plan_item',

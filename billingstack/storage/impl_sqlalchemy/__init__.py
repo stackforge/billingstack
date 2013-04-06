@@ -467,6 +467,17 @@ class Connection(base.Connection, api.HelpersMixin):
         """
         self._delete(models.Plan, id_)
 
+    def get_plan_by_subscription(self, ctxt, subscription_id):
+        q = self.session.query(models.Plan).join(models.Subscription)\
+            .filter(models.Subscription.id == subscription_id)
+        try:
+            row = q.one()
+        except exc.NoResultFound:
+            msg = 'Couldn\'t find any Plan for subscription %s' % \
+                subscription_id
+            raise exceptions.NotFound(msg)
+        return self._plan(row)
+
     # PlanItemw
     def _plan_item(self, row):
         entity = self._entity(row)
