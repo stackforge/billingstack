@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from wsme.types import text, DictType
-
+from datetime import datetime
 
 from billingstack.api.base import ModelBase, property_type
 from billingstack.openstack.common import log
@@ -141,7 +141,15 @@ class Subscription(Base):
 
 
 class Usage(Base):
-    pass
+    measure = text
+    start_timestamp = datetime
+    end_timestamp = datetime
+    price = float
+    total = float
+    value = float
+    merchant_id = text
+    product_id = text
+    subscription_id = text
 
 
 class PGConfig(Base):
@@ -178,13 +186,15 @@ class Merchant(Account):
     def to_db(self):
         values = self.as_dict()
         change_suffixes(values, self._keys, shorten=False)
-        values['default_gateway_id'] = values.pop('default_gateway')
+        if 'default_gateway' in values:
+            values['default_gateway_id'] = values.pop('default_gateway')
         return values
 
     @classmethod
     def from_db(cls, values):
         change_suffixes(values, cls._keys)
-        values['default_gateway'] = values.pop('default_gateway_id')
+        if 'default_gateway_id' in values:
+            values['default_gateway'] = values.pop('default_gateway_id')
         return cls(**values)
 
 

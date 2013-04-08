@@ -680,9 +680,10 @@ def delete_subscription(merchant_id, subscription_id):
 @bp.post('/merchants/<merchant_id>/usages')
 @signature(models.Usage, str, body=models.Usage)
 def create_usage(merchant_id, body):
-    row = rating_api.create_usage(
-        request.environ['context'],
-        body.to_db())
+    values = body.to_db()
+
+    values['merchant_id'] = merchant_id
+    row = rating_api.create_usage(request.environ['context'], values)
 
     return models.Usage.from_db(row)
 
