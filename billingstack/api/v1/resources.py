@@ -677,7 +677,7 @@ def delete_subscription(merchant_id, subscription_id):
 
 
 # Usage
-@bp.post('/merchants/<merchant_id>/usages')
+@bp.post('/merchants/<merchant_id>/usage')
 @signature(models.Usage, str, body=models.Usage)
 def create_usage(merchant_id, body):
     values = body.to_db()
@@ -688,7 +688,7 @@ def create_usage(merchant_id, body):
     return models.Usage.from_db(row)
 
 
-@bp.get('/merchants/<merchant_id>/usages')
+@bp.get('/merchants/<merchant_id>/usage')
 @signature([models.Usage], str, [Query])
 def list_usages(merchant_id, q=[]):
     criterion = _query_to_criterion(q, merchant_id=merchant_id)
@@ -699,7 +699,7 @@ def list_usages(merchant_id, q=[]):
     return map(models.Usage.from_db, rows)
 
 
-@bp.get('/merchants/<merchant_id>/usages/<usage_id>')
+@bp.get('/merchants/<merchant_id>/usage/<usage_id>')
 @signature([models.Usage], str, str)
 def get_usage(merchant_id, usage_id):
     row = rating_api.get_usage(request.environ['context'],
@@ -708,7 +708,7 @@ def get_usage(merchant_id, usage_id):
     return models.Usage.from_db(row)
 
 
-@bp.put('/merchants/<merchant_id>/usages/<usage_id>')
+@bp.put('/merchants/<merchant_id>/usage/<usage_id>')
 @signature(models.Usage, str, str, body=models.Usage)
 def update_usage(merchant_id, usage_id, body):
     row = rating_api.update_usage(
@@ -719,7 +719,7 @@ def update_usage(merchant_id, usage_id, body):
     return models.Usage.from_db(row)
 
 
-@bp.delete('/merchants/<merchant_id>/usages/<usage_id>')
+@bp.delete('/merchants/<merchant_id>/usage/<usage_id>')
 def delete_usage(merchant_id, usage_id):
     rating_api.delete_usage(
         request.environ['context'],
