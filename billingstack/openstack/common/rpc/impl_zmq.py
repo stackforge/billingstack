@@ -276,7 +276,8 @@ class InternalContext(object):
 
         try:
             result = proxy.dispatch(
-                ctx, data['version'], data['method'], **data['args'])
+                ctx, data['version'], data['method'],
+                data.get('namespace'), **data['args'])
             return ConsumerBase.normalize_reply(result, ctx.replies)
         except greenlet.GreenletExit:
             # ignore these since they are just from shutdowns
@@ -351,7 +352,7 @@ class ConsumerBase(object):
             return
 
         proxy.dispatch(ctx, data['version'],
-                       data['method'], **data['args'])
+                       data['method'], data.get('namespace'), **data['args'])
 
 
 class ZmqBaseReactor(ConsumerBase):
@@ -405,23 +406,16 @@ class ZmqBaseReactor(ConsumerBase):
 
         LOG.info(_("Out reactor registered"))
 
-    def _consumer_thread_callback(self, sock):
-        """ Consumer thread callback used by consume_in_* """
-
-        LOG.info(_("Consuming socket"))
-        while True:
-            self.consume(sock)
-
     def consume_in_thread(self):
+        def _consume(sock):
+            LOG.info(_("Consuming socket"))
+            while True:
+                self.consume(sock)
+
         for k in self.proxies.keys():
             self.threads.append(
-                self.pool.spawn(self._consumer_thread_callback, k)
+                self.pool.spawn(_consume, k)
             )
-
-    def consume_in_thread_group(self, thread_group):
-        """ Consume from all queues/consumers in the supplied ThreadGroup"""
-        for k in self.proxies.keys():
-            thread_group.add_thread(self._consumer_thread_callback, k)
 
     def wait(self):
         for t in self.threads:
@@ -659,9 +653,6 @@ class Connection(rpc_common.Connection):
     def consume_in_thread(self):
         _get_matchmaker().start_heartbeat()
         self.reactor.consume_in_thread()
-
-    def consume_in_thread_group(self, thread_group):
-        self.reactor.consume_in_thread_group(thread_group)
 
 
 def _cast(addr, context, topic, msg, timeout=None, envelope=False,

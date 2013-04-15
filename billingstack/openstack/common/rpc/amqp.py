@@ -174,9 +174,6 @@ class ConnectionContext(rpc_common.Connection):
     def consume_in_thread(self):
         self.connection.consume_in_thread()
 
-    def consume_in_thread_group(self, thread_group):
-        self.connection.consume_in_thread_group(thread_group)
-
     def __getattr__(self, key):
         """Proxy all other calls to the Connection instance"""
         if self.connection:
@@ -411,15 +408,17 @@ class ProxyCallback(_ThreadPoolWithWait):
         ctxt = unpack_context(self.conf, message_data)
         method = message_data.get('method')
         args = message_data.get('args', {})
-        version = message_data.get('version', None)
+        version = message_data.get('version')
+        namespace = message_data.get('namespace')
         if not method:
             LOG.warn(_('no method for message: %s') % message_data)
             ctxt.reply(_('No method for message: %s') % message_data,
                        connection_pool=self.connection_pool)
             return
-        self.pool.spawn_n(self._process_data, ctxt, version, method, args)
+        self.pool.spawn_n(self._process_data, ctxt, version, method,
+                          namespace, args)
 
-    def _process_data(self, ctxt, version, method, args):
+    def _process_data(self, ctxt, version, method, namespace, args):
         """Process a message in a new thread.
 
         If the proxy object we have has a dispatch method
@@ -430,7 +429,8 @@ class ProxyCallback(_ThreadPoolWithWait):
         """
         ctxt.update_store()
         try:
-            rval = self.proxy.dispatch(ctxt, version, method, **args)
+            rval = self.proxy.dispatch(ctxt, version, method, namespace,
+                                       **args)
             # Check if the result was a generator
             if inspect.isgenerator(rval):
                 for x in rval:
