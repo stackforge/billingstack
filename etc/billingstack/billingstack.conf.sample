@@ -32,16 +32,6 @@ allowed_rpc_exception_modules = billingstack.exceptions, billingstack.openstack.
 # Port the bind the API server to
 #api_port = 9001
 
-[service:identity_api]
-# Address to bind the API server
-# api_host = 0.0.0.0
-
-# Port the bind the API server to
-api_port = 9092
-
-admin_token = rand0m
-
-
 #################################################
 #                Central service
 #################################################
@@ -61,6 +51,43 @@ admin_token = rand0m
 
 
 #################################################
+#                Biller service
+#################################################
+
+#-----------------------
+# SQLAlchemy Storage
+#-----------------------
+[biller:sqlalchemy]
+# Database connection string - to configure options for a given implementation
+# like sqlalchemy or other see below
+#database_connection = mysql://billingstack:billingstack@localhost:3306/billingstack
+#connection_debug = 100
+#connection_trace = False
+#sqlite_synchronous = True
+#idle_timeout = 3600
+#max_retries = 10
+#retry_interval = 10
+
+
+#################################################
+#                Collector service
+#################################################
+
+#-----------------------
+# SQLAlchemy Storage
+#-----------------------
+[collector:sqlalchemy]
+# Database connection string - to configure options for a given implementation
+# like sqlalchemy or other see below
+#database_connection = mysql://billingstack:billingstack@localhost:3306/billingstack
+#connection_debug = 100
+#connection_trace = False
+#sqlite_synchronous = True
+#idle_timeout = 3600
+#max_retries = 10
+#retry_interval = 10
+
+#################################################
 #                Rating service
 #################################################
 
@@ -77,24 +104,4 @@ admin_token = rand0m
 #idle_timeout = 3600
 #max_retries = 10
 #retry_interval = 10
-
-
-#################################################
-#               Identity service
-#################################################
-
-#-----------------------
-# SQLAlchemy Storage
-#-----------------------
-[identity:sqlalchemy]
-# Database connection string - to configure options for a given implementation
-# like sqlalchemy or other see below
-#database_connection = mysql://billingstack:billingstack@localhost:3306/billingstack
-#connection_debug = 100
-#connection_trace = False
-#sqlite_synchronous = True
-#idle_timeout = 3600
-#max_retries = 10
-#retry_interval = 10
-
 
