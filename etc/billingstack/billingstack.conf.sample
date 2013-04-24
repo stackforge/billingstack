@@ -14,8 +14,6 @@ debug = True
 # Log directory
 #logdir = /var/log/billingstack
 
-identity_driver = internal
-
 allowed_rpc_exception_modules = billingstack.exceptions, billingstack.openstack.common.exception
 
 # Enabled API Version 1 extensions
