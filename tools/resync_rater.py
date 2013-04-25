@@ -7,26 +7,26 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 
 from billingstack import service
-from billingstack.identity.base import IdentityPlugin
+from billingstack.rater.storage import get_connection
 
 
 LOG = logging.getLogger(__name__)
 
 
-cfg.CONF.import_opt('storage_driver', 'billingstack.identity.api',
-                    group='service:identity_api')
+cfg.CONF.import_opt('storage_driver', 'billingstack.rater.storage',
+                    group='service:rater')
 
 cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 cfg.CONF.import_opt('database_connection',
-                    'billingstack.identity.impl_sqlalchemy',
-                    group='identity:sqlalchemy')
+                    'billingstack.rater.storage.impl_sqlalchemy',
+                    group='rater:sqlalchemy')
 
 
 if __name__ == '__main__':
     service.prepare_service(sys.argv)
-    plugin = IdentityPlugin.get_plugin()()
+    connection = get_connection()
 
     LOG.info("Re-Syncing database")
-    plugin.teardown_schema()
-    plugin.setup_schema()
+    connection.teardown_schema()
+    connection.setup_schema()

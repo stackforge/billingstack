@@ -7,20 +7,20 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 
 from billingstack import service
-from billingstack.rating.storage import get_connection
+from billingstack.biller.storage import get_connection
 
 
 LOG = logging.getLogger(__name__)
 
 
-cfg.CONF.import_opt('storage_driver', 'billingstack.rating.storage',
-                    group='service:rating')
+cfg.CONF.import_opt('storage_driver', 'billingstack.biller.storage',
+                    group='service:biller')
 
 cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 cfg.CONF.import_opt('database_connection',
-                    'billingstack.rating.storage.impl_sqlalchemy',
-                    group='rating:sqlalchemy')
+                    'billingstack.biller.storage.impl_sqlalchemy',
+                    group='biller:sqlalchemy')
 
 
 if __name__ == '__main__':
