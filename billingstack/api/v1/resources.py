@@ -20,7 +20,7 @@ from flask import Response
 from billingstack.api.base import Rest, Query
 from billingstack.api.v1 import models
 from billingstack.central.rpcapi import central_api
-from billingstack.rating.rpcapi import rating_api
+from billingstack.rater.rpcapi import rater_api
 
 from wsmeext.flask import signature
 
@@ -683,7 +683,7 @@ def create_usage(merchant_id, body):
     values = body.to_db()
 
     values['merchant_id'] = merchant_id
-    row = rating_api.create_usage(request.environ['context'], values)
+    row = rater_api.create_usage(request.environ['context'], values)
 
     return models.Usage.from_db(row)
 
@@ -693,7 +693,7 @@ def create_usage(merchant_id, body):
 def list_usages(merchant_id, q=[]):
     criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
-    rows = rating_api.list_usages(
+    rows = rater_api.list_usages(
         request.environ['context'], criterion=criterion)
 
     return map(models.Usage.from_db, rows)
@@ -702,7 +702,7 @@ def list_usages(merchant_id, q=[]):
 @bp.get('/merchants/<merchant_id>/usage/<usage_id>')
 @signature([models.Usage], str, str)
 def get_usage(merchant_id, usage_id):
-    row = rating_api.get_usage(request.environ['context'],
+    row = rater_api.get_usage(request.environ['context'],
                                usage_id)
 
     return models.Usage.from_db(row)
@@ -711,7 +711,7 @@ def get_usage(merchant_id, usage_id):
 @bp.put('/merchants/<merchant_id>/usage/<usage_id>')
 @signature(models.Usage, str, str, body=models.Usage)
 def update_usage(merchant_id, usage_id, body):
-    row = rating_api.update_usage(
+    row = rater_api.update_usage(
         request.environ['context'],
         usage_id,
         body.to_db())
@@ -721,7 +721,7 @@ def update_usage(merchant_id, usage_id, body):
 
 @bp.delete('/merchants/<merchant_id>/usage/<usage_id>')
 def delete_usage(merchant_id, usage_id):
-    rating_api.delete_usage(
+    rater_api.delete_usage(
         request.environ['context'],
         usage_id)
     return Response(status=204)

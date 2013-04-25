@@ -51,6 +51,8 @@ setup(
         'bin/billingstack-db-manage',
         'bin/billingstack-manage',
         'bin/billingstack-central',
+        'bin/billingstack-biller',
+        'bin/billingstack-collector',
         'bin/billingstack-rater'
     ],
     cmdclass=common_setup.get_cmdclass(),
