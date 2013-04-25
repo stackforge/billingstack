@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from billingstack.openstack.common import log as logging
-from billingstack.storage.impl_sqlalchemy import models
+from billingstack.central.storage.impl_sqlalchemy import models
 from billingstack.tests.base import TestCase
 
 

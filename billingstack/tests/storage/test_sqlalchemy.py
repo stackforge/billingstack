@@ -26,5 +26,5 @@ class SqlalchemyStorageTest(StorageDriverTestCase):
 
     def setUp(self):
         self.config(database_connection='sqlite://',
-                    group='storage:sqlalchemy')
+                    group='central:sqlalchemy')
         super(SqlalchemyStorageTest, self).setUp()

@@ -33,7 +33,7 @@ _db_opts = [
 ]
 
 CONF = cfg.ConfigOpts()
-CONF.register_opts(_db_opts, 'storage:sqlalchemy')
+CONF.register_opts(_db_opts, 'central:sqlalchemy')
 
 
 def do_alembic_command(config, cmd, *args, **kwargs):
@@ -116,7 +116,7 @@ def main():
     )
     config.set_main_option(
         'script_location',
-        'billingstack.storage.impl_sqlalchemy.migration:alembic_migrations')
+        'billingstack.central.storage.impl_sqlalchemy.migration:alembic_migrations')
     # attach the Quantum conf to the Alembic conf
     config.billingstack_config = CONF
 

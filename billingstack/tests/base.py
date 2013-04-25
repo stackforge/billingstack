@@ -6,7 +6,7 @@ from oslo.config import cfg
 # from billingstack.openstack.common import policy
 from billingstack import exceptions
 from billingstack import samples
-from billingstack import storage
+from billingstack.central import storage
 from billingstack.api import service as api_service
 from billingstack.central import service as central_service
 from billingstack.openstack.common.context import RequestContext, \
@@ -16,8 +16,8 @@ from billingstack.openstack.common.context import RequestContext, \
 cfg.CONF.import_opt('storage_driver', 'billingstack.central',
                     group='service:central')
 cfg.CONF.import_opt('database_connection',
-                    'billingstack.storage.impl_sqlalchemy',
-                    group='storage:sqlalchemy')
+                    'billingstack.central.storage.impl_sqlalchemy',
+                    group='central:sqlalchemy')
 
 
 class AssertMixin(object):
@@ -107,7 +107,7 @@ class TestCase(BaseTestCase):
 
         self.config(
             database_connection='sqlite://',
-            group='storage:sqlalchemy'
+            group='central:sqlalchemy'
         )
 
         self.samples = samples.get_samples()

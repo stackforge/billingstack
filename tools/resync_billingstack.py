@@ -21,8 +21,8 @@ cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 
 cfg.CONF.import_opt('database_connection',
-                    'billingstack.storage.impl_sqlalchemy',
-                    group='storage:sqlalchemy')
+                    'billingstack.central.storage.impl_sqlalchemy',
+                    group='central:sqlalchemy')
 
 if __name__ == '__main__':
     service.prepare_service(sys.argv)

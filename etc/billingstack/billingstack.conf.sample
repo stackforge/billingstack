@@ -36,7 +36,7 @@ allowed_rpc_exception_modules = billingstack.exceptions, billingstack.openstack.
 #-----------------------
 # SQLAlchemy Storage
 #-----------------------
-[storage:sqlalchemy]
+[central:sqlalchemy]
 # Database connection string - to configure options for a given implementation
 # like sqlalchemy or other see below
 #database_connection = mysql://billingstack:billingstack@localhost:3306/billingstack

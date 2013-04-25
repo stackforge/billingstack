@@ -19,16 +19,17 @@ from billingstack import utils as common_utils
 from billingstack.sqlalchemy import utils as db_utils, api
 from billingstack.sqlalchemy.session import SQLOPTS
 from billingstack.storage import base
-from billingstack.storage.impl_sqlalchemy import models
+from billingstack.central.storage import Connection, StorageEngine
+from billingstack.central.storage.impl_sqlalchemy import models
 
 
 LOG = logging.getLogger(__name__)
 
 cfg.CONF.register_group(cfg.OptGroup(
-    name='storage:sqlalchemy', title="Configuration for SQLAlchemy Storage"
+    name='central:sqlalchemy', title="Configuration for SQLAlchemy Storage"
 ))
 
-cfg.CONF.register_opts(SQLOPTS, group='storage:sqlalchemy')
+cfg.CONF.register_opts(SQLOPTS, group='central:sqlalchemy')
 
 
 def filter_merchant_by_join(query, cls, criterion):
@@ -41,14 +42,14 @@ def filter_merchant_by_join(query, cls, criterion):
     return query
 
 
-class SQLAlchemyStorage(base.StorageEngine):
+class SQLAlchemyEngine(StorageEngine):
     __plugin_name__ = 'sqlalchemy'
 
     def get_connection(self):
         return Connection(self.name)
 
 
-class Connection(base.Connection, api.HelpersMixin):
+class Connection(Connection, api.HelpersMixin):
     """
     SQLAlchemy connection
     """

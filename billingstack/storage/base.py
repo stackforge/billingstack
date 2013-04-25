@@ -20,8 +20,6 @@ from billingstack.plugin import Plugin
 
 class StorageEngine(Plugin):
     """ Base class for storage engines """
-
-    __plugin_ns__ = 'billingstack.storage'
     __plugin_type__ = 'storage'
 
     def get_connection(self):

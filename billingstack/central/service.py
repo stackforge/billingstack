@@ -2,7 +2,7 @@ import functools
 from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
-from billingstack import storage
+from billingstack.central import storage
 
 
 cfg.CONF.import_opt('central_topic', 'billingstack.central.rpcapi')

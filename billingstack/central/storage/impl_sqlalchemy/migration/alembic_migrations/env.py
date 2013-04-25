@@ -22,7 +22,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-from billingstack.storage.impl_sqlalchemy.models import ModelBase
+from billingstack.central.storage.impl_sqlalchemy.models import ModelBase
 
 
 # this is the Alembic Config object, which provides
@@ -50,7 +50,7 @@ def run_migrations_offline():
     script output.
 
     """
-    context.configure(url=billingstack_config['storage:sqlalchemy']
+    context.configure(url=billingstack_config['central:sqlalchemy']
                       .database_connection)
 
     with context.begin_transaction():
@@ -65,7 +65,7 @@ def run_migrations_online():
 
     """
     engine = create_engine(
-        billingstack_config['storage:sqlalchemy'].database_connection,
+        billingstack_config['central:sqlalchemy'].database_connection,
         poolclass=pool.NullPool)
 
     connection = engine.connect()

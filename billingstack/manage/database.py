@@ -30,7 +30,7 @@ cfg.CONF.import_opt(
 cfg.CONF.import_opt(
     'database_connection',
     'billingstack.storage.impl_sqlalchemy',
-    group='storage:sqlalchemy')
+    group='central:sqlalchemy')
 
 
 class DatabaseCommand(Command):

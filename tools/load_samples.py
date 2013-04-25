@@ -18,7 +18,7 @@ cfg.CONF.import_opt('state_path', 'billingstack.paths')
 cfg.CONF.import_opt(
     'database_connection',
     'billingstack.storage.impl_sqlalchemy',
-    group='storage:sqlalchemy')
+    group='central:sqlalchemy')
 
 
 SAMPLES = get_samples()
