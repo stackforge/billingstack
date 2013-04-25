@@ -9,4 +9,4 @@ cfg.CONF.register_opts([
                help='Number of worker processes to spawn'),
     cfg.StrOpt('storage-driver', default='sqlalchemy',
                help='The storage driver to use'),
-], group='service:rating')
+], group='service:rater')

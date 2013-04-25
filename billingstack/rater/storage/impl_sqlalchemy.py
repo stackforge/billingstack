@@ -20,7 +20,7 @@ from sqlalchemy import Unicode, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 from billingstack.openstack.common import log as logging
-from billingstack.rating.storage import Connection, StorageEngine
+from billingstack.rater.storage import Connection, StorageEngine
 from billingstack.sqlalchemy.types import UUID
 from billingstack.sqlalchemy import api, model_base, session
 
@@ -32,10 +32,10 @@ LOG = logging.getLogger(__name__)
 
 
 cfg.CONF.register_group(cfg.OptGroup(
-    name='rating:sqlalchemy', title='Config for rating sqlalchemy plugin'))
+    name='rater:sqlalchemy', title='Config for rater sqlalchemy plugin'))
 
 
-cfg.CONF.register_opts(session.SQLOPTS, group='rating:sqlalchemy')
+cfg.CONF.register_opts(session.SQLOPTS, group='rater:sqlalchemy')
 
 
 class Usage(BASE, model_base.BaseMixin):
@@ -62,7 +62,7 @@ class SQLAlchemyEngine(StorageEngine):
 
 class Connection(Connection, api.HelpersMixin):
     def __init__(self):
-        self.setup('rating:sqlalchemy')
+        self.setup('rater:sqlalchemy')
 
     def base(self):
         return BASE

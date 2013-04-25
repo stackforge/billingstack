@@ -49,7 +49,6 @@ setup(
     scripts=[
         'bin/billingstack-api',
         'bin/billingstack-db-manage',
-        'bin/billingstack-identity-api',
         'bin/billingstack-manage',
         'bin/billingstack-central',
         'bin/billingstack-rater'
@@ -59,8 +58,8 @@ setup(
         [billingstack.storage]
         sqlalchemy = billingstack.storage.impl_sqlalchemy:SQLAlchemyStorage
 
-        [billingstack.rating.storage]
-        sqlalchemy = billingstack.rating.storage.impl_sqlalchemy:SQLAlchemyEngine
+        [billingstack.rater.storage]
+        sqlalchemy = billingstack.rater.storage.impl_sqlalchemy:SQLAlchemyEngine
 
         [billingstack.payment_gateway]
         dummy = billingstack.payment_gateway.dummy:DummyProvider

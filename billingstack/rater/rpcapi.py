@@ -3,19 +3,19 @@ from oslo.config import cfg
 from billingstack.openstack.common.rpc import proxy
 
 rpcapi_opts = [
-    cfg.StrOpt('rating_topic', default='rating',
-               help='the topic rating nodes listen on')
+    cfg.StrOpt('rater_topic', default='rater',
+               help='the topic rater nodes listen on')
 ]
 
 cfg.CONF.register_opts(rpcapi_opts)
 
 
-class RatingAPI(proxy.RpcProxy):
+class RaterAPI(proxy.RpcProxy):
     BASE_RPC_VERSION = '1.0'
 
     def __init__(self):
-        super(RatingAPI, self).__init__(
-            topic=cfg.CONF.rating_topic,
+        super(RaterAPI, self).__init__(
+            topic=cfg.CONF.rater_topic,
             default_version=self.BASE_RPC_VERSION)
 
     # Subscriptions
@@ -37,4 +37,4 @@ class RatingAPI(proxy.RpcProxy):
         return self.call(ctxt, self.make_msg('delete_usage', id_=id_))
 
 
-rating_api = RatingAPI()
+rater_api = RaterAPI()

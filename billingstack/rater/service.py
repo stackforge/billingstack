@@ -1,10 +1,10 @@
 from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
-from billingstack.rating import storage
+from billingstack.rater import storage
 
 
-cfg.CONF.import_opt('rating_topic', 'billingstack.rating.rpcapi')
+cfg.CONF.import_opt('rater_topic', 'billingstack.rater.rpcapi')
 cfg.CONF.import_opt('host', 'billingstack.netconf')
 cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
@@ -22,7 +22,7 @@ class Service(rpc_service.Service):
     def __init__(self, *args, **kwargs):
         kwargs.update(
             host=cfg.CONF.host,
-            topic=cfg.CONF.rating_topic,
+            topic=cfg.CONF.rater_topic,
         )
 
         super(Service, self).__init__(*args, **kwargs)
