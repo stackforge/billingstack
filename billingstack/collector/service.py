@@ -21,7 +21,7 @@ class Service(rpc_service.Service):
     def __init__(self, *args, **kwargs):
         kwargs.update(
             host=cfg.CONF.host,
-            topic=cfg.CONF.central_topic,
+            topic=cfg.CONF.collector_topic,
         )
 
         super(Service, self).__init__(*args, **kwargs)
