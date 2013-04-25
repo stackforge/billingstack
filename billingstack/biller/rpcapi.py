@@ -15,7 +15,7 @@ class BillerAPI(proxy.RpcProxy):
 
     def __init__(self):
         super(BillerAPI, self).__init__(
-            topic=cfg.CONF.rater_topic,
+            topic=cfg.CONF.biller_topic,
             default_version=self.BASE_RPC_VERSION)
 
 
