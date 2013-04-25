@@ -19,7 +19,7 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common import service
 from billingstack import utils
-from billingstack.central import service as central_service
+from billingstack.collector import service as collector_service
 
 eventlet.monkey_patch()
 
@@ -27,6 +27,6 @@ utils.read_config('billingstack', sys.argv)
 
 logging.setup('billingstack')
 
-launcher = service.launch(central_service.Service(),
+launcher = service.launch(collector_service.Service(),
                           cfg.CONF['service:collector'].workers)
 launcher.wait()
