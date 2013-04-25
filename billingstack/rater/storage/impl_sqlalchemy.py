@@ -56,6 +56,8 @@ class Usage(BASE, model_base.BaseMixin):
 
 
 class SQLAlchemyEngine(StorageEngine):
+    __plugin_name__ = 'sqlalchemy'
+
     def get_connection(self):
         return Connection()
 

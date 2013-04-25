@@ -39,9 +39,11 @@ cfg.CONF.register_opts(session.SQLOPTS, group='biller:sqlalchemy')
 
 
 class SQLAlchemyEngine(StorageEngine):
-    def get_connection(self):
-        return Connection()
+    __plugin_name__ = 'sqlalchemy'
 
+    def get_connection(self):
+
+        return Connection()
 
 class Connection(Connection, api.HelpersMixin):
     def __init__(self):
