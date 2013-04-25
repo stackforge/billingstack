@@ -60,6 +60,9 @@ setup(
         [billingstack.storage]
         sqlalchemy = billingstack.storage.impl_sqlalchemy:SQLAlchemyStorage
 
+        [billingstack.biller.storage]
+        sqlalchemy = billingstack.biller.storage.impl_sqlalchemy:SQLAlchemyEngine
+
         [billingstack.rater.storage]
         sqlalchemy = billingstack.rater.storage.impl_sqlalchemy:SQLAlchemyEngine
 
@@ -71,12 +74,6 @@ setup(
         pg-list = billingstack.manage.provider:ProvidersList
 
         [billingstack.api.v1.extensions]
-
-        [billingstack.identity_plugin]
-        sqlalchemy = billingstack.identity.impl_sqlalchemy:SQLAlchemyPlugin
-
-        [billingstack.token_plugin]
-        memcache = billingstack.identity.token_memcache:MemcachePlugin
         """),
     classifiers=[
         'Development Status :: 3 - Alpha',
