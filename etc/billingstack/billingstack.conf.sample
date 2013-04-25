@@ -85,14 +85,15 @@ allowed_rpc_exception_modules = billingstack.exceptions, billingstack.openstack.
 #max_retries = 10
 #retry_interval = 10
 
+
 #################################################
-#                Rating service
+#                Rater service
 #################################################
 
 #-----------------------
 # SQLAlchemy Storage
 #-----------------------
-[rating:sqlalchemy]
+[rater:sqlalchemy]
 # Database connection string - to configure options for a given implementation
 # like sqlalchemy or other see below
 #database_connection = mysql://billingstack:billingstack@localhost:3306/billingstack
