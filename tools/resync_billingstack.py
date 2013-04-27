@@ -7,7 +7,7 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 
 from billingstack import service
-from billingstack.storage import get_connection
+from billingstack.central.storage import get_connection
 
 
 LOG = logging.getLogger(__name__)

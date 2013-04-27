@@ -6,7 +6,7 @@ from oslo.config import cfg
 
 from billingstack import service
 from billingstack.samples import get_samples
-from billingstack.storage import get_connection
+from billingstack.central.storage import get_connection
 from billingstack.openstack.common.context import get_admin_context
 
 
@@ -17,7 +17,7 @@ cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 cfg.CONF.import_opt(
     'database_connection',
-    'billingstack.storage.impl_sqlalchemy',
+    'billingstack.central.storage.impl_sqlalchemy',
     group='central:sqlalchemy')
 
 
