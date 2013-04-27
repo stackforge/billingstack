@@ -3,7 +3,7 @@ from stevedore.extension import ExtensionManager
 from billingstack import exceptions
 from billingstack.openstack.common import log
 from billingstack.payment_gateway.base import Provider
-from billingstack.storage import get_connection
+from billingstack.central.storage import get_connection
 
 
 LOG = log.getLogger(__name__)

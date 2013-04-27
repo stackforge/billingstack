@@ -1,4 +1,4 @@
-from billingstack.storage import get_connection
+from billingstack.central.storage import get_connection
 from billingstack.plugin import Plugin
 
 

@@ -16,7 +16,7 @@
 from oslo.config import cfg
 from billingstack.openstack.common import log
 from billingstack.manage.base import Command
-from billingstack.storage import get_connection
+from billingstack.central.storage import get_connection
 
 
 LOG = log.getLogger(__name__)
@@ -26,11 +26,6 @@ cfg.CONF.import_opt(
     'storage_driver',
     'billingstack.central',
     group='service:central')
-
-cfg.CONF.import_opt(
-    'database_connection',
-    'billingstack.storage.impl_sqlalchemy',
-    group='central:sqlalchemy')
 
 
 class DatabaseCommand(Command):
