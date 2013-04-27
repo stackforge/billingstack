@@ -703,7 +703,7 @@ def list_usages(merchant_id, q=[]):
 @signature([models.Usage], str, str)
 def get_usage(merchant_id, usage_id):
     row = rater_api.get_usage(request.environ['context'],
-                               usage_id)
+                              usage_id)
 
     return models.Usage.from_db(row)
 
