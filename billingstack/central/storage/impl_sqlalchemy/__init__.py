@@ -18,7 +18,6 @@ from billingstack import exceptions
 from billingstack import utils as common_utils
 from billingstack.sqlalchemy import utils as db_utils, api
 from billingstack.sqlalchemy.session import SQLOPTS
-from billingstack.storage import base
 from billingstack.central.storage import Connection, StorageEngine
 from billingstack.central.storage.impl_sqlalchemy import models
 

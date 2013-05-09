@@ -15,13 +15,10 @@
 A Usage plugin using sqlalchemy...
 """
 from oslo.config import cfg
-from sqlalchemy import Column
-from sqlalchemy import Unicode, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 from billingstack.openstack.common import log as logging
 from billingstack.biller.storage import Connection, StorageEngine
-from billingstack.sqlalchemy.types import UUID
 from billingstack.sqlalchemy import api, model_base, session
 
 

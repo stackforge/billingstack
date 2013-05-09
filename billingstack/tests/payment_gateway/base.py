@@ -23,14 +23,18 @@ class ProviderTestCase(TestCase):
 
     def test_create_account(self):
         expected = self.pgp.create_account(self.customer)
+        actual = self.pgp.get_account(self.customer['id'])
+        self.assertEqual(expected['id'], actual['id'])
 
     def test_list_accounts(self):
-        expected = self.pgp.create_account(self.customer)
+        self.pgp.create_account(self.customer)
         actual = self.pgp.list_accounts()
+        self.assertLen(0, actual)
 
     def test_get_account(self):
         expected = self.pgp.create_account(self.customer)
         actual = self.pgp.get_account(self.customer['id'])
+        self.assertEqual(expected['id'], actual['id'])
 
     def test_delete_account(self):
         data = self.pgp.create_account(self.customer)

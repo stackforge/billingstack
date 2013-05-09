@@ -58,13 +58,16 @@ setup(
     cmdclass=common_setup.get_cmdclass(),
     entry_points=textwrap.dedent("""
         [billingstack.central.storage]
-        sqlalchemy = billingstack.central.storage.impl_sqlalchemy:SQLAlchemyEngine
+        sqlalchemy = billingstack.central.storage.impl_sqlalchemy\
+                     :SQLAlchemyEngine
 
         [billingstack.biller.storage]
-        sqlalchemy = billingstack.biller.storage.impl_sqlalchemy:SQLAlchemyEngine
+        sqlalchemy = billingstack.biller.storage.impl_sqlalchemy\
+                     :SQLAlchemyEngine
 
         [billingstack.rater.storage]
-        sqlalchemy = billingstack.rater.storage.impl_sqlalchemy:SQLAlchemyEngine
+        sqlalchemy = billingstack.rater.storage.impl_sqlalchemy\
+                     :SQLAlchemyEngine
 
         [billingstack.payment_gateway]
         dummy = billingstack.payment_gateway.dummy:DummyProvider
