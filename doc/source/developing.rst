@@ -32,7 +32,7 @@ There are 2 ways to setting up a development environment
 
 1. Clone the repo - see :ref:`cloning-git` for generic information::
 
-    $ git clone http://github.com/billingstack/billingstack
+    $ git clone http://github.com/stackforge/billingstack
 
 2. Change directory to the BS directory::
 
