@@ -96,4 +96,4 @@ class TestPaymentMethod(FunctionalTest):
                              self.customer['id'], method['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.list_products(self.admin_ctxt))
+        self.assertLen(0, self.services.central.list_products(self.admin_ctxt))

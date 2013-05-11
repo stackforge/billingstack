@@ -63,5 +63,5 @@ class TestCurrency(FunctionalTest):
         url = self.item_path(currency['name'])
         self.delete(url)
 
-        data = self.central_service.list_currencies(self.admin_ctxt)
+        data = self.services.central.list_currencies(self.admin_ctxt)
         self.assertLen(1, data)

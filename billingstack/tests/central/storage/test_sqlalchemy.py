@@ -16,7 +16,7 @@
 #
 # Copied: billingstack
 from billingstack.openstack.common import log as logging
-from billingstack.tests.storage import StorageDriverTestCase
+from billingstack.tests.central.storage.base import StorageDriverTestCase
 
 LOG = logging.getLogger(__name__)
 

@@ -79,4 +79,5 @@ class TestCustomer(FunctionalTest):
         url = self.item_path(self.merchant['id'], customer['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.list_customers(self.admin_ctxt))
+        self.assertLen(0, self.services.central.list_customers(
+                       self.admin_ctxt))

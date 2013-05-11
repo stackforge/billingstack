@@ -63,5 +63,5 @@ class TestLanguage(FunctionalTest):
         url = self.item_path(language['name'])
         self.delete(url)
 
-        data = self.central_service.list_languages(self.admin_ctxt)
+        data = self.services.central.list_languages(self.admin_ctxt)
         self.assertLen(1, data)

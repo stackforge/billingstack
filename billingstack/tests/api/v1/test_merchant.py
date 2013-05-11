@@ -57,4 +57,5 @@ class TestMerchant(FunctionalTest):
 
     def test_delete_merchant(self):
         self.delete('merchants/' + self.merchant['id'])
-        self.assertLen(0, self.central_service.list_merchants(self.admin_ctxt))
+        self.assertLen(0, self.services.central.list_merchants(
+                       self.admin_ctxt))

@@ -64,4 +64,4 @@ class TestPlan(FunctionalTest):
         url = self.item_path(self.merchant['id'], plan['id'])
         self.delete(url)
 
-        self.assertLen(0, self.central_service.list_plans(self.admin_ctxt))
+        self.assertLen(0, self.services.central.list_plans(self.admin_ctxt))

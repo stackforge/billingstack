@@ -26,11 +26,12 @@ def main(argv):
     venv = os.environ['VIRTUAL_ENV']
 
     pip_requires = os.path.join(root, 'tools', 'pip-requires')
+    pip_options = os.path.join(root, 'tools', 'pip-options')
     test_requires = os.path.join(root, 'tools', 'test-requires')
     py_version = "python%s.%s" % (sys.version_info[0], sys.version_info[1])
     project = 'Quantum'
-    install = install_venv.InstallVenv(root, venv, pip_requires, test_requires,
-                                       py_version, project)
+    install = install_venv.InstallVenv(root, venv, pip_requires, pip_options,
+                                       test_requires, py_version, project)
     #NOTE(dprince): For Tox we only run post_process (which patches files, etc)
     install.post_process()
 

@@ -21,7 +21,7 @@ from billingstack.api.middleware.errors import FaultWrapperMiddleware
 from billingstack.api.auth import NoAuthContextMiddleware
 from billingstack.openstack.common import jsonutils as json
 from billingstack.openstack.common import log
-from billingstack.tests.base import TestCase
+from billingstack.tests.base import ServiceTestCase
 
 
 LOG = log.getLogger(__name__)
@@ -147,7 +147,7 @@ class APITestMixin(object):
         return response
 
 
-class FunctionalTest(TestCase, APITestMixin):
+class FunctionalTest(ServiceTestCase, APITestMixin):
     """
     billingstack.api base test
     """
@@ -155,8 +155,7 @@ class FunctionalTest(TestCase, APITestMixin):
         super(FunctionalTest, self).setUp()
 
         # NOTE: Needs to be started after the db schema is created
-        self.central_service = self.get_central_service()
-        self.central_service.start()
+        self.start_service()
 
         self.setSamples()
 
@@ -166,5 +165,5 @@ class FunctionalTest(TestCase, APITestMixin):
         self.client = self.app.test_client()
 
     def tearDown(self):
-        self.central_service.stop()
+        self.services.central.stop()
         super(FunctionalTest, self).tearDown()

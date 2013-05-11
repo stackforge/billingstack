@@ -64,5 +64,5 @@ class TestInvoiceState(FunctionalTest):
         url = self.item_path(state['name'])
         self.delete(url)
 
-        data = self.central_service.list_invoice_states(self.admin_ctxt)
+        data = self.services.central.list_invoice_states(self.admin_ctxt)
         self.assertLen(0, data)
