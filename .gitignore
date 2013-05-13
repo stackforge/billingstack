@@ -25,6 +25,7 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+.testrepository
 
 # Translations
 *.mo
@@ -45,3 +46,4 @@ ChangeLog
 etc/billingstack/*.ini
 etc/billingstack/*.conf
 billingstack/versioninfo
+*.sqlite
