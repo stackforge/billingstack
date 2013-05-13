@@ -112,38 +112,45 @@ class TestCase(BaseTestCase):
 
     def tearDown(self):
         # NOTE: Currently disabled
-        #policy.reset()
-        storage = self.get_storage_connection()
-        storage.teardown_schema()
+        for svc in self.services.values():
+            svc.storage_conn.teardown_schema()
         super(TestCase, self).tearDown()
 
-    def get_storage_connection(self, service='central'):
+    def get_storage_connection(self, service='central', **kw):
+        """
+        Import the storage module for the service that we are going to act on,
+        then return a connection object for that storage module.
+
+        :param service: The service.
+        """
         storage = importutils.import_module('billingstack.%s.storage' %
                                             service)
-        connection = storage.get_connection()
+
+        driver = kw.get('storage_driver', 'sqlalchemy')
+        engine = storage.get_engine(driver)
+
+        self.config(storage_driver=driver, group='service:%s' % service)
+
+        db = kw.get('database_connection', 'sqlite://')
+        self.config(database_connection=db, group='%s:%s' % (service, driver))
+
+        connection = engine.get_connection()
+
         return connection
 
     def get_service(self, service='central'):
+        """
+        Return a service
 
+        :param service: The service.
+        """
         svc = importutils.import_class('billingstack.%s.service.Service' %
                                        service)
         return svc()
 
     def start_service(self, service='central'):
-        self.config(
-            storage_driver='sqlalchemy',
-            group='service:%s' % service
-        )
-
-        self.config(
-            database_connection='sqlite://',
-            group='%s:sqlalchemy' % service
-        )
-
-        storage = self.get_storage_connection(service=service)
-        storage.setup_schema()
-
         svc = self.get_service(service=service)
+
         svc.start()
         self.services[service] = svc
 
@@ -278,3 +285,7 @@ class StorageTestCase(TestCase):
         self.storage_conn = self.get_storage_connection()
         self.storage_conn.setup_schema()
         self.setSamples()
+
+    def tearDown(self):
+        self.storage_conn.teardown_schema()
+        super(StorageTestCase, self).tearDown()

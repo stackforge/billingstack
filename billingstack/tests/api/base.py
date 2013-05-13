@@ -155,7 +155,9 @@ class FunctionalTest(ServiceTestCase, APITestMixin):
         super(FunctionalTest, self).setUp()
 
         # NOTE: Needs to be started after the db schema is created
-        self.start_service()
+        conn = self.get_storage_connection('central')
+        conn.setup_schema()
+        self.start_service('central')
 
         self.setSamples()
 
