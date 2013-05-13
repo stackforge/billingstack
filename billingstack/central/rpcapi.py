@@ -306,23 +306,5 @@ class CentralAPI(proxy.RpcProxy):
     def delete_subscription(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('delete_subscription', id_=id_))
 
-    # Subscriptions
-    def create_usage(self, ctxt, values):
-        return self.call(ctxt, self.make_msg('create_usage', values=values))
-
-    def list_usages(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_usages',
-                         criterion=criterion))
-
-    def get_usage(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('get_usage', id_=id_))
-
-    def update_usage(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_usage', id_=id_,
-                         values=values))
-
-    def delete_usage(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('delete_usage', id_=id_))
-
 
 central_api = CentralAPI()

@@ -280,18 +280,3 @@ class Service(rpc_service.Service):
 
     def delete_subscription(self, ctxt, id_):
         return self.storage_conn.delete_subscription(ctxt, id_)
-
-    def create_usage(self, ctxt, values):
-        return self.storage_conn.create_usage(ctxt, values)
-
-    def list_usages(self, ctxt, **kw):
-        return self.storage_conn.list_usages(ctxt, **kw)
-
-    def get_usage(self, ctxt, id_):
-        return self.storage_conn.get_usage(ctxt, id_)
-
-    def update_usage(self, ctxt, id_, values):
-        return self.storage_conn.update_usage(ctxt, id_, values)
-
-    def delete_usage(self, ctxt, id_):
-        return self.storage_conn.delete_usage(ctxt, id_)
