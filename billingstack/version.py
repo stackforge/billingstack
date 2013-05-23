@@ -15,6 +15,5 @@
 # under the License.
 #
 # Copied: Moniker
-from billingstack.openstack.common import version as common_version
-
-version_info = common_version.VersionInfo('billingstack')
+import pbr.version
+version_info = pbr.version.VersionInfo('billingstack')
