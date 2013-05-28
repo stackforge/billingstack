@@ -155,17 +155,11 @@ class FunctionalTest(ServiceTestCase, APITestMixin):
         super(FunctionalTest, self).setUp()
 
         # NOTE: Needs to be started after the db schema is created
-        conn = self.get_storage_connection('central')
-        conn.setup_schema()
+        self.start_storage('central')
         self.start_service('central')
-
         self.setSamples()
 
         self.app = factory({})
         self.app.wsgi_app = FaultWrapperMiddleware(self.app.wsgi_app)
         self.app.wsgi_app = NoAuthContextMiddleware(self.app.wsgi_app)
         self.client = self.app.test_client()
-
-    def tearDown(self):
-        self.services.central.stop()
-        super(FunctionalTest, self).tearDown()

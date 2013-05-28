@@ -16,15 +16,15 @@
 #
 # Copied: billingstack
 from billingstack.openstack.common import log as logging
-from billingstack.tests.central.storage.base import StorageDriverTestCase
+from billingstack.tests.base import TestCase
+from billingstack.tests.central.storage.base import DriverMixin
 
 LOG = logging.getLogger(__name__)
 
 
-class SqlalchemyStorageTest(StorageDriverTestCase):
-    __test__ = True
-
+class SqlalchemyStorageTest(DriverMixin, TestCase):
     def setUp(self):
-        self.config(database_connection='sqlite://',
-                    group='central:sqlalchemy')
         super(SqlalchemyStorageTest, self).setUp()
+        fixture = self.start_storage('central')
+        self.storage_conn = fixture.connection
+        self.setSamples()

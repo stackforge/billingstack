@@ -14,6 +14,7 @@
 """
 A Usage plugin using sqlalchemy...
 """
+
 from oslo.config import cfg
 from sqlalchemy.ext.declarative import declarative_base
 

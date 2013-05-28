@@ -15,7 +15,6 @@
 # under the License.
 from billingstack.openstack.common import log as logging
 from billingstack.central.storage.impl_sqlalchemy import models
-from billingstack.tests.base import StorageTestCase
 
 
 LOG = logging.getLogger(__name__)
@@ -24,9 +23,7 @@ LOG = logging.getLogger(__name__)
 UUID = 'caf771fc-6b05-4891-bee1-c2a48621f57b'
 
 
-class StorageDriverTestCase(StorageTestCase):
-    __test__ = False
-
+class DriverMixin(object):
     def create_language(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('language', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
