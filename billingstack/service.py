@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright © 2012 eNovance <licensing@enovance.com>
@@ -16,7 +15,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 from oslo.config import cfg
 from billingstack.openstack.common import rpc
 from billingstack.openstack.common import context
