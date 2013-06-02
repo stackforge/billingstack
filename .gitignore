@@ -47,3 +47,7 @@ etc/billingstack/*.ini
 etc/billingstack/*.conf
 billingstack/versioninfo
 *.sqlite
+
+
+billingstack-screenrc
+run/
