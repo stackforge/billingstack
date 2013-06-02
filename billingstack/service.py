@@ -15,11 +15,15 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import eventlet
+import sys
+
 from oslo.config import cfg
 from billingstack.openstack.common import rpc
 from billingstack.openstack.common import context
 from billingstack.openstack.common import log
 from billingstack.openstack.common.rpc import service as rpc_service
+from billingstack import utils
 
 
 cfg.CONF.register_opts([
@@ -42,6 +46,17 @@ class PeriodicService(rpc_service.Service):
 
 
 def prepare_service(argv=[]):
+    eventlet.monkey_patch()
+    utils.read_config('billingstack', sys.argv)
+
     rpc.set_defaults(control_exchange='billingstack')
+    cfg.set_defaults(log.log_opts,
+                     default_log_levels=['amqplib=WARN',
+                                         'qpid.messaging=INFO',
+                                         'sqlalchemy=WARN',
+                                         'keystoneclient=INFO',
+                                         'stevedore=INFO',
+                                         'eventlet.wsgi.server=WARN'
+                                         ])
     cfg.CONF(argv[1:], project='billingstack')
     log.setup('billingstack')

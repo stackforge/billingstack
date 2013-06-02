@@ -13,10 +13,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import sys
+
 from oslo.config import cfg
 from billingstack.openstack.common import log as logging
+from billingstack.openstack.common import service as os_service
 from billingstack.openstack.common.rpc import service as rpc_service
 from billingstack.rater import storage
+from billingstack import service as bs_service
 
 
 cfg.CONF.import_opt('rater_topic', 'billingstack.rater.rpcapi')
@@ -60,3 +64,10 @@ class Service(rpc_service.Service):
 
     def delete_usage(self, ctxt, id_):
         return self.storage_conn.delete_usage(ctxt, id_)
+
+
+def launch():
+    bs_service.prepare_service(sys.argv)
+    launcher = os_service.launch(Service(),
+                                 cfg.CONF['service:rater'].workers)
+    launcher.wait()

@@ -14,10 +14,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import functools
+import sys
+
 from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
+from billingstack.openstack.common import service as os_service
 from billingstack.central import storage
+from billingstack import service as bs_service
 
 
 cfg.CONF.import_opt('central_topic', 'billingstack.central.rpcapi')
@@ -295,3 +299,10 @@ class Service(rpc_service.Service):
 
     def delete_subscription(self, ctxt, id_):
         return self.storage_conn.delete_subscription(ctxt, id_)
+
+
+def launch():
+    bs_service.prepare_service(sys.argv)
+    launcher = os_service.launch(Service(),
+                                 cfg.CONF['service:central'].workers)
+    launcher.wait()

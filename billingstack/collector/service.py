@@ -18,10 +18,14 @@ A service that does calls towards the PGP web endpoint or so
 """
 
 import functools
+import sys
+
 from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
+from billingstack.openstack.common import service as os_service
 from billingstack.central.rpcapi import CentralAPI
+from billingstack import service as bs_service
 
 
 cfg.CONF.import_opt('host', 'billingstack.netconf')
@@ -79,3 +83,10 @@ class Service(rpc_service.Service):
             return f(*args, **kw)
         setattr(self, name, _wrapper)
         return _wrapper
+
+
+def launch():
+    bs_service.prepare_service(sys.argv)
+    launcher = os_service.launch(Service(),
+                                 cfg.CONF['service:collector'].workers)
+    launcher.wait()
