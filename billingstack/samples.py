@@ -16,7 +16,7 @@
 import glob
 import os.path
 
-import anyjson as json
+from billingstack.openstack.common import jsonutils as json
 
 
 DIR = os.path.join(os.path.dirname(__file__), 'samples_data')
