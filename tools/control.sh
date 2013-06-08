@@ -205,7 +205,7 @@ function prereq_setup() {
 
 
 function start_svc() {
-    svc="$(echo "$svc" | sed 's/bs-//')"
+    svc="$(echo "$1" | sed 's/bs-//')"
     echo "Starting service: $svc"
     screen_it bs-$svc "billingstack-$svc --config-file $CONFIG"
 }
@@ -214,7 +214,7 @@ function start_svc() {
 function start() {
     local svc=$1
     [ "$svc" == 'all' ] && {
-        for s in $SERVICES; do
+        for s in $(echo "$SERVICES" | tr ',' ' '); do
             start_svc $s
         done
         return
@@ -231,7 +231,7 @@ case $1 in
         svc=$2
         [ -z "$svc" ] && svc=all
         echo "Starting service(s): $svc"
-        start $2
+        start $svc
     ;;
     stop)
         screen_destroy
