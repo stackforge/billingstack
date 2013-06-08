@@ -228,6 +228,8 @@ case $1 in
         prereq_setup
         screen_setup
 
+        svc=$2
+        [ -z "$svc" ] && svc=all
         start $2
     ;;
     stop)
