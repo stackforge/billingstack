@@ -127,7 +127,7 @@ function screen_it {
 # screen_rc service "command-line"
 function screen_rc {
     SCREEN_NAME=${SCREEN_NAME:-stack}
-    SCREENRC=$TOP_DIR/$SCREEN_NAME-screenrc
+    SCREENRC=$BASE_DIR/$SCREEN_NAME-screenrc
     if [[ ! -e $SCREENRC ]]; then
         # Name the screen session
         echo "sessionname $SCREEN_NAME" > $SCREENRC
@@ -178,7 +178,7 @@ function screen_setup() {
     fi
 
     # Clear screen rc file
-    SCREENRC=$TOP_DIR/$SCREEN_NAME-screenrc
+    SCREENRC=$BASE_DIR/$SCREEN_NAME-screenrc
     if [[ -e $SCREENRC ]]; then
         echo -n > $SCREENRC
     fi
