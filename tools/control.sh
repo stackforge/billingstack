@@ -201,12 +201,12 @@ function screen_destroy() {
 
 function prereq_setup() {
     ensure_dir $RUN_DIR
-    ensure_dir $SCREEN_DIR
 }
 
 
 function start_svc() {
     svc="$(echo "$svc" | sed 's/bs-//')"
+    echo "Starting service: $svc"
     screen_it bs-$svc "billingstack-$svc --config-file $CONFIG"
 }
 
@@ -230,6 +230,7 @@ case $1 in
 
         svc=$2
         [ -z "$svc" ] && svc=all
+        echo "Starting service(s): $svc"
         start $2
     ;;
     stop)
