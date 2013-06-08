@@ -10,16 +10,13 @@ XTRACE=$(set +o | grep xtrace)
 set -x
 
 # Keep track of this directory
-TOOL_DIR=$(cd $(dirname "$0") && pwd)
-TOP_DIR=$TOOL_DIR/..
+SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
+BASE_DIR=${BASE_DIR:-$SCRIPT_DIR/..}
 
-RUN_DIR=$TOP_DIR/run
+SCREEN_NAME=${SCREEN_NAME:-billingstack}
+SCREEN_LOGDIR=${SCREEN_LOGDIR:-$BASE_DIR/logs}
 
-SCREEN_NAME=billingstack
-SCREEN_LOGDIR=$RUN_DIR
-
-CONF_DIR=$TOP_DIR/etc/billingstack
-CONFIG=${CONFIG:-$CONF_DIR/billingstack.conf}
+CONFIG=${CONFIG:-$BASE_DIR/etc/billingstack.conf}
 
 SERVICES="api,central,rater,biller,collector"
 
@@ -95,7 +92,7 @@ function run_process() {
 # screen_it service "command-line"
 function screen_it {
     SCREEN_NAME=${SCREEN_NAME:-stack}
-    SERVICE_DIR=${SERVICE_DIR:-${RUN_DIR}/status}
+    SERVICE_DIR=${SERVICE_DIR:-$BASE_DIR/status}
     USE_SCREEN=$(trueorfalse True $USE_SCREEN)
 
     if is_service_enabled $1; then
@@ -196,11 +193,6 @@ function screen_destroy() {
             screen -X -S $SESSION quit
         fi
     fi
-}
-
-
-function prereq_setup() {
-    ensure_dir $RUN_DIR
 }
 
 
