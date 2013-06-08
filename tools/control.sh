@@ -21,6 +21,7 @@ SCREEN_LOGDIR=$RUN_DIR
 CONF_DIR=$TOP_DIR/etc/billingstack
 CONFIG=${CONFIG:-$CONF_DIR/billingstack.conf}
 
+SERVICES="api,central,rater,biller,collector"
 
 function ensure_dir() {
     local dir=$1
@@ -204,12 +205,30 @@ function prereq_setup() {
 }
 
 
+function start_svc() {
+    svc="$(echo "$svc" | sed 's/bs-//')"
+    screen_it bs-$svc "billingstack-$svc --config-file $CONFIG"
+}
+
+
+function start() {
+    local svc=$1
+    [ "$svc" == 'all' ] && {
+        for s in $SERVICES; do
+            start_svc $s
+        done
+        return
+    }
+    start_svc $svc
+}
+
+
 case $1 in
     start)
         prereq_setup
         screen_setup
-        screen_it bs-central "$TOOL_DIR/with_venv.sh billingstack-central --config-file $CONFIG"
-        screen_it bs-api "$TOOL_DIR/with_venv.sh billingstack-api --config-file $CONFIG"
+
+        start $2
     ;;
     stop)
         screen_destroy
