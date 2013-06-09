@@ -24,4 +24,5 @@
 
    common
    manual
+   macos
    pgp
