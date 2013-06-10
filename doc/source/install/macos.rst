@@ -34,59 +34,74 @@ Common Steps
 
 1. Install system package dependencies::
 
-  $ brew install python --framework
-  $ brew install rabbitmq
+    $ brew install python --framework
+    $ brew install rabbitmq
 
-.. note::
-    To have launchd start rabbitmq at login:
+  .. note::
+
+     To have launchd start rabbitmq at login:
       ln -sfv /usr/local/opt/rabbitmq/*.plist ~/Library/LaunchAgents
-    Then to load rabbitmq now:
+     Then to load rabbitmq now:
       launchctl load ~/Library/LaunchAgents/homebrew.mxcl.rabbitmq.plist
-    Or, if you don't want/need launchctl, you can just run:
+     Or, if you don't want/need launchctl, you can just run:
       rabbitmq-server
 
-  $ rabbitmq-server
+  Start RabbitMQ::
 
-              RabbitMQ 3.1.1. Copyright (C) 2007-2013 VMware, Inc.
-  ##  ##      Licensed under the MPL.  See http://www.rabbitmq.com/
-  ##  ##
-  ##########  Logs: /usr/local/var/log/rabbitmq/rabbit@localhost.log
-  ######  ##        /usr/local/var/log/rabbitmq/rabbit@localhost-sasl.log
-  ##########
-              Starting broker... completed with 7 plugins.
+    $ rabbitmq-server
 
-  $ brew install mysql
+    RabbitMQ 3.1.1. Copyright (C) 2007-2013 VMware, Inc.
+
+    ##  ##      Licensed under the MPL.  See http://www.rabbitmq.com/
+    ##  ##
+    ##########  Logs: /usr/local/var/log/rabbitmq/rabbit@localhost.log
+    ######  ##        /usr/local/var/log/rabbitmq/rabbit@localhost-sasl.log
+    ##########
+
+    Starting broker... completed with 7 plugins.
 
 2. Clone the BillingStack repo off of Github::
 
    $ git clone https://github.com/billingstack/billingstack.git
    $ cd billingstack
 
-3. Setup virtualenv and Install BillingStack and it's dependencies::
+3. Setup virtualenv and Install BillingStack and it's dependencies
 
-.. note::
+  .. note::
+
     This is to not interfere with system packages etc.
 
-   $ pip install virtualenv
-   $ python tools/install_venv.py
-   $ . .venv/bin/activate
-   $ python setup.py develop
+  ::
 
-.. note::
-    ValueError: unknown locale: UTF-8. To fix it you will have to set these environment variables in your ~/.profile or ~/.bashrc manually:
-    .profile
-    export LANG=en_US.UTF-8
-    export LC_ALL=en_US.UTF-8
+    $ pip install virtualenv
+    $ python tools/install_venv.py
+    $ . .venv/bin/activate
+    $ python setup.py develop
 
-   Copy sample configs to usable ones, inside the `etc` folder do::
+  .. warning::
 
-   $ sudo cp -r etc/billingstack /etc
-   $ cd /etc/billingstack
-   $ sudo ls *.sample | while read f; do cp $f $(echo $f | sed "s/.sample$//g"); done
+      ValueError: unknown locale: UTF-8.
 
-.. note::
+      To fix it you will have to set these environment variables in your ~/.profile or ~/.bashrc manually:
+
+      export LANG=en_US.UTF-8
+      export LC_ALL=en_US.UTF-8
+
+  Copy sample configs to usable ones, inside the `etc` folder do
+
+
+  ::
+
+    $ sudo cp -r etc/billingstack /etc
+    $ cd /etc/billingstack
+    $ sudo ls *.sample | while read f; do cp $f $(echo $f | sed "s/.sample$//g"); done
+
+  .. note::
+
     Change the wanted configuration settings to match your environment, the file
     is in the `/etc/billingstack` folder::
+
+  ::
 
     $ vi /etc/billingstack/billingstack.conf
 
@@ -103,25 +118,31 @@ Installing Central
 
 1. See `Common Steps`_ before proceeding.
 
-2. Create the DB for :term:`central`::
+2. Create the DB for :term:`central`
 
-  $ python tools/resync_billingstack.py
+  ::
 
-3. Now you might want to load sample data for the time being::
+    $ python tools/resync_billingstack.py
 
-  $ python tools/load_samples.py
+3. Now you might want to load sample data for the time being
 
-4. Start the central service::
+  ::
 
-  $ billingstack-central
+    $ python tools/load_samples.py
 
-  ...
+4. Start the central service
 
-  2013-06-09 03:51:22    DEBUG [amqp] Open OK!
-  2013-06-09 03:51:22    DEBUG [amqp] using channel_id: 1
-  2013-06-09 03:51:22    DEBUG [amqp] Channel open
-  2013-06-09 03:51:22     INFO [billingstack.openstack.common.rpc.common] Connected to AMQP server on localhost:5672
-  2013-06-09 03:51:22    DEBUG [billingstack.openstack.common.rpc.service] Creating Consumer connection for Service central
+  ::
+
+    $ billingstack-central
+
+    ...
+
+    2013-06-09 03:51:22    DEBUG [amqp] Open OK!
+    2013-06-09 03:51:22    DEBUG [amqp] using channel_id: 1
+    2013-06-09 03:51:22    DEBUG [amqp] Channel open
+    2013-06-09 03:51:22     INFO [...] Connected to AMQP server on localhost:5672
+    2013-06-09 03:51:22    DEBUG [...] Creating Consumer connection for Service central
 
 
 Installing the API
@@ -135,10 +156,12 @@ Installing the API
 
 1. See `Common Steps`_ before proceeding.
 
-2. Start the API service::
+2. Start the API service
 
-   $ billingstack-api
+  ::
 
-   ...
+    $ billingstack-api
 
-   2013-06-09 03:52:31     INFO [eventlet.wsgi] (2223) wsgi starting up on http://0.0.0.0:9091/
+    ...
+
+    2013-06-09 03:52:31     INFO [eventlet.wsgi] (2223) wsgi starting up on http://0.0.0.0:9091/

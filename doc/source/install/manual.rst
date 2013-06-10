@@ -28,33 +28,49 @@ Common Steps
 .. note::
    The below operations should take place underneath your <project>/etc folder.
 
-1. Install system package dependencies (Ubuntu)::
+1. Install system package dependencies (Ubuntu)
 
-   $ apt-get install python-pip python-virtualenv
-   $ apt-get install rabbitmq-server mysql-server
-   $ apt-get build-dep python-lxml
+  ::
 
-2. Clone the BillingStack repo off of Github::
+    $ apt-get install python-pip
+    $ apt-get install rabbitmq-server
 
-   $ git clone https://github.com/billingstack/billingstack.git
-   $ cd billingstack
+2. Clone the BillingStack repo off of Github
 
-3. Setup virtualenv::
+  ::
 
-.. note::
-   This is to not interfere with system packages etc.
+    $ git clone https://github.com/billingstack/billingstack.git
+    $ cd billingstack
 
-   $ virtualenv --no-site-packages .venv
-   $ . .venv/bin/activate
+3. Setup virtualenv and Install BillingStack and it's dependencies
 
-4. Install BillingStack and it's dependencies::
+  .. note::
 
-   $ pip install -rtools/setup-requires -rtools/pip-requires -rtools/pip-options
-   $ python setup.py develop
+      This is to not interfere with system packages etc.
+  ::
 
-   Copy sample configs to usable ones, inside the `etc` folder do::
+    $ pip install virtualenv
+    $ python tools/install_venv.py
+    $ . .venv/bin/activate
+    $ python setup.py develop
 
-   $ ls *.sample | while read f; do cp $f $(echo $f | sed "s/.sample$//g"); done
+
+  Copy sample configs to usable ones, inside the `etc` folder do
+
+  ::
+
+    $ sudo cp -r etc/billingstack /etc
+    $ cd /etc/billingstack
+    $ sudo ls *.sample | while read f; do cp $f $(echo $f | sed "s/.sample$//g"); done
+
+  .. note::
+
+    Change the wanted configuration settings to match your environment, the file
+    is in the `/etc/billingstack` folder
+
+  ::
+
+    $ vi /etc/billingstack/billingstack.conf
 
 
 Installing Central
@@ -69,26 +85,31 @@ Installing Central
 
 1. See `Common Steps`_ before proceeding.
 
-2. Configure the :term:`central` service::
+2. Create the DB for :term:`central`
 
-   Change the wanted configuration settings to match your environment, the file
-   is in the `etc` folder::
+  ::
 
-   $ vi etc/billingstack.conf
+    $ python tools/resync_billingstack.py
 
-   Refer to the configuration file for  details on configuring the service.
+3. Now you might want to load sample data for the time being
 
-3. Create the DB for :term:`central`::
+  ::
 
-   $ python tools/resync_billingstack.py
+    $ python tools/load_samples.py
 
-4. Now you might want to load sample data for the time being::
+4. Start the central service
 
-   $ python tools/dev_samples.py
+  ::
 
-5. Start the central service::
+    $ billingstack-central
 
-   $ billingstack-central
+    ...
+
+    2013-06-09 03:51:22    DEBUG [amqp] Open OK!
+    2013-06-09 03:51:22    DEBUG [amqp] using channel_id: 1
+    2013-06-09 03:51:22    DEBUG [amqp] Channel open
+    2013-06-09 03:51:22     INFO [...] Connected to AMQP server on localhost:5672
+    2013-06-09 03:51:22    DEBUG [...] Creating Consumer connection for Service central
 
 
 Installing the API
@@ -102,15 +123,12 @@ Installing the API
 
 1. See `Common Steps`_ before proceeding.
 
-2. Configure the :term:`api` service::
+2. Start the API service
 
-   Change the wanted configuration settings to match your environment, the file
-   is in the `etc` folder::
+  ::
 
-   $ vi billingstack.conf
+    $ billingstack-api
 
-   Refer to the configuration file for  details on configuring the service.
+    ...
 
-3. Start the API service::
-
-   $ billingstack-api
+    2013-06-09 03:52:31     INFO [eventlet.wsgi] (2223) wsgi starting up on http://0.0.0.0:9091/
