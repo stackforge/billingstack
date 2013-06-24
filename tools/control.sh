@@ -16,7 +16,7 @@ BASE_DIR=${BASE_DIR:-$SCRIPT_DIR/..}
 SCREEN_NAME=${SCREEN_NAME:-billingstack}
 SCREEN_LOGDIR=${SCREEN_LOGDIR:-$BASE_DIR/logs}
 
-CONFIG=${CONFIG:-$BASE_DIR/etc/billingstack.conf}
+CONFIG=${CONFIG:-$BASE_DIR/etc/billingstack/billingstack.conf}
 
 SERVICES="api,central,rater,biller,collector"
 
