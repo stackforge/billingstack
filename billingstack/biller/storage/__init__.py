@@ -14,7 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo.config import cfg
 from billingstack.storage import base
 
 
@@ -25,9 +24,3 @@ class StorageEngine(base.StorageEngine):
 
 class Connection(base.Connection):
     """Define the base API for biller storage"""
-
-
-def get_connection():
-    name = cfg.CONF['service:biller'].storage_driver
-    plugin = StorageEngine.get_plugin(name, invoke_on_load=True)
-    return plugin.get_connection()

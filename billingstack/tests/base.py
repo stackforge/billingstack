@@ -14,6 +14,7 @@ from oslo.config import cfg
 from billingstack import exceptions
 from billingstack import paths
 from billingstack import samples
+from billingstack.storage import utils as storage_utils
 from billingstack.openstack.common.context import RequestContext, \
     get_admin_context
 from billingstack.openstack.common import importutils
@@ -142,10 +143,6 @@ class StorageFixture(fixtures.Fixture):
                             group=self.svc_group)
         set_config(storage_driver=self.driver, group=self.svc_group)
 
-        # FIXME: Move this to a generic get_storage() method instead?
-        self.module = importutils.import_module(
-            'billingstack.%s.storage' % self.svc)
-
         # FIXME: Workout a way to support the different storage types
         self.helper = SQLAlchemyHelper(self)
 
@@ -175,11 +172,8 @@ class StorageFixture(fixtures.Fixture):
         """
         Import the storage module for the service that we are going to act on,
         then return a connection object for that storage module.
-
-        :param service: The service.
         """
-        engine = self.module.get_engine(self.driver)
-        return engine.get_connection()
+        return storage_utils.get_connection(self.svc, self.driver)
 
 
 class ServiceFixture(fixtures.Fixture):

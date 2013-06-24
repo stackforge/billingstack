@@ -16,7 +16,7 @@
 from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
-from billingstack.biller import storage
+from billingstack.storage.utils import get_connection
 
 
 cfg.CONF.import_opt('biller_topic', 'billingstack.biller.rpcapi')
@@ -39,5 +39,5 @@ class Service(rpc_service.Service):
         super(Service, self).__init__(*args, **kwargs)
 
     def start(self):
-        self.storage_conn = storage.get_connection()
+        self.storage_conn = get_connection('biller')
         super(Service, self).start()

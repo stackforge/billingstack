@@ -15,7 +15,6 @@
 # under the License.
 #
 # Copied: Moniker
-from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.storage import base
 
@@ -30,29 +29,3 @@ class StorageEngine(base.StorageEngine):
 
 class Connection(base.Connection):
     pass
-
-
-def get_engine(engine_name):
-    """
-    Return the engine class from the provided engine name
-    """
-    return StorageEngine.get_plugin(engine_name, invoke_on_load=True)
-
-
-def get_connection():
-    engine = get_engine(cfg.CONF['service:central'].storage_driver)
-    return engine.get_connection()
-
-
-def setup_schema():
-    """ Create the DB - Used for testing purposes """
-    LOG.debug("Setting up Schema")
-    connection = get_connection()
-    connection.setup_schema()
-
-
-def teardown_schema():
-    """ Reset the DB to default - Used for testing purposes """
-    LOG.debug("Tearing down Schema")
-    connection = get_connection()
-    connection.teardown_schema()

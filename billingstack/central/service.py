@@ -20,7 +20,7 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
 from billingstack.openstack.common import service as os_service
-from billingstack.central import storage
+from billingstack.storage.utils import get_connection
 from billingstack import service as bs_service
 
 
@@ -41,7 +41,7 @@ class Service(rpc_service.Service):
         super(Service, self).__init__(*args, **kwargs)
 
     def start(self):
-        self.storage_conn = storage.get_connection()
+        self.storage_conn = get_connection('central')
         super(Service, self).start()
 
     def __getattr__(self, name):
