@@ -28,6 +28,11 @@ class TestInvoiceState(FunctionalTest):
     __test__ = True
     path = "invoice-states"
 
+    def setUp(self):
+        super(TestInvoiceState, self).setUp()
+        self.start_storage('biller')
+        self.start_service('biller')
+
     def test_create_invoice_state(self):
         fixture = self.get_fixture('invoice_state')
 
@@ -64,5 +69,5 @@ class TestInvoiceState(FunctionalTest):
         url = self.item_path(state['name'])
         self.delete(url)
 
-        data = self.services.central.list_invoice_states(self.admin_ctxt)
+        data = self.services.biller.list_invoice_states(self.admin_ctxt)
         self.assertLen(0, data)

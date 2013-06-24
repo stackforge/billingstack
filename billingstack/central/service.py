@@ -93,21 +93,6 @@ class Service(rpc_service.Service):
     def delete_language(self, ctxt, id_):
         return self.storage_conn.delete_language(ctxt, id_)
 
-    def create_invoice_state(self, ctxt, values):
-        return self.storage_conn.create_invoice_state(ctxt, values)
-
-    def list_invoice_states(self, ctxt, **kw):
-        return self.storage_conn.list_invoice_states(ctxt, **kw)
-
-    def get_invoice_state(self, ctxt, id_):
-        return self.storage_conn.get_invoice_state(ctxt, id_)
-
-    def update_invoice_state(self, ctxt, id_, values):
-        return self.storage_conn.update_invoice_state(ctxt, id_, values)
-
-    def delete_invoice_state(self, ctxt, id_):
-        return self.storage_conn.delete_invoice_state(ctxt, id_)
-
     # TODO Fix
     def create_contact_info(self, ctxt, obj, values, cls=None,
                             rel_attr='contact_info'):
@@ -252,38 +237,6 @@ class Service(rpc_service.Service):
 
     def delete_product(self, ctxt, id_):
         return self.storage_conn.delete_product(ctxt, id_)
-
-    def create_invoice(self, ctxt, merchant_id, values):
-        return self.storage_conn.create_invoice_state(
-            ctxt, merchant_id, values)
-
-    def list_invoices(self, ctxt, **kw):
-        return self.storage_conn.list_invoices(ctxt, **kw)
-
-    def get_invoice(self, ctxt, id_):
-        return self.storage_conn.get_invoice(ctxt, id_)
-
-    def update_invoice(self, ctxt, id_, values):
-        return self.storage_conn.update_invoice(ctxt, id_, values)
-
-    def delete_invoice(self, ctxt, id_):
-        return self.storage_conn.delete_invoice(ctxt, id_)
-
-    def create_invoice_line(self, ctxt, invoice_id, values):
-        return self.storage_conn.create_invoice_line_state(
-            ctxt, invoice_id, values)
-
-    def list_invoice_lines(self, ctxt, **kw):
-        return self.storage_conn.list_invoice_lines(ctxt, **kw)
-
-    def get_invoice_line(self, ctxt, id_):
-        return self.storage_conn.get_invoice_line(ctxt, id_)
-
-    def update_invoice_line(self, ctxt, id_, values):
-        return self.storage_conn.update_invoice_line(ctxt, id_, values)
-
-    def delete_invoice_line(self, ctxt, id_):
-        return self.storage_conn.delete_invoice_line(ctxt, id_)
 
     def create_subscription(self, ctxt, values):
         return self.storage_conn.create_subscription(ctxt, values)

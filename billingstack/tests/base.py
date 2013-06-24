@@ -411,7 +411,7 @@ class ServiceTestCase(TestCase):
     def create_invoice_state(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('invoice_state', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.services.central.create_invoice_state(
+        return fixture, self.services.biller.create_invoice_state(
             ctxt, fixture, **kw)
 
     def pg_provider_register(self, fixture=0, values={}, **kw):

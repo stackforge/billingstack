@@ -19,6 +19,7 @@ from flask import Response
 
 from billingstack.api.base import Rest, Query
 from billingstack.api.v1 import models
+from billingstack.biller.rpcapi import biller_api
 from billingstack.central.rpcapi import central_api
 from billingstack.rater.rpcapi import rater_api
 
@@ -158,7 +159,7 @@ def list_pg_providers(q=[]):
 @bp.post('/invoice-states')
 @signature(models.InvoiceState, body=models.InvoiceState)
 def create_invoice_state(body):
-    row = central_api.create_invoice_state(
+    row = biller_api.create_invoice_state(
         request.environ['context'], body.to_db())
 
     return models.InvoiceState.from_db(row)
@@ -169,7 +170,7 @@ def create_invoice_state(body):
 def list_invoice_states(q=[]):
     criterion = _query_to_criterion(q)
 
-    rows = central_api.list_invoice_states(
+    rows = biller_api.list_invoice_states(
         request.environ['context'], criterion=criterion)
 
     return map(models.InvoiceState.from_db, rows)
@@ -178,8 +179,8 @@ def list_invoice_states(q=[]):
 @bp.get('/invoice-states/<state_id>')
 @signature(models.InvoiceState, str,)
 def get_invoice_state(state_id):
-    row = central_api.get_invoice_state(request.environ['context'],
-                                        state_id)
+    row = biller_api.get_invoice_state(request.environ['context'],
+                                       state_id)
 
     return models.InvoiceState.from_db(row)
 
@@ -187,7 +188,7 @@ def get_invoice_state(state_id):
 @bp.put('/invoice-states/<state_id>')
 @signature(models.InvoiceState, str, body=models.InvoiceState)
 def update_invoice_state(state_id, body):
-    row = central_api.update_invoice_state(
+    row = biller_api.update_invoice_state(
         request.environ['context'],
         state_id,
         body.to_db())
@@ -197,7 +198,7 @@ def update_invoice_state(state_id, body):
 
 @bp.delete('/invoice-states/<state_id>')
 def delete_invoice_state(state_id):
-    central_api.delete_invoice_state(
+    biller_api.delete_invoice_state(
         request.environ['context'],
         state_id)
     return Response(status=204)
@@ -531,7 +532,7 @@ def delete_product(merchant_id, product_id):
 @bp.post('/merchants/<merchant_id>/invoices')
 @signature(models.Invoice, str, body=models.Invoice)
 def create_invoice(merchant_id, body):
-    row = central_api.create_invoice(
+    row = biller_api.create_invoice(
         request.environ['context'],
         merchant_id,
         body.to_db())
@@ -544,7 +545,7 @@ def create_invoice(merchant_id, body):
 def list_invoices(merchant_id, q=[]):
     criterion = _query_to_criterion(q, merchant_id=merchant_id)
 
-    rows = central_api.list_invoices(
+    rows = biller_api.list_invoices(
         request.environ['context'], criterion=criterion)
 
     return map(models.Invoice.from_db, rows)
@@ -553,8 +554,8 @@ def list_invoices(merchant_id, q=[]):
 @bp.get('/merchants/<merchant_id>/invoices/<invoice_id>')
 @signature(models.Invoice, str, str)
 def get_invoice(merchant_id, invoice_id):
-    row = central_api.get_invoice(request.environ['context'],
-                                  invoice_id)
+    row = biller_api.get_invoice(request.environ['context'],
+                                 invoice_id)
 
     return models.Invoice.from_db(row)
 
@@ -562,7 +563,7 @@ def get_invoice(merchant_id, invoice_id):
 @bp.put('/merchants/<merchant_id>/invoices/<invoice_id>')
 @signature(models.Invoice, str, str, body=models.Invoice)
 def update_invoice(merchant_id, invoice_id, body):
-    row = central_api.update_invoice(
+    row = biller_api.update_invoice(
         request.environ['context'],
         invoice_id,
         body.to_db())
@@ -572,7 +573,7 @@ def update_invoice(merchant_id, invoice_id, body):
 
 @bp.delete('/merchants/<merchant_id>/invoices/<invoice_id>')
 def delete_invoice(merchant_id, invoice_id):
-    central_api.delete_invoice(request.environ['context'], invoice_id)
+    biller_api.delete_invoice(request.environ['context'], invoice_id)
     return Response(status=204)
 
 
@@ -580,7 +581,7 @@ def delete_invoice(merchant_id, invoice_id):
 @bp.post('/merchants/<merchant_id>/invoices/<invoice_id>/lines')
 @signature(models.InvoiceLine, str, str, body=models.InvoiceLine)
 def create_invoice_line(merchant_id, invoice_id, body):
-    row = central_api.create_invoice_line(
+    row = biller_api.create_invoice_line(
         request.environ['context'],
         invoice_id,
         body.to_db())
@@ -594,7 +595,7 @@ def list_invoice_lines(merchant_id, invoice_id, q=[]):
     criterion = _query_to_criterion(q, merchant_id=merchant_id,
                                     invoice_id=invoice_id)
 
-    rows = central_api.list_invoice_lines(
+    rows = biller_api.list_invoice_lines(
         request.environ['context'], criterion=criterion)
 
     return map(models.Product.from_db, rows)
@@ -603,8 +604,8 @@ def list_invoice_lines(merchant_id, invoice_id, q=[]):
 @bp.get('/merchants/<merchant_id>/invoices/<invoice_id>/lines/<line_id>')
 @signature(models.InvoiceLine, str, str, str)
 def get_invoice_line(merchant_id, invoice_id, line_id):
-    row = central_api.get_invoice_line(request.environ['context'],
-                                       line_id)
+    row = biller_api.get_invoice_line(request.environ['context'],
+                                      line_id)
 
     return models.Product.from_db(row)
 
@@ -612,7 +613,7 @@ def get_invoice_line(merchant_id, invoice_id, line_id):
 @bp.put('/merchants/<merchant_id>/invoices/<invoice_id>/lines/<line_id>')
 @signature(models.InvoiceLine, str, str, str, body=models.InvoiceLine)
 def update_invoice_line(merchant_id, invoice_id, line_id, body):
-    row = central_api.update_invoice_line(
+    row = biller_api.update_invoice_line(
         request.environ['context'],
         line_id,
         body.as_dict())
@@ -622,7 +623,7 @@ def update_invoice_line(merchant_id, invoice_id, line_id, body):
 
 @bp.delete('/merchants/<merchant_id>/invoices/<invoice_id>/lines/<line_id>')
 def delete_invoice_line(merchant_id, invoice_id, line_id):
-    central_api.delete_invoice_line(request.environ['context'], line_id)
+    biller_api.delete_invoice_line(request.environ['context'], line_id)
     return Response(status=204)
 
 

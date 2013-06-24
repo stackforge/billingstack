@@ -14,8 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from sqlalchemy import Column, ForeignKey, UniqueConstraint
-from sqlalchemy import Integer, Float
-from sqlalchemy import DateTime, Unicode
+from sqlalchemy import Integer, Unicode
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
@@ -201,7 +200,6 @@ class Customer(BASE, BaseMixin):
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
 
-    invoices = relationship('Invoice', backref='customer')
     payment_methods = relationship('PaymentMethod', backref='customer')
 
     contact_info = relationship(
@@ -241,61 +239,6 @@ class PaymentMethod(BASE, BaseMixin):
     provider_config = relationship('PGConfig', backref='payment_methods')
     provider_config_id = Column(UUID, ForeignKey('pg_config.id',
                                 onupdate='CASCADE'), nullable=False)
-
-
-class InvoiceState(BASE):
-    """
-    A State representing the currented state a Invoice is in
-
-    Example:
-        Completed, Failed
-    """
-    name = Column(Unicode(60), nullable=False, primary_key=True)
-    title = Column(Unicode(100), nullable=False)
-    description = Column(Unicode(255))
-
-
-class Invoice(BASE, BaseMixin):
-    """
-    An invoice
-    """
-    identifier = Column(Unicode(255), nullable=False)
-    due = Column(DateTime, )
-
-    sub_total = Column(Float)
-    tax_percentage = Column(Float)
-    tax_total = Column(Float)
-    total = Column(Float)
-
-    customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
-                         nullable=False)
-
-    line_items = relationship('InvoiceLine', backref='invoice_lines')
-
-    state = relationship('InvoiceState', backref='invoices')
-    state_id = Column(Unicode(60), ForeignKey('invoice_state.name'),
-                      nullable=False)
-
-    currency = relationship('Currency', backref='invoices')
-    currency_name = Column(Unicode(10), ForeignKey('currency.name'),
-                           nullable=False)
-
-    merchant = relationship('Merchant', backref='invoices')
-    merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
-                         nullable=False)
-
-
-class InvoiceLine(BASE, BaseMixin):
-    """
-    A Line item in which makes up the Invoice
-    """
-    description = Column(Unicode(255))
-    price = Column(Float)
-    quantity = Column(Float)
-    sub_total = Column(Float)
-
-    invoice_id = Column(UUID, ForeignKey('invoice.id', ondelete='CASCADE',
-                                         onupdate='CASCADE'), nullable=False)
 
 
 class Plan(BASE, BaseMixin):
