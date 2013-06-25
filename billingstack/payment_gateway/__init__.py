@@ -18,7 +18,7 @@ from stevedore.extension import ExtensionManager
 from billingstack import exceptions
 from billingstack.openstack.common import log
 from billingstack.payment_gateway.base import Provider
-from billingstack.central.storage import get_connection
+from billingstack.storage.utils import get_connection
 
 
 LOG = log.getLogger(__name__)
@@ -47,7 +47,7 @@ def _register(ep, context, conn):
 
 
 def register_providers(context):
-    conn = get_connection()
+    conn = get_connection('central')
     em = ExtensionManager(Provider.__plugin_ns__)
     em.map(_register, context, conn)
 
