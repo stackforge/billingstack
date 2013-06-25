@@ -217,7 +217,6 @@ function start() {
 
 case $1 in
     start)
-        prereq_setup
         screen_setup
 
         svc=$2
