@@ -19,14 +19,6 @@ cfg.CONF.register_cli_opt(cfg.StrOpt('services', default=SERVICES))
 cfg.CONF.register_cli_opt(cfg.BoolOpt('resync', default=False))
 
 
-def import_service_opts(service):
-    cfg.CONF.import_opt('storage_driver', 'billingstack.%s.storage' % service,
-                        group='service:%s' % service)
-    cfg.CONF.import_opt('database_connection',
-                        'billingstack.%s.storage.impl_sqlalchemy' % service,
-                        group='%s:sqlalchemy' % service)
-
-
 def resync_service_storage(service, resync=False):
     """
     Resync the storage for a service
@@ -40,14 +32,7 @@ def resync_service_storage(service, resync=False):
 if __name__ == '__main__':
     service.prepare_service(sys.argv)
 
-    try:
-        services = cfg.CONF.services
-        for svc in services:
-            import_service_opts(svc)
-    except Exception:
-        LOG.error('Error importing service options for %s, will exit' % svc)
-        sys.exit(0)
-
+    services = cfg.CONF.services
     for svc in services:
         LOG.info("Doing storage for %s" % svc)
-        resync_service_storage(svc)
+        resync_service_storage(svc, resync=cfg.CONF.resync)
