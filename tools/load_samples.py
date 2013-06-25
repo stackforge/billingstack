@@ -6,7 +6,7 @@ from oslo.config import cfg
 
 from billingstack import service
 from billingstack.samples import get_samples
-from billingstack.central.storage import get_connection
+from billingstack.storage.utils import get_connection
 from billingstack.openstack.common.context import get_admin_context
 
 
@@ -32,7 +32,7 @@ def get_fixture(name, fixture=0, values={}):
 
 if __name__ == '__main__':
     service.prepare_service(sys.argv)
-    conn = get_connection()
+    conn = get_connection('central')
 
     samples = get_samples()
 
