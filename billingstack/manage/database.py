@@ -14,23 +14,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from oslo.config import cfg
+
 from billingstack.openstack.common import log
 from billingstack.manage.base import Command
-from billingstack.central.storage import get_connection
+from billingstack.storage.utils import get_connection
 
 
 LOG = log.getLogger(__name__)
 
 
-cfg.CONF.import_opt(
-    'storage_driver',
-    'billingstack.central',
-    group='service:central')
+cfg.CONF.import_opt('state_path', 'billingstack.paths')
 
 
 class DatabaseCommand(Command):
     """
     A Command that uses a storage connection to do some stuff
     """
-    def setup(self, parsed_args):
-        self.conn = get_connection()
+    def get_connection(self, service):
+        return get_connection(service)

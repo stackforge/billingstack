@@ -19,6 +19,14 @@ from oslo.config import cfg
 from billingstack.openstack.common import importutils
 
 
+def import_service_opts(service):
+    cfg.CONF.import_opt('storage_driver', 'billingstack.%s.storage' % service,
+                        group='service:%s' % service)
+    cfg.CONF.import_opt('database_connection',
+                        'billingstack.%s.storage.impl_sqlalchemy' % service,
+                        group='%s:sqlalchemy' % service)
+
+
 def get_engine(service_name, driver_name):
     """
     Return the engine class from the provided engine name
@@ -28,10 +36,13 @@ def get_engine(service_name, driver_name):
     return base.get_plugin(driver_name, invoke_on_load=True)
 
 
-def get_connection(service_name, driver_name=None):
+def get_connection(service_name, driver_name=None, import_opts=True):
     """
     Return a instance of a storage connection
     """
+    if import_opts:
+        import_service_opts(service_name)
+
     driver_name = driver_name or \
         cfg.CONF['service:%s' % service_name].storage_driver
     engine = get_engine(service_name, driver_name)
