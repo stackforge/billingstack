@@ -13,7 +13,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from billingstack.central.storage import get_connection
 from billingstack.plugin import Plugin
 
 
@@ -56,12 +55,6 @@ class Provider(Plugin):
         Return a Client
         """
         raise NotImplementedError
-
-    def get_connection(self):
-        """
-        Helper to get a storage conncection in BS
-        """
-        return get_connection()
 
     @classmethod
     def create_account(self, values):
