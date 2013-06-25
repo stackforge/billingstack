@@ -24,7 +24,7 @@ def get_engine(service_name, driver_name):
     Return the engine class from the provided engine name
     """
     path = 'billingstack.%s.storage.StorageEngine' % service_name
-    base = importutils.import_object(path)
+    base = importutils.import_class(path)
     return base.get_plugin(driver_name, invoke_on_load=True)
 
 
