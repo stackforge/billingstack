@@ -12,11 +12,14 @@ set -x
 # Keep track of this directory
 SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
 BASE_DIR=${BASE_DIR:-$SCRIPT_DIR/..}
+CONFIG=${CONFIG:-$BASE_DIR/etc/billingstack/billingstack.conf}
 
 SCREEN_NAME=${SCREEN_NAME:-billingstack}
 SCREEN_LOGDIR=${SCREEN_LOGDIR:-$BASE_DIR/logs}
+SCREENRC=$BASE_DIR/$SCREEN_NAME-screenrc
+USE_SCREEN=$(trueorfalse True $USE_SCREEN)
 
-CONFIG=${CONFIG:-$BASE_DIR/etc/billingstack/billingstack.conf}
+SERVICE_DIR=${SERVICE_DIR:-$BASE_DIR/status}
 
 SERVICES="api,central,rater,biller,collector"
 
@@ -91,9 +94,6 @@ function run_process() {
 # Helper to launch a service in a named screen
 # screen_it service "command-line"
 function screen_it {
-    SCREEN_NAME=${SCREEN_NAME:-stack}
-    SERVICE_DIR=${SERVICE_DIR:-$BASE_DIR/status}
-    USE_SCREEN=$(trueorfalse True $USE_SCREEN)
 
     if is_service_enabled $1; then
         # Append the service to the screen rc file
@@ -126,8 +126,6 @@ function screen_it {
 # Screen rc file builder
 # screen_rc service "command-line"
 function screen_rc {
-    SCREEN_NAME=${SCREEN_NAME:-stack}
-    SCREENRC=$BASE_DIR/$SCREEN_NAME-screenrc
     if [[ ! -e $SCREENRC ]]; then
         # Name the screen session
         echo "sessionname $SCREEN_NAME" > $SCREENRC
@@ -152,19 +150,29 @@ function is_service_enabled() {
 
 
 function screen_setup() {
-    ensure_dir $SCREEN_LOGDIR
 
-    # Check to see if we are already running DevStack
-    # Note that this may fail if USE_SCREEN=False
-    if type -p screen >/dev/null && screen -ls | egrep -q "[0-9].$SCREEN_NAME"; then
-        echo "You are already running a stack.sh session."
-        echo "To rejoin this session type 'screen -x stack'."
-        echo "To destroy this session, type './unstack.sh'."
-        exit 1
+    # Set up logging of screen windows
+    # Set ``SCREEN_LOGDIR`` to turn on logging of screen windows to the
+    # directory specified in ``SCREEN_LOGDIR``, we will log to the the file
+    # ``screen-$SERVICE_NAME-$TIMESTAMP.log`` in that dir and have a link
+    # ``screen-$SERVICE_NAME.log`` to the latest log file.
+    # Logs are kept for as long specified in ``LOGDAYS``.
+    if [[ -n "$SCREEN_LOGDIR" ]]; then
+
+        # We make sure the directory is created.
+        if [[ -d "$SCREEN_LOGDIR" ]]; then
+            # We cleanup the old logs
+            find $SCREEN_LOGDIR -maxdepth 1 -name screen-\*.log -mtime +$LOGDAYS -exec rm {} \;
+        else
+            ensure_dir $SCREEN_LOGDIR
+        fi
+    fi
+
+    if [[ ! -d "$SERVICE_DIR/$SCREEN_NAME" ]]; then
+        mkdir -p "$SERVICE_DIR/$SCREEN_NAME"
     fi
 
     USE_SCREEN=$(trueorfalse True $USE_SCREEN)
-    echo $USE_SCREEN
     if [[ "$USE_SCREEN" == "True" ]]; then
         # Create a new named screen to run processes in
         screen -d -m -S $SCREEN_NAME -t shell -s /bin/bash
@@ -185,6 +193,18 @@ function screen_setup() {
 }
 
 
+screen_is_running() {
+    # Check to see if we are already running DevStack
+    # Note that this may fail if USE_SCREEN=False
+    if type -p screen >/dev/null && screen -ls | egrep -q "[0-9].$SCREEN_NAME"; then
+        echo "Already running a session."
+        echo "To rejoin this session type 'screen -x $SCREEN_NAME'."
+        echo "To destroy this session, type './$0 stop'."
+        exit 1
+    fi
+}
+
+
 function screen_destroy() {
     SCREEN=$(which screen)
     if [[ -n "$SCREEN" ]]; then
@@ -193,6 +213,8 @@ function screen_destroy() {
             screen -X -S $SESSION quit
         fi
     fi
+
+    rm -f "$SERVICE_DIR/$SCREEN_NAME"/*.failure
 }
 
 
@@ -203,8 +225,10 @@ function start_svc() {
 }
 
 
+
 function start() {
     local svc=$1
+
     [ "$svc" == 'all' ] && {
         for s in $(echo "$SERVICES" | tr ',' ' '); do
             start_svc $s
@@ -217,6 +241,7 @@ function start() {
 
 case $1 in
     start)
+        screen_is_running
         screen_setup
 
         svc=$2
