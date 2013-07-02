@@ -1,15 +1,14 @@
 # This file is managed by openstack-depends
-Babel>=0.9.6
-coverage
-docutils==0.9.1 # for bug 1091333, remove after sphinx >1.1.3 is released.
-flake8
-mock
-mox
+coverage>=3.6
+docutils==0.9.1
+flake8==2.0
+mock>=0.8.0
+mox>=0.5.3
 nose
-nosehtmloutput
-openstack.nose_plugin
+nosehtmloutput>=0.0.3
+openstack.nose_plugin>=0.7
 python-subunit
-sphinx
+sphinx>=1.1.2
 sphinxcontrib-httpdomain
-testrepository
+testrepository>=0.0.13
 unittest2

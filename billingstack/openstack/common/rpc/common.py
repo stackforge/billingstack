@@ -22,6 +22,7 @@ import sys
 import traceback
 
 from oslo.config import cfg
+import six
 
 from billingstack.openstack.common.gettextutils import _
 from billingstack.openstack.common import importutils
@@ -68,6 +69,8 @@ _RPC_ENVELOPE_VERSION = '2.0'
 
 _VERSION_KEY = 'oslo.version'
 _MESSAGE_KEY = 'oslo.message'
+
+_REMOTE_POSTFIX = '_Remote'
 
 
 class RPCException(Exception):
@@ -123,7 +126,8 @@ class Timeout(RPCException):
                 'info: "%(info)s"')
 
     def __init__(self, info=None, topic=None, method=None):
-        """
+        """Initiates Timeout object.
+
         :param info: Extra info to convey to the user
         :param topic: The topic that the rpc call was sent to
         :param rpc_method_name: The name of the rpc method being
@@ -155,6 +159,10 @@ class UnsupportedRpcVersion(RPCException):
 class UnsupportedRpcEnvelopeVersion(RPCException):
     message = _("Specified RPC envelope version, %(version)s, "
                 "not supported by this endpoint.")
+
+
+class RpcVersionCapError(RPCException):
+    message = _("Specified RPC version cap, %(version_cap)s, is too low")
 
 
 class Connection(object):
@@ -216,9 +224,9 @@ class Connection(object):
         raise NotImplementedError()
 
     def join_consumer_pool(self, callback, pool_name, topic, exchange_name):
-        """Register as a member of a group of consumers for a given topic from
-        the specified exchange.
+        """Register as a member of a group of consumers.
 
+        Uses given topic from the specified exchange.
         Exactly one member of a given pool will receive each message.
 
         A message will be delivered to multiple pools, if more than
@@ -239,21 +247,6 @@ class Connection(object):
 
     def consume_in_thread(self):
         """Spawn a thread to handle incoming messages.
-
-        Spawn a thread that will be responsible for handling all incoming
-        messages for consumers that were set up on this connection.
-
-        Message dispatching inside of this is expected to be implemented in a
-        non-blocking manner.  An example implementation would be having this
-        thread pull messages in for all of the consumers, but utilize a thread
-        pool for dispatching the messages to the proxy objects.
-        """
-        raise NotImplementedError()
-
-    def consume_in_thread_group(self, thread_group):
-        """
-        Spawn a thread to handle incoming messages in the supplied
-        ThreadGroup.
 
         Spawn a thread that will be responsible for handling all incoming
         messages for consumers that were set up on this connection.
@@ -291,7 +284,7 @@ def _safe_log(log_func, msg, msg_data):
                 for elem in arg[:-1]:
                     d = d[elem]
                 d[arg[-1]] = '<SANITIZED>'
-            except KeyError, e:
+            except KeyError as e:
                 LOG.info(_('Failed to sanitize %(item)s. Key error %(err)s'),
                          {'item': arg,
                           'err': e})
@@ -314,17 +307,27 @@ def serialize_remote_exception(failure_info, log_failure=True):
     tb = traceback.format_exception(*failure_info)
     failure = failure_info[1]
     if log_failure:
-        LOG.error(_("Returning exception %s to caller"), unicode(failure))
+        LOG.error(_("Returning exception %s to caller"),
+                  six.text_type(failure))
         LOG.error(tb)
 
     kwargs = {}
     if hasattr(failure, 'kwargs'):
         kwargs = failure.kwargs
 
+    # NOTE(matiu): With cells, it's possible to re-raise remote, remote
+    # exceptions. Lets turn it back into the original exception type.
+    cls_name = str(failure.__class__.__name__)
+    mod_name = str(failure.__class__.__module__)
+    if (cls_name.endswith(_REMOTE_POSTFIX) and
+            mod_name.endswith(_REMOTE_POSTFIX)):
+        cls_name = cls_name[:-len(_REMOTE_POSTFIX)]
+        mod_name = mod_name[:-len(_REMOTE_POSTFIX)]
+
     data = {
-        'class': str(failure.__class__.__name__),
-        'module': str(failure.__class__.__module__),
-        'message': unicode(failure),
+        'class': cls_name,
+        'module': mod_name,
+        'message': six.text_type(failure),
         'tb': tb,
         'args': failure.args,
         'kwargs': kwargs
@@ -360,8 +363,9 @@ def deserialize_remote_exception(conf, data):
 
     ex_type = type(failure)
     str_override = lambda self: message
-    new_ex_type = type(ex_type.__name__ + "_Remote", (ex_type,),
+    new_ex_type = type(ex_type.__name__ + _REMOTE_POSTFIX, (ex_type,),
                        {'__str__': str_override, '__unicode__': str_override})
+    new_ex_type.__module__ = '%s%s' % (module, _REMOTE_POSTFIX)
     try:
         # NOTE(ameade): Dynamically create a new exception type and swap it in
         # as the new type for the exception. This only works on user defined
@@ -423,10 +427,11 @@ class CommonRpcContext(object):
 
 
 class ClientException(Exception):
-    """This encapsulates some actual exception that is expected to be
-    hit by an RPC proxy object. Merely instantiating it records the
-    current exception information, which will be passed back to the
-    RPC client without exceptional logging."""
+    """Encapsulates actual exception expected to be hit by a RPC proxy object.
+
+    Merely instantiating it records the current exception information, which
+    will be passed back to the RPC client without exceptional logging.
+    """
     def __init__(self):
         self._exc_info = sys.exc_info()
 
@@ -434,7 +439,7 @@ class ClientException(Exception):
 def catch_client_exception(exceptions, func, *args, **kwargs):
     try:
         return func(*args, **kwargs)
-    except Exception, e:
+    except Exception as e:
         if type(e) in exceptions:
             raise ClientException()
         else:
@@ -443,11 +448,13 @@ def catch_client_exception(exceptions, func, *args, **kwargs):
 
 def client_exceptions(*exceptions):
     """Decorator for manager methods that raise expected exceptions.
+
     Marking a Manager method with this decorator allows the declaration
     of expected exceptions that the RPC layer should not consider fatal,
     and not log as if they were generated in a real error scenario. Note
     that this will cause listed exceptions to be wrapped in a
-    ClientException, which is used internally by the RPC layer."""
+    ClientException, which is used internally by the RPC layer.
+    """
     def outer(func):
         def inner(*args, **kwargs):
             return catch_client_exception(exceptions, func, *args, **kwargs)

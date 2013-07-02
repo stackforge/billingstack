@@ -26,13 +26,13 @@ For some wrappers that add message versioning to rpc, see:
 """
 
 import inspect
-import logging
 
 from oslo.config import cfg
 
 from billingstack.openstack.common.gettextutils import _
 from billingstack.openstack.common import importutils
 from billingstack.openstack.common import local
+from billingstack.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)

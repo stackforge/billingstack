@@ -30,7 +30,8 @@ LOG = logging.getLogger(__name__)
 class Service(service.Service):
     """Service object for binaries running on hosts.
 
-    A service enables rpc by listening to queues based on topic and host."""
+    A service enables rpc by listening to queues based on topic and host.
+    """
     def __init__(self, host, topic, manager=None):
         super(Service, self).__init__()
         self.host = host
@@ -63,7 +64,7 @@ class Service(service.Service):
             self.manager.initialize_service_hook(self)
 
         # Consume from all consumers in a thread
-        self.conn.consume_in_thread_group(self.tg)
+        self.conn.consume_in_thread()
 
     def stop(self):
         # Try to shut the connection down, but if we get any sort of
