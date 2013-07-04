@@ -44,6 +44,10 @@ class Service(rpc_service.Service):
         self.storage_conn = get_connection('central')
         super(Service, self).start()
 
+    def wait(self):
+        super(Service, self).wait()
+        self.conn.consumer_thread.wait()
+
     def __getattr__(self, name):
         """
         Proxy onto the storage api if there is no local method present..

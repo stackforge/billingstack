@@ -50,6 +50,10 @@ class Service(rpc_service.Service):
         self.storage_conn = get_connection('rater')
         super(Service, self).start()
 
+    def wait(self):
+        super(Service, self).wait()
+        self.conn.consumer_thread.wait()
+
     def create_usage(self, ctxt, values):
         return self.storage_conn.create_usage(ctxt, values)
 

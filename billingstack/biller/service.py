@@ -46,6 +46,10 @@ class Service(rpc_service.Service):
         self.storage_conn = get_connection('biller')
         super(Service, self).start()
 
+    def wait(self):
+        super(Service, self).wait()
+        self.conn.consumer_thread.wait()
+
     def create_invoice_state(self, ctxt, values):
         return self.storage_conn.create_invoice_state(ctxt, values)
 

@@ -48,6 +48,10 @@ class Service(rpc_service.Service):
         # Get a storage connection
         self.central_api = CentralAPI()
 
+    def wait(self):
+        super(Service, self).wait()
+        self.conn.consumer_thread.wait()
+
     def get_pg_provider(self, ctxt, pg_info):
         """
         Work out a PGC config either from pg_info or via ctxt fetching it
