@@ -67,6 +67,7 @@ class Service(rpc_service.Service):
         setattr(self, name, _wrapper)
         return _wrapper
 
+    # Currency
     def create_currency(self, ctxt, values):
         return self.storage_conn.create_currency(ctxt, values)
 
@@ -82,6 +83,7 @@ class Service(rpc_service.Service):
     def delete_currency(self, ctxt, id_):
         return self.storage_conn.delete_currency(ctxt, id_)
 
+    # Language
     def create_language(self, ctxt, values):
         return self.storage_conn.create_language(ctxt, values)
 
@@ -97,7 +99,7 @@ class Service(rpc_service.Service):
     def delete_language(self, ctxt, id_):
         return self.storage_conn.delete_language(ctxt, id_)
 
-    # TODO Fix
+    # Contact Info
     def create_contact_info(self, ctxt, obj, values, cls=None,
                             rel_attr='contact_info'):
         return self.storage_conn.create_contact_info(ctxt, values)
@@ -111,27 +113,14 @@ class Service(rpc_service.Service):
     def delete_contact_info(self, ctxt, id_):
         return self.storage_conn.delete_contact_info(ctxt, id_)
 
+    # PGP
     def list_pg_providers(self, ctxt, **kw):
         return self.storage_conn.list_pg_providers(ctxt, **kw)
 
     def get_pg_provider(self, ctxt, pgp_id):
         return self.storage_conn.get_pg_provider(ctxt, pgp_id)
 
-    def create_pg_method(self, ctxt, values):
-        return self.storage_conn.create_pg_method(ctxt, values)
-
-    def list_pg_methods(self, ctxt, **kw):
-        return self.storage_conn.list_pg_methods(ctxt, **kw)
-
-    def get_pg_method(self, ctxt, id_):
-        return self.storage_conn.get_pg_method(ctxt, id_)
-
-    def update_pg_method(self, ctxt, id_, values):
-        return self.storage_conn.update_pg_method(ctxt, id_, values)
-
-    def delete_pg_method(self, ctxt, id_):
-        return self.storage_conn.delete_pg_method(ctxt, id_)
-
+    # PGC
     def create_pg_config(self, ctxt, merchant_id, values):
         return self.storage_conn.create_pg_config(ctxt, merchant_id, values)
 
@@ -147,6 +136,7 @@ class Service(rpc_service.Service):
     def delete_pg_config(self, ctxt, id_):
         return self.storage_conn.delete_pg_config(ctxt, id_)
 
+    # PM
     def create_payment_method(self, ctxt, customer_id, values):
         return self.storage_conn.create_payment_method(
             ctxt, customer_id, values)
@@ -163,6 +153,7 @@ class Service(rpc_service.Service):
     def delete_payment_method(self, ctxt, id_):
         return self.storage_conn.delete_payment_method(ctxt, id_)
 
+    # Merchant
     def create_merchant(self, ctxt, values):
         return self.storage_conn.create_merchant(ctxt, values)
 
@@ -178,6 +169,7 @@ class Service(rpc_service.Service):
     def delete_merchant(self, ctxt, id_):
         return self.storage_conn.delete_merchant(ctxt, id_)
 
+    # Customer
     def create_customer(self, ctxt, merchant_id, values):
         return self.storage_conn.create_customer(ctxt, merchant_id, values)
 
@@ -193,6 +185,7 @@ class Service(rpc_service.Service):
     def delete_customer(self, ctxt, id_):
         return self.storage_conn.delete_customer(ctxt, id_)
 
+    # Plans
     def create_plan(self, ctxt, merchant_id, values):
         return self.storage_conn.create_plan(ctxt, merchant_id, values)
 
@@ -211,6 +204,7 @@ class Service(rpc_service.Service):
     def get_plan_by_subscription(self, ctxt, id_):
         return self.storage_conn.get_plan_by_subscription(ctxt, id_)
 
+    # PlanItems
     def create_plan_item(self, ctxt, values):
         return self.storage_conn.create_plan_item(ctxt, values)
 
@@ -227,6 +221,7 @@ class Service(rpc_service.Service):
     def delete_plan_item(self, ctxt, plan_id, product_id):
         return self.storage_conn.delete_plan_item(ctxt, plan_id, product_id)
 
+    # Products
     def create_product(self, ctxt, merchant_id, values):
         return self.storage_conn.create_product(ctxt, merchant_id, values)
 
@@ -242,6 +237,7 @@ class Service(rpc_service.Service):
     def delete_product(self, ctxt, id_):
         return self.storage_conn.delete_product(ctxt, id_)
 
+    # Subscriptions
     def create_subscription(self, ctxt, values):
         return self.storage_conn.create_subscription(ctxt, values)
 
