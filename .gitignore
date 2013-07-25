@@ -51,4 +51,6 @@ billingstack/versioninfo
 
 
 billingstack-screenrc
-run/
+status
+logs
+.ropeproject

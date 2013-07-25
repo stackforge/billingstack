@@ -1,5 +1,6 @@
 # This file is managed by openstack-depends
 coverage>=3.6
+discover
 docutils==0.9.1
 flake8==2.0
 mock>=0.8.0
