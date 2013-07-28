@@ -18,7 +18,7 @@
 from oslo.config import cfg
 
 from billingstack.openstack.common import context as req_context
-from billingstack.openstack.common.gettextutils import _
+from billingstack.openstack.common.gettextutils import _  # noqa
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common import rpc
 

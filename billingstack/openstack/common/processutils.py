@@ -27,7 +27,7 @@ import signal
 from eventlet.green import subprocess
 from eventlet import greenthread
 
-from billingstack.openstack.common.gettextutils import _
+from billingstack.openstack.common.gettextutils import _  # noqa
 from billingstack.openstack.common import log as logging
 
 

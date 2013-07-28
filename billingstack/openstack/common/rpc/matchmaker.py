@@ -23,7 +23,7 @@ import contextlib
 import eventlet
 from oslo.config import cfg
 
-from billingstack.openstack.common.gettextutils import _
+from billingstack.openstack.common.gettextutils import _  # noqa
 from billingstack.openstack.common import log as logging
 
 

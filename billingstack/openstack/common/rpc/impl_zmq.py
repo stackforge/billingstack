@@ -27,7 +27,7 @@ import greenlet
 from oslo.config import cfg
 
 from billingstack.openstack.common import excutils
-from billingstack.openstack.common.gettextutils import _
+from billingstack.openstack.common.gettextutils import _  # noqa
 from billingstack.openstack.common import importutils
 from billingstack.openstack.common import jsonutils
 from billingstack.openstack.common.rpc import common as rpc_common
