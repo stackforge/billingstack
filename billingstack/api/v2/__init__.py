@@ -1,6 +1,6 @@
-# Copyright 2012 Hewlett-Packard Development Company, L.P. All Rights Reserved.
+# -*- encoding: utf-8 -*-
 #
-# Author: Kiall Mac Innes <kiall@hp.com>
+# Author: Endre Karlson <endre.karlson@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -13,21 +13,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-#
-# Copied: Moniker
-import flask
+from oslo.config import cfg
 
-
-def factory(global_config, **local_conf):
-    app = flask.Flask('billingstack.api.versions')
-
-    @app.route('/', methods=['GET'])
-    def version_list():
-        return flask.jsonify({
-            "versions": [{
-                "id": "v1",
-                "status": "CURRENT"
-            }]
-        })
-
-    return app
+cfg.CONF.import_opt('state_path', 'billingstack.paths')

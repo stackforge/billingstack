@@ -16,9 +16,8 @@
 """
 Base classes for API tests.
 """
-from billingstack.api.v1 import factory
-from billingstack.api.middleware.errors import FaultWrapperMiddleware
-from billingstack.api.auth import NoAuthContextMiddleware
+import pecan.testing
+
 from billingstack.openstack.common import jsonutils as json
 from billingstack.openstack.common import log
 from billingstack.tests.base import ServiceTestCase
@@ -44,14 +43,8 @@ class APITestMixin(object):
     def make_path(self, path):
         path = self._ensure_slash(path)
         if self.PATH_PREFIX:
-            path = path + self._ensure_slash(self.PATH_PREFIX)
+            path = self._ensure_slash(self.PATH_PREFIX) + path
         return path
-
-    def load_content(self, response):
-        try:
-            response.json = json.loads(response.data)
-        except ValueError:
-            response.json = None
 
     def _query(self, queries):
         query_params = {'q.field': [],
@@ -77,16 +70,14 @@ class APITestMixin(object):
 
         LOG.debug('GET: %s %r', path, all_params)
 
-        response = self.client.get(path,
-                                   content_type=content_type,
-                                   query_string=all_params,
-                                   headers=headers)
+        response = self.app.get(
+            path,
+            params=all_params,
+            headers=headers)
 
-        LOG.debug('GOT RESPONSE: %s', response.data)
+        LOG.debug('GOT RESPONSE: %s', response.body)
 
         self.assertEqual(response.status_code, status_code)
-
-        self.load_content(response)
 
         return response
 
@@ -97,17 +88,15 @@ class APITestMixin(object):
         LOG.debug('POST: %s %s', path, data)
 
         content = json.dumps(data)
-        response = self.client.post(
+        response = self.app.post(
             path,
-            data=content,
+            content,
             content_type=content_type,
             headers=headers)
 
-        LOG.debug('POST RESPONSE: %r' % response.data)
+        LOG.debug('POST RESPONSE: %r' % response.body)
 
         self.assertEqual(response.status_code, status_code)
-
-        self.load_content(response)
 
         return response
 
@@ -118,17 +107,34 @@ class APITestMixin(object):
         LOG.debug('PUT: %s %s', path, data)
 
         content = json.dumps(data)
-        response = self.client.put(
+        response = self.app.put(
             path,
-            data=content,
+            content,
             content_type=content_type,
             headers=headers)
 
-        LOG.debug('PUT RESPONSE: %r' % response.data)
+        LOG.debug('PUT RESPONSE: %r' % response.body)
 
         self.assertEqual(response.status_code, status_code)
 
-        self.load_content(response)
+        return response
+
+    def patch_(self, path, data, headers=None, content_type="application/json",
+               q=[], status_code=200, **params):
+        path = self.make_path(path)
+
+        LOG.debug('PUT: %s %s', path, data)
+
+        content = json.dumps(data)
+        response = self.app.patch(
+            path,
+            content,
+            content_type=content_type,
+            headers=headers)
+
+        LOG.debug('PATCH RESPONSE: %r', response.body)
+
+        self.assertEqual(response.status_code, status_code)
 
         return response
 
@@ -138,9 +144,7 @@ class APITestMixin(object):
 
         LOG.debug('DELETE: %s %r', path, all_params)
 
-        response = self.client.delete(path, query_string=all_params)
-
-        #LOG.debug('DELETE RESPONSE: %r' % response.body)
+        response = self.app.delete(path, params=all_params)
 
         self.assertEqual(response.status_code, status_code)
 
@@ -151,6 +155,7 @@ class FunctionalTest(ServiceTestCase, APITestMixin):
     """
     billingstack.api base test
     """
+
     def setUp(self):
         super(FunctionalTest, self).setUp()
 
@@ -159,7 +164,13 @@ class FunctionalTest(ServiceTestCase, APITestMixin):
         self.start_service('central')
         self.setSamples()
 
-        self.app = factory({})
-        self.app.wsgi_app = FaultWrapperMiddleware(self.app.wsgi_app)
-        self.app.wsgi_app = NoAuthContextMiddleware(self.app.wsgi_app)
-        self.client = self.app.test_client()
+        self.app = self.make_app()
+
+    def make_app(self):
+        self.config = {
+            'app': {
+                'root': 'billingstack.api.v2.controllers.root.RootController',
+                'modules': ['billingstack.api'],
+            }
+        }
+        return pecan.testing.load_test_app(self.config)

@@ -19,12 +19,12 @@ Test Products
 
 import logging
 
-from billingstack.tests.api.base import FunctionalTest
+from billingstack.tests.api.v2 import V2Test
 
 LOG = logging.getLogger(__name__)
 
 
-class TestProduct(FunctionalTest):
+class TestProduct(V2Test):
     __test__ = True
     path = "merchants/%s/products"
 
@@ -57,7 +57,7 @@ class TestProduct(FunctionalTest):
         product['name'] = 'test'
 
         url = self.item_path(self.merchant['id'], product['id'])
-        resp = self.put(url, product)
+        resp = self.patch_(url, product)
 
         self.assertData(resp.json, product)
 

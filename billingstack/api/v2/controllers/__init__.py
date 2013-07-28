@@ -1,6 +1,6 @@
-# Copyright 2012 Managed I.T.
+# -*- encoding: utf-8 -*-
 #
-# Author: Kiall Mac Innes <kiall@managedit.ie>
+# Author: Endre Karlson <endre.karlson@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -13,17 +13,3 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-#
-# Copied: Moniker
-from billingstack.openstack.common import wsgi
-
-
-class Middleware(wsgi.Middleware):
-    @classmethod
-    def factory(cls, global_config, **local_conf):
-        """ Used for paste app factories in paste.deploy config files """
-
-        def _factory(app):
-            return cls(app, **local_conf)
-
-        return _factory

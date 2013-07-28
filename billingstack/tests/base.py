@@ -305,6 +305,17 @@ class BaseTestCase(testtools.TestCase, AssertMixin):
         _values.update(values)
         return _values
 
+    def path_get(self, project_file=None):
+        root = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                            '..',
+                                            '..',
+                                            )
+                               )
+        if project_file:
+            return os.path.join(root, project_file)
+        else:
+            return root
+
 
 class Services(dict):
     def __getattr__(self, name):

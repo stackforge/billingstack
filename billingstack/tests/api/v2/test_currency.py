@@ -19,12 +19,12 @@ Test Currency
 
 import logging
 
-from billingstack.tests.api.base import FunctionalTest
+from billingstack.tests.api.v2 import V2Test
 
 LOG = logging.getLogger(__name__)
 
 
-class TestCurrency(FunctionalTest):
+class TestCurrency(V2Test):
     __test__ = True
     path = "currencies"
 
@@ -53,7 +53,7 @@ class TestCurrency(FunctionalTest):
         _, currency = self.create_currency(fixture=1)
 
         url = self.item_path(currency['name'])
-        resp = self.put(url, currency)
+        resp = self.patch_(url, currency)
 
         self.assertData(resp.json, currency)
 

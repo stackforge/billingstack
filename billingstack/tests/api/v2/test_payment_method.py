@@ -19,14 +19,14 @@ Test Products
 
 import logging
 
-from billingstack.tests.api.base import FunctionalTest
+from billingstack.tests.api.v2 import V2Test
 
 LOG = logging.getLogger(__name__)
 
 
-class TestPaymentMethod(FunctionalTest):
+class TestPaymentMethod(V2Test):
     __test__ = True
-    path = "merchants/%s/customers/%s/payment-methods"
+    path = "merchants/%s/customers/%s/payment_methods"
 
     def setUp(self):
         super(TestPaymentMethod, self).setUp()
@@ -82,7 +82,7 @@ class TestPaymentMethod(FunctionalTest):
                              self.customer['id'], method['id'])
 
         expected = dict(fixture, name='test2')
-        resp = self.put(url, expected)
+        resp = self.patch_(url, expected)
         self.assertData(expected, resp.json)
 
     def test_delete_payment_method(self):

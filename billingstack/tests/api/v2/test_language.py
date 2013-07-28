@@ -19,12 +19,12 @@ Test Language
 
 import logging
 
-from billingstack.tests.api.base import FunctionalTest
+from billingstack.tests.api.v2 import V2Test
 
 LOG = logging.getLogger(__name__)
 
 
-class TestLanguage(FunctionalTest):
+class TestLanguage(V2Test):
     __test__ = True
     path = "languages"
 
@@ -53,7 +53,7 @@ class TestLanguage(FunctionalTest):
         _, language = self.create_language(fixture=1)
 
         url = self.item_path(language['name'])
-        resp = self.put(url, language)
+        resp = self.patch_(url, language)
 
         self.assertData(resp.json, language)
 

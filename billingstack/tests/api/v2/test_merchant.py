@@ -17,11 +17,11 @@
 Test Merchants
 """
 
-from billingstack.tests.api.base import FunctionalTest
-from billingstack.api.v1.models import Merchant
+from billingstack.tests.api.v2 import V2Test
+from billingstack.api.v2.models import Merchant
 
 
-class TestMerchant(FunctionalTest):
+class TestMerchant(V2Test):
     __test__ = True
 
     def fixture(self):
@@ -51,7 +51,7 @@ class TestMerchant(FunctionalTest):
     def test_update_merchant(self):
         expected = Merchant.from_db(self.merchant).as_dict()
 
-        resp = self.put('merchants/' + self.merchant['id'], expected)
+        resp = self.patch_('merchants/' + self.merchant['id'], expected)
 
         self.assertData(expected, resp.json)
 

@@ -17,25 +17,15 @@
 # under the License.
 #
 # Copied: Moniker
-import flask
-from billingstack.openstack.common import jsonutils as json
-
 from oslo.config import cfg
 
 API_SERVICE_OPTS = [
     cfg.IntOpt('api_port', default=9091,
                help='The port for the billing API server'),
     cfg.IntOpt('api_listen', default='0.0.0.0', help='Bind to address'),
-    cfg.IntOpt('workers', default=None,
-               help='Number of worker processes to spawn'),
-    cfg.StrOpt('api_paste_config', default='api-paste.ini',
-               help='File name for the paste.deploy config for the api'),
     cfg.StrOpt('auth_strategy', default='noauth',
                help='The strategy to use for auth. Supports noauth or '
                     'keystone'),
 ]
 
 cfg.CONF.register_opts(API_SERVICE_OPTS, 'service:api')
-
-# Allows us to serialize datetime's etc
-flask.helpers.json = json

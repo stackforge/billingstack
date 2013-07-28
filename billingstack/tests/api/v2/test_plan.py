@@ -17,10 +17,10 @@
 Test Plans
 """
 
-from billingstack.tests.api.base import FunctionalTest
+from billingstack.tests.api.v2 import V2Test
 
 
-class TestPlan(FunctionalTest):
+class TestPlan(V2Test):
     __test__ = True
     path = "merchants/%s/plans"
 
@@ -54,7 +54,7 @@ class TestPlan(FunctionalTest):
         plan['name'] = 'test'
 
         url = self.item_path(self.merchant['id'], plan['id'])
-        resp = self.put(url, plan)
+        resp = self.patch_(url, plan)
 
         self.assertData(resp.json, plan)
 

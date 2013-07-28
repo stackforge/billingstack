@@ -17,11 +17,11 @@
 Test Customers.
 """
 
-from billingstack.tests.api.base import FunctionalTest
-from billingstack.api.v1.models import Customer
+from billingstack.tests.api.v2 import V2Test
+from billingstack.api.v2.models import Customer
 
 
-class TestCustomer(FunctionalTest):
+class TestCustomer(V2Test):
     __test__ = True
     path = "merchants/%s/customers"
 
@@ -69,7 +69,7 @@ class TestCustomer(FunctionalTest):
         expected['name'] = 'test'
 
         url = self.item_path(self.merchant['id'], customer['id'])
-        resp = self.put(url, customer)
+        resp = self.patch_(url, customer)
 
         self.assertData(resp.json, customer)
 

@@ -19,14 +19,14 @@ Test InvoiceState
 
 import logging
 
-from billingstack.tests.api.base import FunctionalTest
+from billingstack.tests.api.v2 import V2Test
 
 LOG = logging.getLogger(__name__)
 
 
-class TestInvoiceState(FunctionalTest):
+class TestInvoiceState(V2Test):
     __test__ = True
-    path = "invoice-states"
+    path = "invoice_states"
 
     def setUp(self):
         super(TestInvoiceState, self).setUp()
@@ -59,7 +59,7 @@ class TestInvoiceState(FunctionalTest):
         _, state = self.create_invoice_state()
 
         url = self.item_path(state['name'])
-        resp = self.put(url, state)
+        resp = self.patch_(url, state)
 
         self.assertData(resp.json, state)
 
