@@ -43,10 +43,17 @@ def pipeline_factory(loader, global_conf, **local_conf):
 
 
 class NoAuthContextMiddleware(wsgi.Middleware):
+    def merchant_id(self, request):
+        parts = [p for p in request.path_info.split('/') if p]
+        if parts[0] == 'merchants' and len(parts) >= 2:
+            return parts[1]
+
     def process_request(self, request):
+        merchant_id = self.merchant_id(request)
+
         # NOTE(kiall): This makes the assumption that disabling authentication
         #              means you wish to allow full access to everyone.
-        context = RequestContext(is_admin=True)
+        context = RequestContext(is_admin=True, tenant=merchant_id)
 
         # Store the context where oslo-log exepcts to find it.
         local.store.context = context
