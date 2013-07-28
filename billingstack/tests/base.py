@@ -420,7 +420,8 @@ class ServiceTestCase(TestCase):
             fixture['methods'] = [self.get_fixture('pg_method')]
         ctxt = kw.pop('context', self.admin_ctxt)
 
-        data = self.services.central.pg_provider_register(ctxt, fixture, **kw)
+        data = self.services.central.storage_conn.pg_provider_register(
+            ctxt, fixture, **kw)
 
         return fixture, data
 

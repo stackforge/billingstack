@@ -17,7 +17,6 @@
 A service that does calls towards the PGP web endpoint or so
 """
 
-import functools
 import sys
 
 from oslo.config import cfg
@@ -68,25 +67,6 @@ class Service(rpc_service.Service):
 
         :param values: The account values
         """
-
-    def __getattr__(self, name):
-        """
-        Proxy onto the storage api if there is no local method present..
-
-        For now to avoid to have to write up every method once more here...
-        """
-        if hasattr(self, name):
-            return getattr(self, name)
-
-        f = getattr(self.provider, name)
-        if not f:
-            raise AttributeError
-
-        @functools.wraps(f)
-        def _wrapper(*args, **kw):
-            return f(*args, **kw)
-        setattr(self, name, _wrapper)
-        return _wrapper
 
 
 def launch():
