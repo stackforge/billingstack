@@ -42,3 +42,17 @@ def is_valid_id(id_):
         return True
     else:
         return False
+
+
+def filter_merchant_by_join(query, cls, criterion, pop=True):
+    if criterion and 'merchant_id' in criterion:
+        if not hasattr(cls, 'merchant_id'):
+            raise RuntimeError('No merchant_id attribute on %s' % cls)
+
+        query = query.join(cls).filter(
+            cls.merchant_id == criterion['merchant_id'])
+
+        if pop:
+            criterion.pop('merchant_id')
+
+    return query

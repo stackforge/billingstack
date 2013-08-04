@@ -155,8 +155,11 @@ class Usage(Base):
 class PGConfig(Base):
     name = text
     title = text
+
+    merchant_id = text
     provider_id = text
 
+    is_default = bool
     properties = DictType(key_type=text, value_type=property_type)
 
 
@@ -165,6 +168,7 @@ class PaymentMethod(Base):
     identifier = text
     expires = text
 
+    merchant_id = text
     customer_id = text
     provider_config_id = text
 
@@ -186,15 +190,11 @@ class Merchant(Account):
     def to_db(self):
         values = self.as_dict()
         change_suffixes(values, self._keys, shorten=False)
-        if 'default_gateway' in values:
-            values['default_gateway_id'] = values.pop('default_gateway')
         return values
 
     @classmethod
     def from_db(cls, values):
         change_suffixes(values, cls._keys)
-        if 'default_gateway_id' in values:
-            values['default_gateway'] = values.pop('default_gateway_id')
         return cls(**values)
 
 

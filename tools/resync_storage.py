@@ -9,7 +9,7 @@ from billingstack import service
 from billingstack.storage.utils import get_connection
 
 # NOTE: make this based on entrypoints ?
-SERVICES = ['biller', 'central', 'rater']
+SERVICES = ['biller', 'central', 'collector', 'rater']
 
 LOG = logging.getLogger(__name__)
 

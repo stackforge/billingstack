@@ -86,63 +86,6 @@ class CentralAPI(proxy.RpcProxy):
     def delete_contact_info(self, ctxt, id_):
         return self.call(ctxt, self.make_msg('delete_contact_info', id_=id_))
 
-    # PGP
-    def list_pg_providers(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_pg_providers',
-                         criterion=criterion))
-
-    def get_pg_provider(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('get_pg_provider', id_=id_))
-
-    # PGM
-    def list_pg_methods(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_pg_methods',
-                         criterion=criterion))
-
-    def get_pg_method(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('get_pg_method', id_=id_))
-
-    def delete_pg_method(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('delete_pg_method', id_=id_))
-
-    # PGC
-    def create_pg_config(self, ctxt, merchant_id, values):
-        return self.call(ctxt, self.make_msg('create_pg_config',
-                         merchant_id=merchant_id, values=values))
-
-    def list_pg_configs(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_pg_configs',
-                         criterion=criterion))
-
-    def get_pg_config(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('get_pg_config', id_=id_))
-
-    def update_pg_config(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_pg_config', id_=id_,
-                         values=values))
-
-    def delete_pg_config(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('delete_pg_config', id_=id_))
-
-    # PaymentMethod
-    def create_payment_method(self, ctxt, customer_id, values):
-        return self.call(ctxt, self.make_msg('create_payment_method',
-                         customer_id=customer_id, values=values))
-
-    def list_payment_methods(self, ctxt, criterion=None):
-        return self.call(ctxt, self.make_msg('list_payment_methods',
-                         criterion=criterion))
-
-    def get_payment_method(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('get_payment_method', id_=id_))
-
-    def update_payment_method(self, ctxt, id_, values):
-        return self.call(ctxt, self.make_msg('update_payment_method', id_=id_,
-                         values=values))
-
-    def delete_payment_method(self, ctxt, id_):
-        return self.call(ctxt, self.make_msg('delete_payment_method', id_=id_))
-
     # Merchant
     def create_merchant(self, ctxt, values):
         return self.call(ctxt, self.make_msg('create_merchant', values=values))

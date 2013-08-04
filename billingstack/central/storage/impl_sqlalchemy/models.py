@@ -46,62 +46,6 @@ class Language(BASE):
     title = Column(Unicode(100), nullable=False)
 
 
-class PGProvider(BASE, BaseMixin):
-    """
-    A Payment Gateway - The thing that processes a Payment Method
-
-    This is registered either by the Admin or by the PaymentGateway plugin
-    """
-    __tablename__ = 'pg_provider'
-
-    name = Column(Unicode(60), nullable=False)
-    title = Column(Unicode(100))
-    description = Column(Unicode(255))
-
-    properties = Column(JSON)
-
-    methods = relationship(
-        'PGMethod',
-        backref='provider',
-        lazy='joined')
-
-    def method_map(self):
-        return self.attrs_map(['provider_methods'])
-
-
-class PGMethod(BASE, BaseMixin):
-    """
-    This represents a PaymentGatewayProviders method with some information
-    like name, type etc to describe what is in other settings known as a
-    "CreditCard"
-
-    Example:
-        A Visa card: {"type": "creditcard", "visa"}
-    """
-    __tablename__ = 'pg_method'
-
-    name = Column(Unicode(100), nullable=False)
-    title = Column(Unicode(100))
-    description = Column(Unicode(255))
-
-    type = Column(Unicode(100), nullable=False)
-    properties = Column(JSON)
-
-    # NOTE: This is so a PGMethod can be "owned" by a Provider, meaning that
-    # other Providers should not be able to use it.
-    provider_id = Column(UUID, ForeignKey(
-        'pg_provider.id',
-        ondelete='CASCADE',
-        onupdate='CASCADE'))
-
-    @staticmethod
-    def make_key(data):
-        return '%(type)s:%(name)s' % data
-
-    def key(self):
-        return self.make_key(self)
-
-
 class ContactInfo(BASE, BaseMixin):
     """
     Contact Information about an entity like a User, Customer etc...
@@ -146,19 +90,9 @@ class Merchant(BASE, BaseMixin):
     title = Column(Unicode(60))
 
     customers = relationship('Customer', backref='merchant')
-    payment_gateways = relationship(
-        'PGConfig', backref='merchant',
-        primaryjoin='merchant.c.id==pg_config.c.merchant_id')
 
     plans = relationship('Plan', backref='merchant')
     products = relationship('Product', backref='merchant')
-
-    default_gateway = relationship(
-        'PGConfig', uselist=False,
-        primaryjoin='merchant.c.id==pg_config.c.merchant_id')
-    default_gateway_id = Column(UUID, ForeignKey('pg_config.id',
-                                use_alter=True, name='default_gateway'),
-                                nullable=True)
 
     currency = relationship('Currency', uselist=False, backref='merchants')
     currency_name = Column(Unicode(10), ForeignKey('currency.name'),
@@ -167,27 +101,6 @@ class Merchant(BASE, BaseMixin):
     language = relationship('Language', uselist=False, backref='merchants')
     language_name = Column(Unicode(10), ForeignKey('language.name'),
                            nullable=False)
-
-
-class PGConfig(BASE, BaseMixin):
-    """
-    A Merchant's configuration of a PaymentGateway like api keys, url and more
-    """
-    __tablename__ = 'pg_config'
-
-    name = Column(Unicode(100), nullable=False)
-    title = Column(Unicode(100))
-
-    properties = Column(JSON)
-
-    # Link to the Merchant
-    merchant_id = Column(UUID, ForeignKey('merchant.id'), nullable=False)
-
-    provider = relationship('PGProvider',
-                            backref='merchant_configurations')
-    provider_id = Column(UUID, ForeignKey('pg_provider.id',
-                                          onupdate='CASCADE'),
-                         nullable=False)
 
 
 class Customer(BASE, BaseMixin):
@@ -199,8 +112,6 @@ class Customer(BASE, BaseMixin):
 
     merchant_id = Column(UUID, ForeignKey('merchant.id', ondelete='CASCADE'),
                          nullable=False)
-
-    payment_methods = relationship('PaymentMethod', backref='customer')
 
     contact_info = relationship(
         'CustomerInfo',
@@ -223,22 +134,6 @@ class Customer(BASE, BaseMixin):
 
     language = relationship('Language', uselist=False, backref='customers')
     language_name = Column(Unicode(10), ForeignKey('language.name'))
-
-
-class PaymentMethod(BASE, BaseMixin):
-    name = Column(Unicode(255), nullable=False)
-
-    identifier = Column(Unicode(255), nullable=False)
-    expires = Column(Unicode(255))
-
-    properties = Column(JSON)
-
-    customer_id = Column(UUID, ForeignKey('customer.id', onupdate='CASCADE'),
-                         nullable=False)
-
-    provider_config = relationship('PGConfig', backref='payment_methods')
-    provider_config_id = Column(UUID, ForeignKey('pg_config.id',
-                                onupdate='CASCADE'), nullable=False)
 
 
 class Plan(BASE, BaseMixin):
@@ -330,6 +225,4 @@ class Subscription(BASE, BaseMixin):
     customer_id = Column(UUID, ForeignKey('customer.id', ondelete='CASCADE'),
                          nullable=False)
 
-    payment_method = relationship('PaymentMethod', backref='subscriptions')
-    payment_method_id = Column(UUID, ForeignKey('payment_method.id',
-                               ondelete='CASCADE', onupdate='CASCADE'))
+    payment_method_id = Column(UUID)

@@ -23,6 +23,7 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
 from billingstack.openstack.common import service as os_service
+from billingstack.storage.utils import get_connection
 from billingstack.central.rpcapi import CentralAPI
 from billingstack import service as bs_service
 
@@ -47,26 +48,49 @@ class Service(rpc_service.Service):
         # Get a storage connection
         self.central_api = CentralAPI()
 
+    def start(self):
+        self.storage_conn = get_connection('collector')
+        super(Service, self).start()
+
     def wait(self):
         super(Service, self).wait()
         self.conn.consumer_thread.wait()
 
-    def get_pg_provider(self, ctxt, pg_info):
-        """
-        Work out a PGC config either from pg_info or via ctxt fetching it
-        from central.
-        Return the appropriate PGP for this info.
+    # PGP
+    def list_pg_providers(self, ctxt, **kw):
+        return self.storage_conn.list_pg_providers(ctxt, **kw)
 
-        :param ctxt: Request context
-        :param pg_info: Payment Gateway Config...
-        """
+    # PGC
+    def create_pg_config(self, ctxt, values):
+        return self.storage_conn.create_pg_config(ctxt, values)
 
-    def create_account(self, ctxt, values, pg_config=None):
-        """
-        Create an Account on the underlying provider
+    def list_pg_configs(self, ctxt, **kw):
+        return self.storage_conn.list_pg_configs(ctxt, **kw)
 
-        :param values: The account values
-        """
+    def get_pg_config(self, ctxt, id_):
+        return self.storage_conn.get_pg_config(ctxt, id_)
+
+    def update_pg_config(self, ctxt, id_, values):
+        return self.storage_conn.update_pg_config(ctxt, id_, values)
+
+    def delete_pg_config(self, ctxt, id_):
+        return self.storage_conn.delete_pg_config(ctxt, id_)
+
+    # PM
+    def create_payment_method(self, ctxt, values):
+        return self.storage_conn.create_payment_method(ctxt, values)
+
+    def list_payment_methods(self, ctxt, **kw):
+        return self.storage_conn.list_payment_methods(ctxt, **kw)
+
+    def get_payment_method(self, ctxt, id_, **kw):
+        return self.storage_conn.get_payment_method(ctxt, id_)
+
+    def update_payment_method(self, ctxt, id_, values):
+        return self.storage_conn.update_payment_method(ctxt, id_, values)
+
+    def delete_payment_method(self, ctxt, id_):
+        return self.storage_conn.delete_payment_method(ctxt, id_)
 
 
 def launch():

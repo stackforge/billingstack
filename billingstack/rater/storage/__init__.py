@@ -13,7 +13,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from oslo.config import cfg
 from billingstack.storage import base
 
 
@@ -38,9 +37,3 @@ class Connection(base.Connection):
 
     def delete_usage(self, ctxt, id_):
         raise NotImplementedError
-
-
-def get_connection():
-    name = cfg.CONF['service:rater'].storage_driver
-    plugin = StorageEngine.get_plugin(name, invoke_on_load=True)
-    return plugin.get_connection()

@@ -33,16 +33,6 @@ cfg.CONF.register_group(cfg.OptGroup(
 cfg.CONF.register_opts(SQLOPTS, group='central:sqlalchemy')
 
 
-def filter_merchant_by_join(query, cls, criterion):
-    if criterion and 'merchant_id' in criterion:
-        merchant_id = criterion.pop('merchant_id')
-        if not hasattr(cls, 'merchant_id'):
-            raise RuntimeError('No merchant_id attribute on %s' % cls)
-
-        query = query.join(cls).filter(cls.merchant_id == merchant_id)
-    return query
-
-
 class SQLAlchemyEngine(StorageEngine):
     __plugin_name__ = 'sqlalchemy'
 
@@ -175,132 +165,6 @@ class Connection(Connection, api.HelpersMixin):
 
     def delete_contact_info(self, ctxt, id_):
         self._delete(models.ContactInfo, id_)
-
-    # Payment Gateway Providers
-    def pg_provider_register(self, ctxt, values):
-        """
-        Register a Provider and it's Methods
-        """
-        values = values.copy()
-        methods = values.pop('methods', [])
-
-        query = self.session.query(models.PGProvider)\
-            .filter_by(name=values['name'])
-
-        try:
-            provider = query.one()
-        except exc.NoResultFound:
-            provider = models.PGProvider()
-
-        provider.update(values)
-
-        self._set_provider_methods(ctxt, provider, methods)
-
-        self._save(provider)
-        return self._dict(provider, extra=['methods'])
-
-    def list_pg_providers(self, ctxt, **kw):
-        """
-        List available PG Providers
-        """
-        rows = self._list(models.PGProvider, **kw)
-        return [self._dict(r, extra=['methods']) for r in rows]
-
-    def get_pg_provider(self, ctxt, pgp_id):
-        row = self._get(models.PGProvider, pgp_id)
-        return self._dict(row, extra=['methods'])
-
-    def pg_provider_deregister(self, ctxt, id_):
-        self._delete(models.PGProvider, id_)
-
-    def _get_provider_methods(self, provider):
-        """
-        Used internally to form a "Map" of the Providers methods
-        """
-        methods = {}
-        for m in provider.methods:
-            methods[m.key()] = m
-        return methods
-
-    def _set_provider_methods(self, ctxt, provider, config_methods):
-        """Helper method for setting the Methods for a Provider"""
-        existing = self._get_provider_methods(provider)
-        for method in config_methods:
-            self._set_method(provider, method, existing)
-
-    def _set_method(self, provider, method, existing):
-        key = models.PGMethod.make_key(method)
-
-        if key in existing:
-            existing[key].update(method)
-        else:
-            row = models.PGMethod(**method)
-            provider.methods.append(row)
-
-    # Payment Gateway Configuration
-    def create_pg_config(self, ctxt, merchant_id, values):
-        merchant = self._get(models.Merchant, merchant_id)
-
-        row = models.PGConfig(**values)
-        row.merchant = merchant
-
-        self._save(row)
-        return dict(row)
-
-    def list_pg_configs(self, ctxt, **kw):
-        rows = self._list(models.PGConfig, **kw)
-        return map(dict, rows)
-
-    def get_pg_config(self, ctxt, id_):
-        row = self._get(models.PGConfig, id_)
-        return dict(row)
-
-    def update_pg_config(self, ctxt, id_, values):
-        row = self._update(models.PGConfig, id_, values)
-        return dict(row)
-
-    def delete_pg_config(self, ctxt, id_):
-        self._delete(models.PGConfig, id_)
-
-    # PaymentMethod
-    def create_payment_method(self, ctxt, customer_id, values):
-        """
-        Configure a PaymentMethod like a CreditCard
-        """
-        customer = self._get_id_or_name(models.Customer, customer_id)
-
-        # NOTE: Attempt to see if there's a default gateway if none is
-        # specified
-        if not values.get('provider_config_id') and \
-                customer.merchant.default_gateway:
-            values['provider_config_id'] = customer.merchant.default_gateway_id
-
-        row = models.PaymentMethod(**values)
-        row.customer = customer
-
-        self._save(row)
-        return self._dict(row)
-
-    def list_payment_methods(self, ctxt, criterion=None, **kw):
-        query = self.session.query(models.PaymentMethod)
-
-        query = filter_merchant_by_join(query, models.Customer, criterion)
-
-        rows = self._list(query=query, cls=models.PaymentMethod,
-                          criterion=criterion, **kw)
-
-        return [self._dict(row) for row in rows]
-
-    def get_payment_method(self, ctxt, id_, **kw):
-        row = self._get_id_or_name(models.PaymentMethod, id_)
-        return self._dict(row)
-
-    def update_payment_method(self, ctxt, id_, values):
-        row = self._update(models.PaymentMethod, id_, values)
-        return self._dict(row)
-
-    def delete_payment_method(self, ctxt, id_):
-        self._delete(models.PaymentMethod, id_)
 
     # Merchant
     def create_merchant(self, ctxt, values):
@@ -595,10 +459,15 @@ class Connection(Connection, api.HelpersMixin):
         """
         query = self.session.query(models.Subscription)
 
-        query = filter_merchant_by_join(query, models.Customer, criterion)
+        # NOTE: Filter needs to be joined for merchant_id
+        query = db_utils.filter_merchant_by_join(
+            query, models.Customer, criterion)
 
-        rows = self._list(query=query, cls=models.Subscription,
-                          criterion=criterion, **kw)
+        rows = self._list(
+            query=query,
+            cls=models.Subscription,
+            criterion=criterion,
+            **kw)
 
         return map(self._subscription, rows)
 

@@ -19,7 +19,7 @@ import wsmeext.pecan as wsme_pecan
 
 from billingstack.api.base import Query, _query_to_criterion, RestController
 from billingstack.api.v2 import models
-from billingstack.central.rpcapi import central_api
+from billingstack.collector.rpcapi import collector_api
 
 
 class PGProviders(RestController):
@@ -27,7 +27,7 @@ class PGProviders(RestController):
     def get_all(self, q=[]):
         criterion = _query_to_criterion(q)
 
-        rows = central_api.list_pg_providers(
+        rows = collector_api.list_pg_providers(
             request.ctxt, criterion=criterion)
 
         return map(models.PGProvider.from_db, rows)
@@ -39,14 +39,14 @@ class PGConfigController(RestController):
 
     @wsme_pecan.wsexpose(models.PGConfig)
     def get_all(self):
-        row = central_api.get_pg_config(request.ctxt, self.id_)
+        row = collector_api.get_pg_config(request.ctxt, self.id_)
 
         return models.PGConfig.from_db(row)
 
     @wsme.validate(models.PGConfig)
     @wsme_pecan.wsexpose(models.PGConfig, body=models.PGConfig)
     def patch(self, body):
-        row = central_api.update_pg_config(
+        row = collector_api.update_pg_config(
             request.ctxt,
             self.id_,
             body.to_db())
@@ -55,7 +55,7 @@ class PGConfigController(RestController):
 
     @wsme_pecan.wsexpose(None, status_code=204)
     def delete(self):
-        central_api.delete_pg_config(request.ctxt, self.id_)
+        collector_api.delete_pg_config(request.ctxt, self.id_)
 
 
 class PGConfigsController(RestController):
@@ -67,10 +67,12 @@ class PGConfigsController(RestController):
     @wsme_pecan.wsexpose(models.PGConfig, body=models.PGConfig,
                          status_code=202)
     def post(self, body):
-        row = central_api.create_pg_config(
+        values = body.to_db()
+        values['merchant_id'] = request.context['merchant_id']
+
+        row = collector_api.create_pg_config(
             request.ctxt,
-            request.context['merchant_id'],
-            body.to_db())
+            values)
 
         return models.PGConfig.from_db(row)
 
@@ -79,7 +81,7 @@ class PGConfigsController(RestController):
         criterion = _query_to_criterion(
             q, merchant_id=request.context['merchant_id'])
 
-        rows = central_api.list_pg_configs(
+        rows = collector_api.list_pg_configs(
             request.ctxt, criterion=criterion)
 
         return map(models.PGConfig.from_db, rows)
@@ -92,14 +94,14 @@ class PaymentMethodController(RestController):
 
     @wsme_pecan.wsexpose(models.PaymentMethod)
     def get_all(self):
-        row = central_api.get_payment_method(request.ctxt, self.id_)
+        row = collector_api.get_payment_method(request.ctxt, self.id_)
 
         return models.PaymentMethod.from_db(row)
 
     @wsme.validate(models.PaymentMethod)
     @wsme_pecan.wsexpose(models.PaymentMethod, body=models.PaymentMethod)
     def patch(self, body):
-        row = central_api.update_payment_method(
+        row = collector_api.update_payment_method(
             request.ctxt,
             self.id_,
             body.to_db())
@@ -108,7 +110,7 @@ class PaymentMethodController(RestController):
 
     @wsme_pecan.wsexpose(None, status_code=204)
     def delete(self):
-        central_api.delete_payment_method(request.ctxt, self.id_)
+        collector_api.delete_payment_method(request.ctxt, self.id_)
 
 
 class PaymentMethodsController(RestController):
@@ -120,10 +122,10 @@ class PaymentMethodsController(RestController):
     @wsme_pecan.wsexpose(models.PaymentMethod, body=models.PaymentMethod,
                          status_code=202)
     def post(self, body):
-        row = central_api.create_payment_method(
-            request.ctxt,
-            request.context['customer_id'],
-            body.to_db())
+        values = body.to_db()
+        values['customer_id'] = request.context['customer_id']
+
+        row = collector_api.create_payment_method(request.ctxt, values)
 
         return models.PaymentMethod.from_db(row)
 
@@ -133,7 +135,7 @@ class PaymentMethodsController(RestController):
             q, merchant_id=request.context['merchant_id'],
             customer_id=request.context['customer_id'])
 
-        rows = central_api.list_payment_methods(
+        rows = collector_api.list_payment_methods(
             request.ctxt, criterion=criterion)
 
         return map(models.PaymentMethod.from_db, rows)

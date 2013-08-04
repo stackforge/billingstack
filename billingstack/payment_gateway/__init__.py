@@ -47,7 +47,7 @@ def _register(ep, context, conn):
 
 
 def register_providers(context):
-    conn = get_connection('central')
+    conn = get_connection('collector')
     em = ExtensionManager(Provider.__plugin_ns__)
     em.map(_register, context, conn)
 

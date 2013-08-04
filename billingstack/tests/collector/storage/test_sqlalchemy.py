@@ -17,7 +17,7 @@
 # Copied: billingstack
 from billingstack.openstack.common import log as logging
 from billingstack.tests.base import TestCase
-from billingstack.tests.central.storage import DriverMixin
+from billingstack.tests.collector.storage import DriverMixin
 
 LOG = logging.getLogger(__name__)
 
@@ -25,6 +25,5 @@ LOG = logging.getLogger(__name__)
 class SqlalchemyStorageTest(DriverMixin, TestCase):
     def setUp(self):
         super(SqlalchemyStorageTest, self).setUp()
-        fixture = self.start_storage('central')
+        fixture = self.start_storage('collector')
         self.storage_conn = fixture.connection
-        self.setSamples()

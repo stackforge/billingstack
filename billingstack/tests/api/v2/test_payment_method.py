@@ -30,11 +30,16 @@ class TestPaymentMethod(V2Test):
 
     def setUp(self):
         super(TestPaymentMethod, self).setUp()
+        self.start_storage('collector')
+        self.start_service('collector')
         _, self.provider = self.pg_provider_register()
 
         _, self.customer = self.create_customer(self.merchant['id'])
-        _, self.pg_config = self.create_pg_config(
-            self.merchant['id'], values={'provider_id': self.provider['id']})
+
+        values = {
+            'provider_id': self.provider['id'],
+            'merchant_id': self.merchant['id']}
+        _, self.pg_config = self.create_pg_config(values=values)
 
     def test_create_payment_method(self):
         fixture = self.get_fixture('payment_method')
@@ -48,9 +53,10 @@ class TestPaymentMethod(V2Test):
 
     def test_list_payment_methods(self):
         values = {
-            'provider_config_id': self.pg_config['id']
+            'provider_config_id': self.pg_config['id'],
+            'customer_id': self.customer['id']
         }
-        self.create_payment_method(self.customer['id'], values=values)
+        self.create_payment_method(values=values)
 
         url = self.path % (self.merchant['id'], self.customer['id'])
         resp = self.get(url)
@@ -59,10 +65,10 @@ class TestPaymentMethod(V2Test):
 
     def test_get_payment_method(self):
         values = {
-            'provider_config_id': self.pg_config['id']
+            'provider_config_id': self.pg_config['id'],
+            'customer_id': self.customer['id']
         }
-        _, method = self.create_payment_method(
-            self.customer['id'], values=values)
+        _, method = self.create_payment_method(values=values)
 
         url = self.item_path(self.merchant['id'],
                              self.customer['id'], method['id'])
@@ -73,10 +79,10 @@ class TestPaymentMethod(V2Test):
 
     def test_update_payment_method(self):
         values = {
-            'provider_config_id': self.pg_config['id']
+            'provider_config_id': self.pg_config['id'],
+            'customer_id': self.customer['id']
         }
-        fixture, method = self.create_payment_method(
-            self.customer['id'], values=values)
+        fixture, method = self.create_payment_method(values=values)
 
         url = self.item_path(self.merchant['id'],
                              self.customer['id'], method['id'])
@@ -87,10 +93,10 @@ class TestPaymentMethod(V2Test):
 
     def test_delete_payment_method(self):
         values = {
-            'provider_config_id': self.pg_config['id']
+            'provider_config_id': self.pg_config['id'],
+            'customer_id': self.customer['id']
         }
-        _, method = self.create_payment_method(
-            self.customer['id'], values=values)
+        _, method = self.create_payment_method(values=values)
 
         url = self.item_path(self.merchant['id'],
                              self.customer['id'], method['id'])

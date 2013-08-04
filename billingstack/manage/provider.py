@@ -31,7 +31,7 @@ class ProvidersRegister(DatabaseCommand):
 class ProvidersList(DatabaseCommand, ListCommand):
     def execute(self, parsed_args):
         context = get_admin_context()
-        conn = self.get_connection('central')
+        conn = self.get_connection('collector')
 
         data = conn.list_pg_providers(context)
 

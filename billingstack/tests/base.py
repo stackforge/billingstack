@@ -117,8 +117,12 @@ class SQLAlchemyHelper(FixtureHelper):
     def post_init(self):
         if self.fixture.database_connection == "sqlite://":
             conn = self.fixture.connection.engine.connect()
-            self._as_string = "".join(
-                l for l in conn.connection.iterdump())
+            try:
+                self._as_string = "".join(
+                    l for l in conn.connection.iterdump())
+            except Exception:
+                print "".join(l for l in conn.connection.iterdump())
+                raise
             self.fixture.connection.engine.dispose()
         else:
             cleandb = paths.state_path_rel(self.sqlite_clean_db)
@@ -338,8 +342,8 @@ class TestCase(BaseTestCase):
         # NOTE: No services up by default
         self.services = Services()
 
-    def get_admin_context(self):
-        return get_admin_context()
+    def get_admin_context(self, **kw):
+        return get_admin_context(**kw)
 
     def get_context(self, **kw):
         return RequestContext(**kw)
@@ -431,7 +435,7 @@ class ServiceTestCase(TestCase):
             fixture['methods'] = [self.get_fixture('pg_method')]
         ctxt = kw.pop('context', self.admin_ctxt)
 
-        data = self.services.central.storage_conn.pg_provider_register(
+        data = self.services.collector.storage_conn.pg_provider_register(
             ctxt, fixture, **kw)
 
         return fixture, data
@@ -445,12 +449,12 @@ class ServiceTestCase(TestCase):
         return fixture, self.services.central.create_merchant(
             ctxt, fixture, **kw)
 
-    def create_pg_config(self, merchant_id, fixture=0, values={},
+    def create_pg_config(self, fixture=0, values={},
                          **kw):
         fixture = self.get_fixture('pg_config', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.services.central.create_pg_config(
-            ctxt, merchant_id, fixture, **kw)
+        return fixture, self.services.collector.create_pg_config(
+            ctxt, fixture, **kw)
 
     def create_customer(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('customer', fixture, values)
@@ -459,11 +463,11 @@ class ServiceTestCase(TestCase):
         return fixture, self.services.central.create_customer(
             ctxt, merchant_id, fixture, **kw)
 
-    def create_payment_method(self, customer_id, fixture=0, values={}, **kw):
+    def create_payment_method(self, fixture=0, values={}, **kw):
         fixture = self.get_fixture('payment_method', fixture, values)
         ctxt = kw.pop('context', self.admin_ctxt)
-        return fixture, self.services.central.create_payment_method(
-            ctxt, customer_id, fixture, **kw)
+        return fixture, self.services.collector.create_payment_method(
+            ctxt, fixture, **kw)
 
     def user_add(self, merchant_id, fixture=0, values={}, **kw):
         fixture = self.get_fixture('user', fixture, values)

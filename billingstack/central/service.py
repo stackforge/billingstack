@@ -100,39 +100,6 @@ class Service(rpc_service.Service):
     def get_pg_provider(self, ctxt, pgp_id):
         return self.storage_conn.get_pg_provider(ctxt, pgp_id)
 
-    # PGC
-    def create_pg_config(self, ctxt, merchant_id, values):
-        return self.storage_conn.create_pg_config(ctxt, merchant_id, values)
-
-    def list_pg_configs(self, ctxt, **kw):
-        return self.storage_conn.list_pg_configs(ctxt, **kw)
-
-    def get_pg_config(self, ctxt, id_):
-        return self.storage_conn.get_pg_config(ctxt, id_)
-
-    def update_pg_config(self, ctxt, id_, values):
-        return self.storage_conn.update_pg_config(ctxt, id_, values)
-
-    def delete_pg_config(self, ctxt, id_):
-        return self.storage_conn.delete_pg_config(ctxt, id_)
-
-    # PM
-    def create_payment_method(self, ctxt, customer_id, values):
-        return self.storage_conn.create_payment_method(
-            ctxt, customer_id, values)
-
-    def list_payment_methods(self, ctxt, **kw):
-        return self.storage_conn.list_payment_methods(ctxt, **kw)
-
-    def get_payment_method(self, ctxt, id_, **kw):
-        return self.storage_conn.get_payment_method(ctxt, id_)
-
-    def update_payment_method(self, ctxt, id_, values):
-        return self.storage_conn.update_payment_method(ctxt, id_, values)
-
-    def delete_payment_method(self, ctxt, id_):
-        return self.storage_conn.delete_payment_method(ctxt, id_)
-
     # Merchant
     def create_merchant(self, ctxt, values):
         return self.storage_conn.create_merchant(ctxt, values)
