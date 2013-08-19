@@ -54,3 +54,5 @@ billingstack-screenrc
 status
 logs
 .ropeproject
+*.sublime-project
+*.sublime-workspace
