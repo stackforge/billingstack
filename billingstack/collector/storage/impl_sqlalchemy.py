@@ -21,6 +21,7 @@ from sqlalchemy import Unicode
 from sqlalchemy.orm import exc, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
+from billingstack.collector import states
 from billingstack.collector.storage import Connection, StorageEngine
 from billingstack.openstack.common import log as logging
 from billingstack.sqlalchemy.types import JSON, UUID
@@ -116,6 +117,8 @@ class PGConfig(BASE, model_base.BaseMixin):
                                           onupdate='CASCADE'),
                          nullable=False)
 
+    state = Column(Unicode(20), default=states.PENDING)
+
 
 class PaymentMethod(BASE, model_base.BaseMixin):
     name = Column(Unicode(255), nullable=False)
@@ -131,6 +134,8 @@ class PaymentMethod(BASE, model_base.BaseMixin):
                                    lazy='joined')
     provider_config_id = Column(UUID, ForeignKey('pg_config.id',
                                 onupdate='CASCADE'), nullable=False)
+
+    state = Column(Unicode(20), default=states.PENDING)
 
 
 class SQLAlchemyEngine(StorageEngine):

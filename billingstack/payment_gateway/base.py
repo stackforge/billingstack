@@ -17,6 +17,9 @@ from billingstack.plugin import Plugin
 
 
 class Provider(Plugin):
+    """
+    Base API for Gateway Plugins.
+    """
     __plugin_ns__ = 'billingstack.payment_gateway'
     __plugin_type__ = 'payment_gateway'
 
@@ -44,6 +47,9 @@ class Provider(Plugin):
 
     @classmethod
     def values(cls):
+        """
+        The values for this provider, used when registering in the catalog.
+        """
         return dict(
             name=cls.get_plugin_name(),
             title=cls.__title__,
@@ -56,7 +62,14 @@ class Provider(Plugin):
         """
         raise NotImplementedError
 
-    @classmethod
+    def verify_config(self):
+        """
+        Verify a configuration.
+
+        Raise ConfigurationError if invalid config.
+        """
+        raise NotImplementedError
+
     def create_account(self, values):
         """
         Create a new Account

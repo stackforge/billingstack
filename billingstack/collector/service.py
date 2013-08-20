@@ -26,6 +26,8 @@ from billingstack.openstack.common import service as os_service
 from billingstack.storage.utils import get_connection
 from billingstack.central.rpcapi import CentralAPI
 from billingstack import service as bs_service
+from billingstack.collector.flows import (
+    gateway_configuration, payment_method)
 
 
 cfg.CONF.import_opt('host', 'billingstack.netconf')
@@ -62,7 +64,10 @@ class Service(rpc_service.Service):
 
     # PGC
     def create_pg_config(self, ctxt, values):
-        return self.storage_conn.create_pg_config(ctxt, values)
+        id_, flow = gateway_configuration.create_flow(
+            self.storage_conn, values)
+        flow.run(ctxt)
+        return flow.results[id_]['gateway_config']
 
     def list_pg_configs(self, ctxt, **kw):
         return self.storage_conn.list_pg_configs(ctxt, **kw)
@@ -78,7 +83,10 @@ class Service(rpc_service.Service):
 
     # PM
     def create_payment_method(self, ctxt, values):
-        return self.storage_conn.create_payment_method(ctxt, values)
+        id_, flow = payment_method.create_flow(
+            self.storage_conn, values)
+        flow.run(ctxt)
+        return flow.results[id_]['payment_method']
 
     def list_payment_methods(self, ctxt, **kw):
         return self.storage_conn.list_payment_methods(ctxt, **kw)

@@ -1,7 +1,7 @@
 [
    {
-      "name" : "braintree",
-      "title" : "BrainTree Payment Gateway",
-      "description" : "www.braintree.com integration provider"
+      "name" : "dummy",
+      "title" : "Dummy Provider",
+      "description" : "Dummy integration provider"
    }
 ]

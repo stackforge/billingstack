@@ -16,6 +16,11 @@
 from billingstack.payment_gateway.base import Provider
 
 
+class DummyClient(object):
+    def __init__(self):
+        pass
+
+
 class DummyProvider(Provider):
     """
     A Stupid Provider that does nothing
@@ -32,3 +37,12 @@ class DummyProvider(Provider):
     @classmethod
     def properties(cls):
         return {"enabled": 0}
+
+    def get_client(self):
+        return DummyClient()
+
+    def create_payment_method(self, account_id, values):
+        return True
+
+    def verify_config(self):
+        return True
