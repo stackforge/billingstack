@@ -16,5 +16,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 PENDING = u'PENDING'
-CREATED = u'CREATED'
+VERIFYING = u'VERIFYING'
+ACTIVE = u'ACTIVE'
 INVALID = u'INVALID'

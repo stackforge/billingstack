@@ -17,6 +17,7 @@
 # under the License.
 from billingstack import exceptions
 from billingstack import tasks
+from billingstack.collector import states
 from billingstack.openstack.common import log
 from billingstack.payment_gateway import get_provider
 from billingstack.taskflow.patterns import linear_flow, threaded_flow
@@ -35,6 +36,7 @@ class EntryCreateTask(tasks.RootTask):
         self.storage = storage
 
     def __call__(self, context, gateway_config):
+        gateway_config['state'] = states.VERIFYING
         values = self.storage.create_pg_config(context, gateway_config)
         return {'gateway_config': values}
 
@@ -96,10 +98,15 @@ class BackendVerifyTask(tasks.RootTask):
     def __call__(self, ctxt, gateway_config, gateway_provider):
         gateway_provider_cls = get_provider[gateway_provider['name']]
         gateway_provider_obj = gateway_provider_cls(gateway_config)
+
         try:
             gateway_provider_obj.verify_config()
         except exceptions.ConfigurationError:
+            self.storage.update_pg_config(
+                ctxt, gateway_config['id'], {'state': states.INVALID})
             raise
+        self.storage.update_pg_config(
+            ctxt, gateway_config['id'], {'state': states.ACTIVE})
 
 
 def create_flow(storage, values):

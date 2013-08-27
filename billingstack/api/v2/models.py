@@ -159,7 +159,8 @@ class PGConfig(Base):
     merchant_id = text
     provider_id = text
 
-    is_default = bool
+    state = text
+
     properties = DictType(key_type=text, value_type=property_type)
 
 
@@ -171,6 +172,8 @@ class PaymentMethod(Base):
     merchant_id = text
     customer_id = text
     provider_config_id = text
+
+    state = text
 
     properties = DictType(key_type=text, value_type=property_type)
 

@@ -15,7 +15,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from billingstack import exceptions
 from billingstack import tasks
+from billingstack.collector import states
 from billingstack.openstack.common import log
 from billingstack.payment_gateway import get_provider
 from billingstack.taskflow.patterns import linear_flow, threaded_flow
@@ -37,6 +39,7 @@ class EntryCreateTask(tasks.RootTask):
         self.storage = storage
 
     def __call__(self, ctxt, payment_method):
+        payment_method['state'] = states.PENDING
         values = self.storage.create_payment_method(ctxt, payment_method)
         return {'payment_method': values}
 
@@ -97,9 +100,14 @@ class BackendCreateTask(tasks.RootTask):
         gateway_provider_cls = get_provider(gateway_provider['name'])
         gateway_provider_obj = gateway_provider_cls(gateway_config)
 
-        gateway_provider_obj.create_payment_method(
-            payment_method['customer_id'],
-            payment_method)
+        try:
+            gateway_provider_obj.create_payment_method(
+                payment_method['customer_id'],
+                payment_method)
+        except exceptions.BadRequest:
+            self.storage.update_payment_method(
+                ctxt, payment_method['id'], {'status': states.INVALID})
+            raise
 
 
 def create_flow(storage, payment_method):
