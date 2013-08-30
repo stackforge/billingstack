@@ -19,6 +19,7 @@ from oslo.config import cfg
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
 from billingstack.openstack.common import service as os_service
+from billingstack.central.flows import merchant
 from billingstack.storage.utils import get_connection
 from billingstack import service as bs_service
 
@@ -102,7 +103,9 @@ class Service(rpc_service.Service):
 
     # Merchant
     def create_merchant(self, ctxt, values):
-        return self.storage_conn.create_merchant(ctxt, values)
+        id_, flow = merchant.create_flow(self.storage_conn, values)
+        flow.run(ctxt)
+        return flow.results[id_]['merchant']
 
     def list_merchants(self, ctxt, **kw):
         return self.storage_conn.list_merchants(ctxt, **kw)
