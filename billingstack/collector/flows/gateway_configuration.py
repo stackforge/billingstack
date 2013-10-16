@@ -15,12 +15,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from taskflow.patterns import linear_flow
+
 from billingstack import exceptions
 from billingstack import tasks
 from billingstack.collector import states
 from billingstack.openstack.common import log
 from billingstack.payment_gateway import get_provider
-from billingstack.taskflow.patterns import linear_flow, threaded_flow
 
 
 ACTION = 'gateway_configuration:create'
@@ -31,32 +32,11 @@ LOG = log.getLogger(__name__)
 class EntryCreateTask(tasks.RootTask):
     def __init__(self, storage, **kw):
         super(EntryCreateTask, self).__init__(**kw)
-        self.requires.update(['gateway_config'])
-        self.provides.update(['gateway_config'])
         self.storage = storage
 
-    def __call__(self, context, gateway_config):
-        gateway_config['state'] = states.VERIFYING
-        values = self.storage.create_pg_config(context, gateway_config)
-        return {'gateway_config': values}
-
-
-class ThreadStartTask(tasks.RootTask):
-    """
-    This is the end of the current flow, we'll fire off a new threaded flow
-    that does stuff towards the actual Gateway which may include blocking code.
-    """
-    def __init__(self, storage, **kw):
-        super(ThreadStartTask, self).__init__(**kw)
-        self.requires.update(['gateway_config'])
-        self.storage = storage
-
-    def __call__(self, ctxt, gateway_config):
-        flow = threaded_flow.Flow(ACTION + ':backend')
-        flow.add(tasks.ValuesInjectTask({'gateway_config': gateway_config}))
-        flow.add(PrerequirementsTask(self.storage))
-        flow.add(BackendVerifyTask(self.storage))
-        flow.run(ctxt)
+    def execute(self, ctxt, values):
+        values['state'] = states.VERIFYING
+        return self.storage.create_pg_config(ctxt, values)
 
 
 class PrerequirementsTask(tasks.RootTask):
@@ -65,20 +45,11 @@ class PrerequirementsTask(tasks.RootTask):
     """
     def __init__(self, storage, **kw):
         super(PrerequirementsTask, self).__init__(**kw)
-        self.requires.update(['gateway_config'])
-        self.provides.update([
-            'gateway_config',
-            'gateway_provider'
-        ])
         self.storage = storage
 
-    def __call__(self, ctxt, gateway_config):
-        gateway_provider = self.storage.get_pg_provider(
-            gateway_config['providedr_id'])
-        return {
-            'gateway_config': gateway_config,
-            'gateway_provider': gateway_provider
-        }
+    def execute(self, ctxt, gateway_config):
+        return self.storage.get_pg_provider(
+            ctxt, gateway_config['provider_id'])
 
 
 class BackendVerifyTask(tasks.RootTask):
@@ -92,11 +63,10 @@ class BackendVerifyTask(tasks.RootTask):
     """
     def __init__(self, storage, **kw):
         super(BackendVerifyTask, self).__init__(**kw)
-        self.requires.update(['gateway_config', 'gateway_provider'])
         self.storage = storage
 
-    def __call__(self, ctxt, gateway_config, gateway_provider):
-        gateway_provider_cls = get_provider[gateway_provider['name']]
+    def execute(self, ctxt, gateway_config, gateway_provider):
+        gateway_provider_cls = get_provider(gateway_provider['name'])
         gateway_provider_obj = gateway_provider_cls(gateway_config)
 
         try:
@@ -109,14 +79,19 @@ class BackendVerifyTask(tasks.RootTask):
             ctxt, gateway_config['id'], {'state': states.ACTIVE})
 
 
-def create_flow(storage, values):
-    flow = linear_flow.Flow(ACTION)
+def create_flow(storage):
+    flow = linear_flow.Flow(ACTION + ':initial')
 
-    flow.add(tasks.ValuesInjectTask(
-        {'gateway_config': values},
-        prefix=ACTION + ':initial'))
+    entry_task = EntryCreateTask(
+        storage, provides='gateway_config', prefix=ACTION)
+    flow.add(entry_task)
 
-    entry_task = EntryCreateTask(storage, prefix=ACTION)
-    entry_task_id = flow.add(entry_task)
+    backend_flow = linear_flow.Flow(ACTION + ':backend')
+    prereq_task = PrerequirementsTask(
+        storage, provides='gateway_provider', prefix=ACTION)
+    backend_flow.add(prereq_task)
+    backend_flow.add(BackendVerifyTask(storage, prefix=ACTION))
 
-    return entry_task_id, tasks._attach_debug_listeners(flow)
+    flow.add(backend_flow)
+
+    return flow

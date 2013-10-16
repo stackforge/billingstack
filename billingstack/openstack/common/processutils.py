@@ -132,7 +132,7 @@ def execute(*cmd, **kwargs):
         raise UnknownArgumentError(_('Got unknown keyword args '
                                      'to utils.execute: %r') % kwargs)
 
-    if run_as_root and os.geteuid() != 0:
+    if run_as_root and hasattr(os, 'geteuid') and os.geteuid() != 0:
         if not root_helper:
             raise NoRootWrapSpecified(
                 message=('Command requested root, but did not specify a root '
@@ -168,14 +168,13 @@ def execute(*cmd, **kwargs):
                 result = obj.communicate()
             obj.stdin.close()  # pylint: disable=E1101
             _returncode = obj.returncode  # pylint: disable=E1101
-            if _returncode:
-                LOG.log(loglevel, _('Result was %s') % _returncode)
-                if not ignore_exit_code and _returncode not in check_exit_code:
-                    (stdout, stderr) = result
-                    raise ProcessExecutionError(exit_code=_returncode,
-                                                stdout=stdout,
-                                                stderr=stderr,
-                                                cmd=' '.join(cmd))
+            LOG.log(loglevel, _('Result was %s') % _returncode)
+            if not ignore_exit_code and _returncode not in check_exit_code:
+                (stdout, stderr) = result
+                raise ProcessExecutionError(exit_code=_returncode,
+                                            stdout=stdout,
+                                            stderr=stderr,
+                                            cmd=' '.join(cmd))
             return result
         except ProcessExecutionError:
             if not attempts:

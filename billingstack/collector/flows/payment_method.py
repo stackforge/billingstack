@@ -15,12 +15,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from taskflow.patterns import linear_flow
+
 from billingstack import exceptions
 from billingstack import tasks
 from billingstack.collector import states
 from billingstack.openstack.common import log
 from billingstack.payment_gateway import get_provider
-from billingstack.taskflow.patterns import linear_flow, threaded_flow
 
 
 ACTION = 'payment_method:create'
@@ -34,34 +35,11 @@ class EntryCreateTask(tasks.RootTask):
     """
     def __init__(self, storage, **kw):
         super(EntryCreateTask, self).__init__(**kw)
-        self.requires.update(['payment_method'])
-        self.provides.update(['payment_method'])
         self.storage = storage
 
-    def __call__(self, ctxt, payment_method):
-        payment_method['state'] = states.PENDING
-        values = self.storage.create_payment_method(ctxt, payment_method)
-        return {'payment_method': values}
-
-
-class ThreadStartTask(tasks.RootTask):
-    """
-    This is the end of the current flow, we'll fire off a new threaded flow
-    that does stuff towards the actual Gateway which may include blocking code.
-
-    This fires off a new flow that is threaded / greenthreads?
-    """
-    def __init__(self, storage, **kw):
-        super(ThreadStartTask, self).__init__(**kw)
-        self.requires.update(['payment_method'])
-        self.storage = storage
-
-    def __call__(self, ctxt, payment_method):
-        flow = threaded_flow.Flow(ACTION + ':backend')
-        flow.add(tasks.ValuesInjectTask({'payment_method': payment_method}))
-        flow.add(PrerequirementsTask(self.storage))
-        flow.add(BackendCreateTask(self.storage))
-        flow.run(ctxt)
+    def execute(self, ctxt, values):
+        values['state'] = states.PENDING
+        return self.storage.create_payment_method(ctxt, values)
 
 
 class PrerequirementsTask(tasks.RootTask):
@@ -70,33 +48,23 @@ class PrerequirementsTask(tasks.RootTask):
     """
     def __init__(self, storage, **kw):
         super(PrerequirementsTask, self).__init__(**kw)
-        self.requires.update(['payment_method'])
-        self.provides.update([
-            'payment_method',
-            'gateway_config',
-            'gateway_provider'])
         self.storage = storage
 
-    def __call__(self, ctxt, **kw):
-        kw['gateway_config'] = self.storage.get_pg_config(
-            ctxt, kw['payment_method']['provider_config_id'])
-
-        kw['gateway_provider'] = self.storage.get_pg_provider(
-            ctxt, kw['gateway_config']['provider_id'])
-
-        return kw
+    def execute(self, ctxt, values):
+        data = {}
+        data['gateway_config'] = self.storage.get_pg_config(
+            ctxt, values['provider_config_id'])
+        data['gateway_provider'] = self.storage.get_pg_provider(
+            ctxt, data['gateway_config']['provider_id'])
+        return data
 
 
 class BackendCreateTask(tasks.RootTask):
     def __init__(self, storage, **kw):
         super(BackendCreateTask, self).__init__(**kw)
-        self.requires.update([
-            'payment_method',
-            'gateway_config',
-            'gateway_provider'])
         self.storage = storage
 
-    def __call__(self, ctxt, payment_method, gateway_config, gateway_provider):
+    def execute(self, ctxt, payment_method, gateway_config, gateway_provider):
         gateway_provider_cls = get_provider(gateway_provider['name'])
         gateway_provider_obj = gateway_provider_cls(gateway_config)
 
@@ -110,19 +78,26 @@ class BackendCreateTask(tasks.RootTask):
             raise
 
 
-def create_flow(storage, payment_method):
+def create_flow(storage):
     """
     The flow for the service to start
     """
     flow = linear_flow.Flow(ACTION + ':initial')
 
-    flow.add(tasks.ValuesInjectTask(
-        {'payment_method': payment_method},
-        prefix=ACTION))
+    entry_task = EntryCreateTask(storage, provides='payment_method',
+                                 prefix=ACTION)
+    flow.add(entry_task)
 
-    entry_task = EntryCreateTask(storage, prefix=ACTION)
-    entry_task_id = flow.add(entry_task)
+    backend_flow = linear_flow.Flow(ACTION + ':backend')
+    prereq_task = PrerequirementsTask(
+        storage,
+        provides=set([
+            'gateway_config',
+            'gateway_provider']),
+        prefix=ACTION)
+    backend_flow.add(prereq_task)
+    backend_flow.add(BackendCreateTask(storage, prefix=ACTION))
 
-    flow.add(ThreadStartTask(storage, prefix=ACTION))
+    flow.add(backend_flow)
 
-    return entry_task_id, tasks._attach_debug_listeners(flow)
+    return flow

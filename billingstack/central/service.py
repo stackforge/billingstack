@@ -16,6 +16,9 @@
 import sys
 
 from oslo.config import cfg
+from taskflow.engines import run as run_flow
+
+
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
 from billingstack.openstack.common import service as os_service
@@ -103,9 +106,10 @@ class Service(rpc_service.Service):
 
     # Merchant
     def create_merchant(self, ctxt, values):
-        id_, flow = merchant.create_flow(self.storage_conn, values)
-        flow.run(ctxt)
-        return flow.results[id_]['merchant']
+        flow = merchant.create_flow(self.storage_conn)
+        result = run_flow(flow, engine_conf="parallel",
+                          store={'values': values, 'ctxt': ctxt})
+        return result['merchant']
 
     def list_merchants(self, ctxt, **kw):
         return self.storage_conn.list_merchants(ctxt, **kw)

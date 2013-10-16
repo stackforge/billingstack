@@ -39,7 +39,7 @@ Common Steps
 
   ::
 
-    $ git clone https://github.com/billingstack/billingstack.git
+    $ git clone https://github.com/stackforge/billingstack.git
     $ cd billingstack
 
 3. Setup virtualenv and Install BillingStack and it's dependencies

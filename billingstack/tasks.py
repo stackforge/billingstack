@@ -13,15 +13,17 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from taskflow import task
+
 from billingstack.openstack.common import log
 from billingstack.openstack.common.gettextutils import _
-from billingstack.taskflow import task
 
 
 LOG = log.getLogger(__name__)
 
 
-def _make_task_name(cls, prefix="default", addons=None):
+def _make_task_name(cls, prefix=None, addons=None):
+    prefix = prefix or 'default'
     components = [cls.__module__, cls.__name__]
     if addons:
         for a in addons:
@@ -58,28 +60,7 @@ def _attach_debug_listeners(flow):
 
 
 class RootTask(task.Task):
-    def __init__(self, name=None, **kw):
-        name = name or _make_task_name(self.__class__, **kw)
-        super(RootTask, self).__init__(name)
-
-
-class ValuesInjectTask(RootTask):
-    """
-    This injects a dict into the flow.
-
-    This injection is done so that the keys (and values) provided can be
-    dependended on by tasks further down the line. Since taskflow is dependency
-    based this can be considered the bootstrapping task that provides an
-    initial set of values for other tasks to get started with. If this did not
-    exist then tasks would fail locating there dependent tasks and the values
-    said dependent tasks produce.
-
-    Reversion strategy: N/A
-    """
-    def __init__(self, values, **kw):
-        super(ValuesInjectTask, self).__init__(**kw)
-        self.provides.update(values.keys())
-        self._values = values
-
-    def __call__(self, context):
-        return dict(self._values)
+    def __init__(self, name=None, prefix=None, addons=None, **kw):
+        name = name or _make_task_name(self.__class__, prefix=prefix,
+                                       addons=addons)
+        super(RootTask, self).__init__(name, **kw)

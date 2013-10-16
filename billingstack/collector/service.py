@@ -20,6 +20,8 @@ A service that does calls towards the PGP web endpoint or so
 import sys
 
 from oslo.config import cfg
+from taskflow.engines import run as run_flow
+
 from billingstack.openstack.common import log as logging
 from billingstack.openstack.common.rpc import service as rpc_service
 from billingstack.openstack.common import service as os_service
@@ -64,10 +66,9 @@ class Service(rpc_service.Service):
 
     # PGC
     def create_pg_config(self, ctxt, values):
-        id_, flow = gateway_configuration.create_flow(
-            self.storage_conn, values)
-        flow.run(ctxt)
-        return flow.results[id_]['gateway_config']
+        flow = gateway_configuration.create_flow(self.storage_conn)
+        results = run_flow(flow, store={'values': values, 'ctxt': ctxt})
+        return results['gateway_config']
 
     def list_pg_configs(self, ctxt, **kw):
         return self.storage_conn.list_pg_configs(ctxt, **kw)
@@ -83,10 +84,9 @@ class Service(rpc_service.Service):
 
     # PM
     def create_payment_method(self, ctxt, values):
-        id_, flow = payment_method.create_flow(
-            self.storage_conn, values)
-        flow.run(ctxt)
-        return flow.results[id_]['payment_method']
+        flow = payment_method.create_flow(self.storage_conn)
+        results = run_flow(flow, store={'values': values, 'ctxt': ctxt})
+        return results['payment_method']
 
     def list_payment_methods(self, ctxt, **kw):
         return self.storage_conn.list_payment_methods(ctxt, **kw)
